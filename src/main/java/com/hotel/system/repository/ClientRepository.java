@@ -117,26 +117,4 @@ public class ClientRepository {
             return cs.getLong(7);
         });
     }
-
-//    public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests, String promoCode) {
-//        return jdbcTemplate.execute((org.springframework.jdbc.core.ConnectionCallback<Long>) con -> {
-//            java.sql.CallableStatement cs = con.prepareCall("CALL sp_client_book_room(?, ?, ?, ?, ?, ?, ?)");
-//
-//            cs.setLong(1, clientId);
-//            cs.setLong(2, roomId);
-//            cs.setDate(3, java.sql.Date.valueOf(checkIn));
-//            cs.setDate(4, java.sql.Date.valueOf(checkOut));
-//            cs.setInt(5, guests);
-//
-//            if (promoCode != null && !promoCode.isEmpty()) {
-//                cs.setString(6, promoCode);
-//            } else {
-//                cs.setNull(6, java.sql.Types.VARCHAR);
-//            }
-//
-//            cs.registerOutParameter(7, java.sql.Types.BIGINT);
-//            cs.execute();
-//            return cs.getLong(7);
-//        });
-//    }
 }

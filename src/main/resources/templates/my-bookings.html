@@ -21,16 +21,19 @@
         </div>
 
         <div class="row g-4">
+
             <div class="col-md-3">
                 <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
                     <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
                         <a href="/profile" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
                             Personal Info
                         </a>
+
                         <a href="/my-bookings" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
                             <span>My Bookings</span>
                             <span>&rsaquo;</span>
                         </a>
+
                         <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
                             Payment History
                         </a>
@@ -142,7 +145,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-secondary small mb-3">Select new dates for your repeated stay in this room.</p>
                     <form id="repeatForm">
                         <input type="hidden" id="repeatBookingId" name="bookingId">
                         <div class="mb-3">
@@ -215,25 +217,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-secondary small mb-3">Enhance your stay with our premium services.</p>
-
                     <form id="serviceForm">
                         <input type="hidden" id="serviceBookingId" name="bookingId">
-
                         <div class="mb-3">
                             <label class="form-label x-small fw-bold text-uppercase text-secondary">Select Service</label>
                             <select id="serviceSelect" name="serviceId" class="form-select rounded-1" required>
                                 <option value="" selected disabled>Choose a service...</option>
-                                <option th:each="srv : ${services}"
-                                        th:value="${srv.service_id}"
-                                        th:text="${srv.service_name} + ' (' + ${srv.service_price} + ' ₴)'">
-                                    Spa Access (1200 ₴)
-                                </option>
+                                <option th:each="srv : ${services}" th:value="${srv.service_id}" th:text="${srv.service_name} + ' (' + ${srv.service_price} + ' ₴)'"></option>
                             </select>
-                        </div>
-
-                        <div class="form-text x-small text-muted">
-                            Cost will be added to your room bill.
                         </div>
                     </form>
                 </div>
@@ -248,162 +239,57 @@
 </div>
 
 <script layout:fragment="script">
-
-    // --- Cancel Logic ---
     async function cancelBooking(bookingId) {
-        const reason = prompt("Please provide a reason for cancellation:");
-        if (reason === null) return;
-        if (reason.trim() === "") { alert("Reason required."); return; }
-
-        try {
+        const reason = prompt("Reason for cancellation:");
+        if (reason) {
             const formData = new FormData();
             formData.append("reason", reason);
-            const response = await fetch(`/api/client/bookings/${bookingId}/cancel`, {
-                method: 'POST', body: formData
-            });
-            if (response.ok) {
-                alert('Booking cancelled.');
-                location.reload();
-            } else {
-                alert('Error: ' + await response.text());
-            }
-        } catch (error) { console.error(error); alert('System error'); }
+            await fetch(`/api/client/bookings/${bookingId}/cancel`, { method: 'POST', body: formData });
+            location.reload();
+        }
     }
 
-    // --- REPEAT Logic ---
-    function openRepeatModal(bookingId) {
-        document.getElementById('repeatBookingId').value = bookingId;
-        document.getElementById('repeatCheckIn').value = '';
-        document.getElementById('repeatCheckOut').value = '';
-        const modal = new bootstrap.Modal(document.getElementById('repeatBookingModal'));
-        modal.show();
+    function openRepeatModal(id) {
+        document.getElementById('repeatBookingId').value = id;
+        new bootstrap.Modal(document.getElementById('repeatBookingModal')).show();
     }
 
     async function submitRepeatBooking() {
         const id = document.getElementById('repeatBookingId').value;
         const checkIn = document.getElementById('repeatCheckIn').value;
         const checkOut = document.getElementById('repeatCheckOut').value;
+        const formData = new FormData();
+        formData.append('checkIn', checkIn);
+        formData.append('checkOut', checkOut);
 
-        if (!checkIn || !checkOut) { alert("Please select dates."); return; }
-
-        const btn = document.querySelector('#repeatBookingModal .btn-luxury');
-        btn.disabled = true;
-        btn.innerText = "Processing...";
-
-        try {
-            const formData = new FormData();
-            formData.append('checkIn', checkIn);
-            formData.append('checkOut', checkOut);
-
-            const response = await fetch(`/api/client/bookings/${id}/repeat`, {
-                method: 'POST', body: formData
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                alert('Room re-booked! ID: ' + data.newBookingId);
-                location.reload();
-            } else {
-                alert('Failed: ' + await response.text());
-            }
-        } catch (error) { console.error(error); alert('System error'); }
-        finally { btn.disabled = false; btn.innerText = "Confirm"; }
+        const response = await fetch(`/api/client/bookings/${id}/repeat`, { method: 'POST', body: formData });
+        if (response.ok) location.reload();
+        else alert(await response.text());
     }
 
-    // --- PAYMENT Logic ---
-    function openPaymentModal(bookingId) {
-        document.getElementById('payBookingId').value = bookingId;
-        document.getElementById('payCardToken').value = '';
-        const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
-        modal.show();
+    function openPaymentModal(id) {
+        document.getElementById('payBookingId').value = id;
+        new bootstrap.Modal(document.getElementById('paymentModal')).show();
     }
 
     async function submitPayment() {
-        const bookingId = document.getElementById('payBookingId').value;
-        const cardToken = document.getElementById('payCardToken').value;
-
-        if (!cardToken) { alert("Please enter card number."); return; }
-
-        const btn = document.querySelector('#paymentModal .btn-success');
-        const originalText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = "Processing...";
-
-        try {
-            const formData = new FormData();
-            formData.append('bookingId', bookingId);
-            formData.append('cardToken', cardToken);
-
-            const response = await fetch('/api/client/pay', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                alert('Payment Successful!');
-                location.reload();
-            } else {
-                alert('Payment Failed: ' + await response.text());
-            }
-        } catch (error) {
-            console.error(error);
-            alert('System error');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = originalText;
-        }
+        const formData = new FormData(document.getElementById('paymentForm'));
+        const response = await fetch('/api/client/pay', { method: 'POST', body: formData });
+        if (response.ok) location.reload();
+        else alert(await response.text());
     }
 
-    // --- SERVICE REQUEST Logic (NEW) ---
-    function openServiceModal(bookingId) {
-        document.getElementById('serviceBookingId').value = bookingId;
-        document.getElementById('serviceSelect').value = ""; // Reset
-        const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
-        modal.show();
+    function openServiceModal(id) {
+        document.getElementById('serviceBookingId').value = id;
+        new bootstrap.Modal(document.getElementById('serviceModal')).show();
     }
 
     async function submitServiceRequest() {
-        const bookingId = document.getElementById('serviceBookingId').value;
-        const serviceId = document.getElementById('serviceSelect').value;
-
-        if (!serviceId) {
-            alert("Please select a service.");
-            return;
-        }
-
-        const btn = document.querySelector('#serviceModal .btn-dark');
-        const originalText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = "Sending...";
-
-        try {
-            const formData = new FormData();
-            formData.append('bookingId', bookingId);
-            formData.append('serviceId', serviceId);
-
-            const response = await fetch('/api/client/services/request', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                alert('Service requested successfully! Staff will be notified.');
-                // Close modal
-                const modalEl = document.getElementById('serviceModal');
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                modal.hide();
-            } else {
-                alert('Failed to request service: ' + await response.text());
-            }
-        } catch (error) {
-            console.error(error);
-            alert('System error');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = originalText;
-        }
+        const formData = new FormData(document.getElementById('serviceForm'));
+        const response = await fetch('/api/client/services/request', { method: 'POST', body: formData });
+        if (response.ok) { alert("Service Requested!"); location.reload(); }
+        else alert(await response.text());
     }
-
 </script>
 
 <style>

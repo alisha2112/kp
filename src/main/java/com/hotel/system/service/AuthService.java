@@ -13,10 +13,6 @@ public class AuthService {
 
     private final JdbcTemplate jdbcTemplate;
 
-    /**
-     * Універсальний вхід за номером телефону.
-     * Визначає, чи це співробітник, чи клієнт, і повертає відповідну роль.
-     */
     public Map<String, Object> universalLogin(String phone) {
         // 1. Спочатку шукаємо серед СПІВРОБІТНИКІВ (через безпечну функцію)
         // ВИПРАВЛЕНО: Використовуємо функцію замість прямого SELECT

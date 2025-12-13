@@ -75,15 +75,24 @@
 
                         <p class="text-secondary small mb-3" th:text="${hotel.city} + ', ' + ${hotel.address}">Kyiv, Khreshchatyk, 1</p>
 
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="d-flex gap-1 text-dark">
-                                <th:block th:if="${hotel.stars != null}">
-                                    <span th:each="i : ${#numbers.sequence(1, hotel.stars)}">&#9733;</span>
-                                </th:block>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex gap-1 text-warning"> <th:block th:if="${hotel.stars != null}">
+                                <span th:each="i : ${#numbers.sequence(1, hotel.stars)}">&#9733;</span>
+                            </th:block>
                             </div>
+                            <a th:href="@{'/reviews/' + ${hotel.hotel_name}}"
+                               class="text-decoration-none text-secondary small hover-dark">
+                                <span th:text="${hotel.total_reviews}">0</span> reviews
+                            </a>
                         </div>
 
-                        <a href="#" class="btn btn-outline-luxury w-100 mt-auto">View Rooms</a>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="#" class="btn btn-luxury flex-grow-1">View Rooms</a> <a th:href="@{'/reviews/' + ${hotel.hotel_name}}"
+                                                                                             class="btn btn-outline-dark px-3"
+                                                                                             title="Read Reviews">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        </a>
+                        </div>
                     </div>
                 </div>
 

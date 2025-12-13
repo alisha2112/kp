@@ -185,8 +185,6 @@ public class PageController {
         return "booking-confirm";
     }
 
-    // ...
-
     // --- Історія оплат ---
     @GetMapping("/payments/history")
     public String paymentHistory(HttpSession session, Model model) {
@@ -205,8 +203,6 @@ public class PageController {
         model.addAttribute("payments", payments);
         return "payment-history"; // Створимо цей файл
     }
-
-    // ...
 
     @GetMapping("/promotions")
     public String promotions(HttpSession session, Model model) {
@@ -278,24 +274,4 @@ public class PageController {
 
         return "favorites"; // Ім'я шаблону
     }
-
-    // ... інші методи ...
-
-//    @GetMapping("/admin/dashboard")
-//    public String adminDashboard(HttpSession session) {
-//        // 1. Перевірка авторизації
-//        if (session.getAttribute("USER_ID") == null) return "redirect:/login";
-////
-////        // Захист
-////        String role = (String) session.getAttribute("CURRENT_ROLE");
-////        if ("ADMIN".equals(role) || "MANAGER".equals(role)) return "redirect:/admin/dashboard";
-//
-//        // 2. Перевірка ролі (ЗАХИСТ ВІД КЛІЄНТІВ)
-//        String role = (String) session.getAttribute("CURRENT_ROLE");
-//        if (!"ADMIN".equals(role) && !"MANAGER".equals(role)) {
-//            return "redirect:/profile";
-//        }
-//
-//        return "admin-dashboard";
-//    }
 }

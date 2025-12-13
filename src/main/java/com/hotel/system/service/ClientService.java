@@ -65,12 +65,6 @@ public class ClientService {
     }
 
     @Transactional
-//    public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests) {
-//        return bookingRepository.createBookingClient(clientId, roomId, checkIn, checkOut, guests);
-//    }
-//    public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests, String promoCode) {
-//        return clientRepository.bookRoom(clientId, roomId, checkIn, checkOut, guests, promoCode);
-//    }
     public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests, String promoCode) {
         return clientRepository.bookRoom(clientId, roomId, checkIn, checkOut, guests, promoCode);
     }

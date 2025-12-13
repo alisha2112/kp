@@ -47,17 +47,6 @@ public class ClientController {
         return ResponseEntity.ok(clientService.searchRoomsForClient(checkIn, checkOut, city));
     }
 
-//    @PostMapping("/bookings")
-//    public ResponseEntity<?> bookRoom(@RequestParam Long roomId,
-//                                      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
-//                                      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
-//                                      @RequestParam Integer guests,
-//                                      HttpSession session) { // Промокод прибрали
-//
-//        Long id = clientService.bookRoom(getClientId(session), roomId, checkIn, checkOut, guests);
-//        return ResponseEntity.ok(Map.of("bookingId", id));
-//    }
-
     @PostMapping("/bookings")
     public ResponseEntity<?> bookRoom(@RequestParam Long roomId,
                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,

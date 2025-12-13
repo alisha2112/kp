@@ -42,13 +42,25 @@
             <div class="col-md-3">
                 <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
                     <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
-                        <a href="/profile" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Personal Info</a>
-                        <a href="/my-bookings" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">My Bookings</a>
-                        <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Payment History</a>
-                        <a href="/promotions" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Promotions</a>
-                        <a href="/reviews" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
-                            <span>My Reviews</span><span>&rsaquo;</span>
+                        <a href="/profile" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Personal Info
                         </a>
+                        <a href="/my-bookings" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            My Bookings
+                        </a>
+
+                        <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Payment History
+                        </a>
+                        <a href="/promotions" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Promotions
+                        </a>
+
+                        <a href="/reviews" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
+                            <span>My Reviews</span>
+                            <span>&rsaquo;</span>
+                        </a>
+
                         <a href="/favorites" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
                             Favorites
                         </a>
@@ -79,8 +91,7 @@
                                     <option value="" disabled selected>Select a visit...</option>
                                     <option th:each="b : ${bookingsToReview}"
                                             th:value="${b.booking_id}"
-                                            th:text="${b.hotel_name} + ' (' + ${b.city} + ') — Out: ' + ${b.check_out}">
-                                    </option>
+                                            th:text="${b.hotel_name} + ' (' + ${b.city} + ') — Out: ' + ${b.check_out}"></option>
                                 </select>
                             </div>
 
@@ -100,9 +111,7 @@
                                 <textarea id="comment" name="comment" class="form-control rounded-1" rows="4" placeholder="Share your experience..." required></textarea>
                             </div>
 
-                            <button type="button" onclick="submitReview()" class="btn btn-dark w-100 py-2 text-uppercase fw-bold">
-                                Submit Review
-                            </button>
+                            <button type="button" onclick="submitReview()" class="btn btn-dark w-100 py-2 text-uppercase fw-bold">Submit Review</button>
                         </form>
                     </div>
 
@@ -110,55 +119,31 @@
             </div>
         </div>
     </div>
-
-    <script>
-        async function submitReview() {
-            const bookingId = document.getElementById('bookingId').value;
-            const comment = document.getElementById('comment').value;
-
-            // Get rating
-            let rating = 0;
-            document.getElementsByName('rating').forEach(r => {
-                if(r.checked) rating = r.value;
-            });
-
-            if (!bookingId) { alert("Please select a stay."); return; }
-            if (rating == 0) { alert("Please select stars."); return; }
-            if (!comment.trim()) { alert("Please write a comment."); return; }
-
-            const btn = document.querySelector('button[onclick="submitReview()"]');
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = "Processing...";
-
-            try {
-                const formData = new FormData();
-                formData.append('bookingId', bookingId);
-                formData.append('rating', rating);
-                formData.append('comment', comment);
-
-                const response = await fetch('/api/client/reviews', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    alert('Review submitted successfully!');
-                    window.location.reload();
-                } else {
-                    const text = await response.text();
-                    alert('Error: ' + text);
-                }
-            } catch (e) {
-                console.error(e);
-                alert("System error");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = originalText;
-            }
-        }
-    </script>
 </div>
+
+<script layout:fragment="script">
+    async function submitReview() {
+        const bookingId = document.getElementById('bookingId').value;
+        const comment = document.getElementById('comment').value;
+        let rating = 0;
+        document.getElementsByName('rating').forEach(r => { if(r.checked) rating = r.value; });
+
+        if (!bookingId || rating == 0 || !comment.trim()) { alert("Please fill all fields."); return; }
+
+        const formData = new FormData();
+        formData.append('bookingId', bookingId);
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+
+        const response = await fetch('/api/client/reviews', { method: 'POST', body: formData });
+        if (response.ok) { alert('Review submitted!'); location.reload(); }
+        else alert('Error: ' + await response.text());
+    }
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+</style>
 
 </body>
 </html>

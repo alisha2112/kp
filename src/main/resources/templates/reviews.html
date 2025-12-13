@@ -41,11 +41,6 @@
                         "<span th:text="${review.comment}">Great stay!</span>"
                     </p>
 
-                    <div class="border-top pt-2" th:if="${review.staff_position != null}">
-                        <small class="text-muted x-small text-uppercase">
-                            Service by: <span th:text="${review.staff_position}">Reception</span>
-                        </small>
-                    </div>
                 </div>
 
                 <div class="text-center py-5" th:if="${reviews == null or reviews.isEmpty()}">

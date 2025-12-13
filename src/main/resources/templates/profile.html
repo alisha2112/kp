@@ -31,22 +31,33 @@
                             <span>&rsaquo;</span>
                         </a>
 
-                        <a href="/my-bookings" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                        <a href="/my-bookings"
+                           class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark"
+                           th:classappend="${#execInfo.templateName == 'my-bookings' ? 'btn-luxury text-white' : ''}">
                             My Bookings
                         </a>
 
-                        <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                        <a href="/payments/history"
+                           class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark"
+                           th:classappend="${#execInfo.templateName == 'payment-history' ? 'btn-luxury text-white' : ''}">
                             Payment History
                         </a>
 
-                        <a href="/promotions" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                        <a href="/promotions"
+                           class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark"
+                           th:classappend="${#execInfo.templateName == 'promotions' ? 'btn-luxury text-white' : ''}">
                             Promotions
                         </a>
 
-                        <a href="/reviews" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                        <a href="/reviews"
+                           class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark"
+                           th:classappend="${#execInfo.templateName == 'client-reviews' ? 'btn-luxury text-white' : ''}">
                             My Reviews
                         </a>
-                        <a href="/favorites" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+
+                        <a href="/favorites"
+                           class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark"
+                           th:classappend="${#execInfo.templateName == 'favorites' ? 'btn-luxury text-white' : ''}">
                             Favorites
                         </a>
                     </div>
@@ -116,19 +127,16 @@
                     </div>
 
                 </div>
-            </div>
-        </div>
-    </div>
+            </div> </div> </div>
 </div>
 
 <script layout:fragment="script">
-    // --- ОНОВЛЕННЯ ПРОФІЛЮ (PUT) ---
+    // --- ОНОВЛЕННЯ ПРОФІЛЮ ---
     async function updateProfile() {
         const form = document.getElementById('profileForm');
         const formData = new FormData(form);
         const params = new URLSearchParams(formData);
 
-        // Блокуємо кнопку
         const btn = document.querySelector('button[onclick="updateProfile()"]');
         const originalText = btn.innerText;
         btn.disabled = true;
@@ -156,7 +164,7 @@
         }
     }
 
-    // --- ВИДАЛЕННЯ АКАУНТУ (DELETE) ---
+    // --- ВИДАЛЕННЯ АКАУНТУ ---
     async function deleteAccount() {
         if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
             return;
@@ -172,7 +180,6 @@
                 window.location.href = '/';
             } else {
                 const text = await response.text();
-                // Якщо є активні бронювання, тригер БД викине помилку, яку ми тут покажемо
                 alert('Error: ' + text);
             }
         } catch (error) {

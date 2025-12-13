@@ -30,6 +30,7 @@
                         <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Payment History</a>
                         <a href="/promotions" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Promotions</a>
                         <a href="/reviews" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">My Reviews</a>
+
                         <a href="/favorites" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
                             <span>Favorites</span><span>&rsaquo;</span>
                         </a>
@@ -85,9 +86,11 @@
                                             Remove
                                         </button>
 
-                                        <a href="/" class="btn btn-dark btn-sm text-uppercase fw-bold x-small px-3">
+                                        <button type="button"
+                                                class="btn btn-dark btn-sm text-uppercase fw-bold x-small px-3"
+                                                th:onclick="'openBookModal(' + ${room.room_id} + ')'">
                                             Book Now
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -99,33 +102,124 @@
         </div>
     </div>
 
-    <script>
-        async function removeFavorite(roomId) {
-            if (!confirm('Remove this room from favorites?')) return;
+    <div class="modal fade" id="bookFavoriteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Book Favorite Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">Select dates for your stay.</p>
+                    <form id="bookFavoriteForm">
+                        <input type="hidden" id="favRoomId" name="roomId">
 
-            try {
-                const response = await fetch(`/api/client/rooms/${roomId}/favorite/remove`, {
-                    method: 'POST'
-                });
-
-                if (response.ok) {
-                    // Просто перезавантажуємо сторінку для оновлення списку
-                    window.location.reload();
-                } else {
-                    alert('Error: ' + await response.text());
-                }
-            } catch (error) {
-                console.error(error);
-                alert('System error');
-            }
-        }
-    </script>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Check-In</label>
+                                <input type="date" id="favCheckIn" name="checkIn" class="form-control rounded-1" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Check-Out</label>
+                                <input type="date" id="favCheckOut" name="checkOut" class="form-control rounded-1" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Guests</label>
+                                <input type="number" id="favGuests" name="guests" min="1" value="1" class="form-control rounded-1" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="submitBookFavorite()" class="btn btn-luxury btn-sm text-uppercase fw-bold px-4">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <style>
         .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
         .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
     </style>
 </div>
+
+<script layout:fragment="script">
+    // --- 1. Логіка видалення ---
+    async function removeFavorite(roomId) {
+        if (!confirm('Remove this room from favorites?')) return;
+
+        try {
+            const response = await fetch(`/api/client/rooms/${roomId}/favorite/remove`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Error: ' + await response.text());
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error');
+        }
+    }
+
+    // --- 2. Логіка БРОНЮВАННЯ ---
+    function openBookModal(roomId) {
+        document.getElementById('favRoomId').value = roomId;
+        document.getElementById('favCheckIn').value = '';
+        document.getElementById('favCheckOut').value = '';
+
+        const modal = new bootstrap.Modal(document.getElementById('bookFavoriteModal'));
+        modal.show();
+    }
+
+    async function submitBookFavorite() {
+        const roomId = document.getElementById('favRoomId').value;
+        const checkIn = document.getElementById('favCheckIn').value;
+        const checkOut = document.getElementById('favCheckOut').value;
+        const guests = document.getElementById('favGuests').value;
+
+        if (!checkIn || !checkOut) {
+            alert("Please select dates.");
+            return;
+        }
+
+        const btn = document.querySelector('#bookFavoriteModal .btn-luxury');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+
+        try {
+            const formData = new FormData();
+            formData.append('roomId', roomId);
+            formData.append('checkIn', checkIn);
+            formData.append('checkOut', checkOut);
+            formData.append('guests', guests);
+
+            const response = await fetch('/api/client/bookings', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Booking Confirmed! ID: ' + data.bookingId);
+                window.location.href = '/my-bookings';
+            } else {
+                const text = await response.text();
+                alert('Failed: ' + text);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+</script>
 
 </body>
 </html>

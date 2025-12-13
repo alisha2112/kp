@@ -48,6 +48,11 @@
 
                 <th:block th:if="${session.USER_ID != null}">
                     <li class="nav-item">
+                        <a th:href="@{/food}" class="nav-link text-dark text-uppercase fw-bold" style="font-size: 0.75rem;">
+                            Room Service
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a th:href="@{/my-bookings}" class="nav-link text-dark text-uppercase fw-bold" style="font-size: 0.75rem;">
                             My Bookings
                         </a>

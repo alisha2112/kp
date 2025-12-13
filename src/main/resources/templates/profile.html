@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>My Profile - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 900px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">My Profile</h1>
+                <p class="text-secondary small mb-0">Manage your account settings</p>
+            </div>
+            <span class="badge bg-white text-secondary border border-light-subtle fw-normal rounded-1 px-3 py-2">
+                Client ID: <span th:text="${session.USER_ID}">#</span>
+            </span>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+
+                        <a href="/profile" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
+                            <span>Personal Info</span>
+                            <span>&rsaquo;</span>
+                        </a>
+
+                        <a href="/my-bookings" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            My Bookings
+                        </a>
+
+                        <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Payment History
+                        </a>
+
+                        <a href="/promotions" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Promotions
+                        </a>
+
+                        <a href="/reviews" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            My Reviews
+                        </a>
+                        <a href="/favorites" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Favorites
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1">
+
+                    <h3 class="font-serif fw-bold h5 mb-4 text-dark">Edit Personal Information</h3>
+
+                    <form id="profileForm">
+                        <div class="row g-3">
+
+                            <div class="col-md-4">
+                                <label class="form-label text-secondary text-uppercase fw-bold x-small">Last Name</label>
+                                <input type="text" name="lastName" class="form-control rounded-1"
+                                       th:value="${client['last_name']}" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label text-secondary text-uppercase fw-bold x-small">First Name</label>
+                                <input type="text" name="firstName" class="form-control rounded-1"
+                                       th:value="${client['first_name']}" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label text-secondary text-uppercase fw-bold x-small">Middle Name</label>
+                                <input type="text" name="middleName" class="form-control rounded-1"
+                                       th:value="${client['middle_name']}">
+                            </div>
+
+                            <div class="col-12">
+                                <hr class="text-light my-2">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary text-uppercase fw-bold x-small">Phone</label>
+                                <input type="text" name="phone" class="form-control rounded-1"
+                                       th:value="${client['phone']}" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary text-uppercase fw-bold x-small">Email</label>
+                                <input type="email" name="email" class="form-control rounded-1"
+                                       th:value="${client['email']}" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 d-flex justify-content-end align-items-center">
+                            <button type="button" onclick="updateProfile()" class="btn btn-luxury px-5 py-2">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="my-5 opacity-10">
+
+                    <div class="p-4 bg-light rounded-1 border border-danger-subtle">
+                        <h4 class="text-danger font-serif h6 fw-bold mb-2">Danger Zone</h4>
+                        <p class="small text-secondary mb-3">
+                            Once you delete your account, there is no going back. All your data and history will be permanently removed.
+                        </p>
+                        <button type="button" onclick="deleteAccount()" class="btn btn-outline-danger btn-sm text-uppercase fw-bold px-3" style="letter-spacing: 0.1em;">
+                            Delete Account
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+    // --- ОНОВЛЕННЯ ПРОФІЛЮ (PUT) ---
+    async function updateProfile() {
+        const form = document.getElementById('profileForm');
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+
+        // Блокуємо кнопку
+        const btn = document.querySelector('button[onclick="updateProfile()"]');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        try {
+            const response = await fetch('/api/client/profile?' + params.toString(), {
+                method: 'PUT'
+            });
+
+            const text = await response.text();
+
+            if (response.ok) {
+                alert('Profile updated successfully!');
+                location.reload();
+            } else {
+                alert('Failed to update profile: ' + text);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('System error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+
+    // --- ВИДАЛЕННЯ АКАУНТУ (DELETE) ---
+    async function deleteAccount() {
+        if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/client/profile', {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('Account deleted. Goodbye!');
+                window.location.href = '/';
+            } else {
+                const text = await response.text();
+                // Якщо є активні бронювання, тригер БД викине помилку, яку ми тут покажемо
+                alert('Error: ' + text);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('System error');
+        }
+    }
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
+</style>
+
+</body>
+</html>

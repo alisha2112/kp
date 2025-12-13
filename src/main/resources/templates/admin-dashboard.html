@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Admin Dashboard - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container-fluid px-5"> <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="font-serif fw-bold h2 m-0 text-dark">Reception Desk</h1>
+            <p class="text-secondary small mb-0">Administrator Panel</p>
+        </div>
+        <span class="badge bg-dark text-white border border-light-subtle fw-normal rounded-1 px-3 py-2">
+                Admin Mode
+            </span>
+    </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-2">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+                        <div class="text-uppercase x-small fw-bold text-muted mb-2 px-2">Operations</div>
+
+                        <a href="/admin/dashboard" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
+                            <span>Check Availability</span><span>&rsaquo;</span>
+                        </a>
+
+                        <a href="/admin/bookings" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Manage Bookings
+                        </a>
+                        <a href="/admin/clients" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Clients
+                        </a>
+                        <a href="/admin/rooms" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Room Status
+                        </a>
+
+                        <hr class="my-2">
+
+                        <a href="/logout" class="btn btn-light w-100 text-start text-danger hover-bg-danger">
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-10">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1" style="min-height: 600px;">
+
+                    <h4 class="font-serif fw-bold mb-4">Check Room Availability</h4>
+
+                    <div class="row g-3 align-items-end mb-5 bg-light p-4 rounded-1 border">
+                        <div class="col-md-4">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Check-In Date</label>
+                            <input type="date" id="checkIn" class="form-control rounded-1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Check-Out Date</label>
+                            <input type="date" id="checkOut" class="form-control rounded-1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" onclick="checkAvailability()" class="btn btn-dark w-100 py-2 text-uppercase fw-bold">
+                                Search Rooms
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="resultsSection" class="d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold m-0">Available Rooms</h5>
+                            <span class="badge bg-success rounded-pill" id="resultCount">0 found</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle border">
+                                <thead class="table-light text-secondary x-small text-uppercase">
+                                <tr>
+                                    <th>Room #</th>
+                                    <th>Type</th>
+                                    <th>Capacity</th>
+                                    <th>Price / Night</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody id="roomsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="emptyState" class="text-center py-5 text-secondary">
+                        <p>Select dates to check room availability.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Встановлюємо дефолтні дати (сьогодні та завтра)
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            document.getElementById('checkIn').valueAsDate = today;
+            document.getElementById('checkOut').valueAsDate = tomorrow;
+        });
+
+        async function checkAvailability() {
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+
+            if (!checkIn || !checkOut) {
+                alert("Please select both dates.");
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="checkAvailability()"]');
+            btn.disabled = true;
+            btn.innerText = "Searching...";
+
+            try {
+                // Виклик вашого AdminController
+                const response = await fetch(`/api/admin/rooms/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+
+                if (response.ok) {
+                    const rooms = await response.json();
+                    renderTable(rooms);
+                } else {
+                    alert("Error fetching data: " + await response.text());
+                }
+            } catch (error) {
+                console.error(error);
+                alert("System error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Search Rooms";
+            }
+        }
+
+        function renderTable(rooms) {
+            const tbody = document.getElementById('roomsTableBody');
+            const resultsSection = document.getElementById('resultsSection');
+            const emptyState = document.getElementById('emptyState');
+            const countBadge = document.getElementById('resultCount');
+
+            tbody.innerHTML = '';
+
+            if (rooms.length === 0) {
+                resultsSection.classList.add('d-none');
+                emptyState.classList.remove('d-none');
+                emptyState.innerHTML = '<p>No rooms available for these dates.</p>';
+                return;
+            }
+
+            resultsSection.classList.remove('d-none');
+            emptyState.classList.add('d-none');
+            countBadge.innerText = rooms.length + ' found';
+
+            rooms.forEach(room => {
+                // Згідно вашої SQL функції get_available_rooms, поля: room_id, room_number, capacity, comfort_level, price_per_night
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fw-bold text-dark">#${room.room_number}</td>
+                    <td class="text-uppercase small">${room.comfort_level}</td>
+                    <td>${room.capacity} pers.</td>
+                    <td class="fw-bold">${room.price_per_night} ₴</td>
+                    <td class="text-end">
+                        <button class="btn btn-outline-dark btn-sm text-uppercase fw-bold x-small"
+                                onclick="openBookingModal(${room.room_id}, '${room.room_number}', ${room.price_per_night})">
+                            Book This
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openBookingModal(roomId, roomNumber, price) {
+            // Тут буде логіка відкриття модалки для створення бронювання
+            // Ми реалізуємо це на наступному кроці для @PostMapping("/bookings")
+            alert(`Selected Room #${roomNumber}. Next step: Create Booking Form.`);
+        }
+    </script>
+
+    <style>
+        .hover-bg-danger:hover { background-color: #dc3545 !important; color: white !important; }
+        .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    </style>
+</div>
+
+</body>
+</html>

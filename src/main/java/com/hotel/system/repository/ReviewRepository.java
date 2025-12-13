@@ -13,6 +13,14 @@ public class ReviewRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    public List<Map<String, Object>> getBookingsForReview(Long clientId) {
+        return jdbcTemplate.queryForList("SELECT * FROM get_client_bookings_to_review(?)", clientId);
+    }
+
+    public void leaveReview(Long clientId, Long bookingId, Integer rating, String comment) {
+        jdbcTemplate.update("CALL sp_client_leave_review(?, ?, ?, ?)", clientId, bookingId, rating, comment);
+    }
+
     /** 3.4 (Адмін) / 7 (Клієнт) Створення відгуку */
     public void addReview(Long bookingId, Integer rating, String comment, boolean isClient) {
         String procName = isClient ? "sp_client_leave_review" : "sp_add_review";

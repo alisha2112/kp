@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>My Favorites - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 900px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">Saved Rooms</h1>
+                <p class="text-secondary small mb-0">Your shortlist for future stays</p>
+            </div>
+            <span class="badge bg-white text-secondary border border-light-subtle fw-normal rounded-1 px-3 py-2">
+                Client ID: <span th:text="${session.USER_ID}">#</span>
+            </span>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+                        <a href="/profile" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Personal Info</a>
+                        <a href="/my-bookings" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">My Bookings</a>
+                        <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Payment History</a>
+                        <a href="/promotions" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Promotions</a>
+                        <a href="/reviews" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">My Reviews</a>
+                        <a href="/favorites" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
+                            <span>Favorites</span><span>&rsaquo;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1" style="min-height: 400px;">
+
+                    <div th:if="${favorites == null or favorites.isEmpty()}" class="text-center py-5">
+                        <div class="mb-4 text-secondary opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </div>
+                        <h4 class="font-serif fw-bold h5 text-dark">No Favorites Yet</h4>
+                        <p class="text-secondary small mb-4">
+                            Save rooms you love to find them easily later.
+                        </p>
+                        <a href="/" class="btn btn-luxury px-4 py-2 text-uppercase fw-bold x-small">Browse Rooms</a>
+                    </div>
+
+                    <div th:if="${favorites != null and !favorites.isEmpty()}" class="d-flex flex-column gap-4">
+                        <div th:each="room : ${favorites}" class="border rounded-1 overflow-hidden position-relative group">
+
+                            <div class="row g-0">
+                                <div class="col-md-4 bg-light d-flex align-items-center justify-content-center text-secondary">
+                                    <div class="text-center p-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                                        <div class="x-small mt-2 text-uppercase fw-bold" th:text="${room.comfort_level}">Standard</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8 p-4 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h5 class="font-serif fw-bold text-dark mb-1" th:text="${room.hotel_name}">Grand Hotel</h5>
+                                                <p class="text-secondary x-small text-uppercase mb-2">
+                                                    <span th:text="${room.city}">City</span> • Room #<span th:text="${room.room_number}">101</span>
+                                                </p>
+                                            </div>
+                                            <span class="fs-5 fw-bold text-dark" th:text="${room.price_per_night} + ' ₴'">200 ₴</span>
+                                        </div>
+                                        <div class="x-small text-secondary mt-2">
+                                            Capacity: <span class="fw-bold text-dark" th:text="${room.capacity}">2</span> Guests <br>
+                                            Saved on: <span th:text="${room.added_at}">2025-01-01</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2 mt-3">
+                                        <button class="btn btn-outline-danger btn-sm text-uppercase fw-bold x-small px-3"
+                                                th:onclick="'removeFavorite(' + ${room.room_id} + ')'">
+                                            Remove
+                                        </button>
+
+                                        <a href="/" class="btn btn-dark btn-sm text-uppercase fw-bold x-small px-3">
+                                            Book Now
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function removeFavorite(roomId) {
+            if (!confirm('Remove this room from favorites?')) return;
+
+            try {
+                const response = await fetch(`/api/client/rooms/${roomId}/favorite/remove`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    // Просто перезавантажуємо сторінку для оновлення списку
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + await response.text());
+                }
+            } catch (error) {
+                console.error(error);
+                alert('System error');
+            }
+        }
+    </script>
+
+    <style>
+        .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+        .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
+    </style>
+</div>
+
+</body>
+</html>

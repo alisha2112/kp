@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Our Services - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="bg-white py-5 mt-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <span class="text-secondary text-uppercase fw-bold small" style="letter-spacing: 0.1em;">Enhance Your Stay</span>
+                <h1 class="font-serif fw-bold display-4 mt-2">Exclusive Services</h1>
+                <p class="text-secondary mt-3 mx-auto" style="max-width: 600px;">
+                    Від вишуканих страв до спа-процедур — ми пропонуємо широкий спектр послуг для вашого комфорту.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4" th:each="service : ${services}">
+                    <div class="card card-luxury h-100 p-4 border border-light shadow-sm">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h3 class="font-serif fw-bold h5 mb-0" th:text="${service.service_name}">Massage</h3>
+                            <span class="badge bg-dark text-white rounded-0 fw-normal px-3 py-2"
+                                  th:text="${service.service_price} + ' ₴'">500 ₴</span>
+                        </div>
+
+                        <p class="text-secondary small mb-4 flex-grow-1" th:text="${service.service_description}">
+                            Relaxing massage for full body recovery.
+                        </p>
+
+                        <div class="border-top pt-3 mt-auto">
+                            <small class="text-uppercase fw-bold x-small text-secondary" style="letter-spacing: 0.05em;">
+                                Available at Hotel ID: <span th:text="${service.hotel_id}">1</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 text-center py-5" th:if="${services == null or services.isEmpty()}">
+                    <p class="text-secondary">No services available at the moment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

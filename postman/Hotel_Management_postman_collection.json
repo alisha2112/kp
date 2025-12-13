@@ -1,0 +1,1109 @@
+{
+  "info": {
+    "_postman_id": "eb0fe49f-e424-4b96-8f55-49f7db0583dh",
+    "name": "Hotel Management System (Ultimate)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Аутентифікація (Auth)",
+      "item": [
+        {
+          "name": "Login Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "admin", "type": "text" },
+                { "key": "password", "value": "password123", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login/employee",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login", "employee"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Client",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "phone", "value": "+380991234567", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login/client",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login", "client"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Публічний доступ (Public API)",
+      "item": [
+        {
+          "name": "Get Hotel Catalog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/hotels",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "public", "hotels"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Rooms (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/rooms/search?city=Kyiv&checkIn=2023-12-01&checkOut=2023-12-05&guests=2&comfortLevel=Standard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "public", "rooms", "search"],
+              "query": [
+                { "key": "city", "value": "Kyiv" },
+                { "key": "checkIn", "value": "2023-12-01" },
+                { "key": "checkOut", "value": "2023-12-05" },
+                { "key": "guests", "value": "2" },
+                { "key": "comfortLevel", "value": "Standard" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Hotel Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reviews/GrandHotel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "public", "reviews", "GrandHotel"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Client (Self)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "firstName", "value": "New", "type": "text" },
+                { "key": "middleName", "value": "Client", "type": "text" },
+                { "key": "lastName", "value": "User", "type": "text" },
+                { "key": "phone", "value": "+380998887766", "type": "text" },
+                { "key": "email", "value": "new.client@example.com", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/public/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "public", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Services List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "public", "services"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Клієнтська панель (Client API)",
+      "item": [
+        {
+          "name": "1. Профіль (Profile)",
+          "item": [
+            {
+              "name": "Update Profile",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "firstName", "value": "Ivan", "type": "text" },
+                    { "key": "lastName", "value": "Shevchenko", "type": "text" },
+                    { "key": "phone", "value": "+380991234567", "type": "text" },
+                    { "key": "email", "value": "ivan.updated@example.com", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/profile",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "profile"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Account",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/profile",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "profile"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "2. Бронювання (Booking)",
+          "item": [
+            {
+              "name": "Search Rooms",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/rooms/search?checkIn=2023-12-01&checkOut=2023-12-05&city=Kyiv",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "rooms", "search"],
+                  "query": [
+                    { "key": "checkIn", "value": "2023-12-01" },
+                    { "key": "checkOut", "value": "2023-12-05" },
+                    { "key": "city", "value": "Kyiv" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Book Room",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.bookingId) {",
+                      "    pm.environment.set(\"clientBookingId\", jsonData.bookingId);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "roomId", "value": "105", "type": "text" },
+                    { "key": "checkIn", "value": "2023-12-10", "type": "text" },
+                    { "key": "checkOut", "value": "2023-12-12", "type": "text" },
+                    { "key": "guests", "value": "2", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "bookings"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel Booking",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "reason", "value": "Changed plans", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/bookings/{{clientBookingId}}/cancel",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "bookings", "{{clientBookingId}}", "cancel"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Repeat Booking",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "checkIn", "value": "2024-01-01", "type": "text" },
+                    { "key": "checkOut", "value": "2024-01-05", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/bookings/{{clientBookingId}}/repeat",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "bookings", "{{clientBookingId}}", "repeat"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Booking History",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/bookings/history",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "bookings", "history"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "3. Оплата (Payment)",
+          "item": [
+            {
+              "name": "Pay Online",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "bookingId", "value": "{{clientBookingId}}", "type": "text" },
+                    { "key": "cardToken", "value": "tok_visa_1234", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/pay",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "pay"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Payment History",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/payments/history",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "payments", "history"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "4. Маркетинг (Marketing)",
+          "item": [
+            {
+              "name": "Use Promocode",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "code", "value": "SUMMER2024", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/promocode",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "promocode"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Promotions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/promotions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "promotions"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "6-7. Послуги та Інше (Services & Other)",
+          "item": [
+            {
+              "name": "Request Service",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "bookingId", "value": "{{clientBookingId}}", "type": "text" },
+                    { "key": "serviceId", "value": "10", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/services/request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "services", "request"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Order Food",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json", "type": "text" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\"name\": \"Pizza\", \"count\": 1},\n    {\"name\": \"Cola\", \"count\": 2}\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/food/order?roomId=105",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "food", "order"],
+                  "query": [
+                    { "key": "roomId", "value": "105" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Leave Review",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "bookingId", "value": "{{clientBookingId}}", "type": "text" },
+                    { "key": "rating", "value": "5", "type": "text" },
+                    { "key": "comment", "value": "Great stay!", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/reviews",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "reviews"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add to Favorites",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/client/rooms/105/favorite",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "client", "rooms", "105", "favorite"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Управління (Management API)",
+      "item": [
+        {
+          "name": "1. Менеджер (Manager)",
+          "item": [
+            {
+              "name": "Financial Report",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/reports/financial?start=2023-11-01&end=2023-11-30",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "reports", "financial"],
+                  "query": [
+                    { "key": "start", "value": "2023-11-01" },
+                    { "key": "end", "value": "2023-11-30" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Occupancy Report",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/reports/occupancy?start=2023-11-01&end=2023-11-30",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "reports", "occupancy"],
+                  "query": [
+                    { "key": "start", "value": "2023-11-01" },
+                    { "key": "end", "value": "2023-11-30" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Hire Employee",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.employeeId) {",
+                      "    pm.environment.set(\"newEmployeeId\", jsonData.employeeId);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "firstName", "value": "Petro", "type": "text" },
+                    { "key": "lastName", "value": "Koval", "type": "text" },
+                    { "key": "phone", "value": "+380670001122", "type": "text" },
+                    { "key": "position", "value": "CLEANER", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/staff",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "staff"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Assign Shift",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "date", "value": "2023-12-05", "type": "text" },
+                    { "key": "start", "value": "09:00", "type": "text" },
+                    { "key": "end", "value": "18:00", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/staff/{{newEmployeeId}}/shift",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "staff", "{{newEmployeeId}}", "shift"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Expense",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "amount", "value": "1500.00", "type": "text" },
+                    { "key": "description", "value": "Cleaning supplies", "type": "text" },
+                    { "key": "approvedBy", "value": "Manager A", "type": "text" },
+                    { "key": "employeeId", "value": "{{newEmployeeId}}", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/expenses",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "expenses"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Fire Employee",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/staff/{{newEmployeeId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "staff", "{{newEmployeeId}}"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "2. Власник (Owner)",
+          "item": [
+            {
+              "name": "Profit & Loss",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/owner/profit-loss?date=2023-12-01&hotelId=1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "owner", "profit-loss"],
+                  "query": [
+                    { "key": "date", "value": "2023-12-01" },
+                    { "key": "hotelId", "value": "1" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Detailed Financial Report",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/owner/financial-detailed?hotelId=1&start=2023-11-01&end=2023-11-30",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "owner", "financial-detailed"],
+                  "query": [
+                    { "key": "hotelId", "value": "1" },
+                    { "key": "start", "value": "2023-11-01" },
+                    { "key": "end", "value": "2023-11-30" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Promotion",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "code", "value": "WINTER2024", "type": "text" },
+                    { "key": "discount", "value": "15", "type": "text" },
+                    { "key": "from", "value": "2024-01-01", "type": "text" },
+                    { "key": "to", "value": "2024-02-28", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/owner/promotions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "owner", "promotions"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "ROI Analysis",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/owner/roi?hotelId=1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "owner", "roi"],
+                  "query": [
+                    { "key": "hotelId", "value": "1" }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "3. Бухгалтер (Accountant)",
+          "item": [
+            {
+              "name": "Process Payroll",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "employeeId", "value": "2", "type": "text" },
+                    { "key": "start", "value": "2023-11-01", "type": "text" },
+                    { "key": "end", "value": "2023-11-30", "type": "text" },
+                    { "key": "bonuses", "value": "100.00", "type": "text" },
+                    { "key": "penalties", "value": "0", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/accountant/payroll",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "accountant", "payroll"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Calculate Tax",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/accountant/tax?hotelId=1&start=2023-01-01&end=2023-12-31&rate=0.18",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "accountant", "tax"],
+                  "query": [
+                    { "key": "hotelId", "value": "1" },
+                    { "key": "start", "value": "2023-01-01" },
+                    { "key": "end", "value": "2023-12-31" },
+                    { "key": "rate", "value": "0.18" }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "4. Прибиральниця (Cleaner)",
+          "item": [
+            {
+              "name": "Get Schedule",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/cleaner/schedule",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "cleaner", "schedule"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Report Issue",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "roomNumber", "value": "101", "type": "text" },
+                    { "key": "description", "value": "Broken lamp", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/cleaner/issue",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "cleaner", "issue"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Mark Cleaned",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "roomNumber", "value": "101", "type": "text" },
+                    { "key": "notes", "value": "Towels replaced", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/management/cleaner/mark-cleaned",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "management", "cleaner", "mark-cleaned"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Адмін панель (Admin API)",
+      "item": [
+        {
+          "name": "Бронювання (Bookings)",
+          "item": [
+            {
+              "name": "Check Availability",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/rooms/availability?checkIn=2023-11-01&checkOut=2023-11-05",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "rooms", "availability"],
+                  "query": [
+                    { "key": "checkIn", "value": "2023-11-01" },
+                    { "key": "checkOut", "value": "2023-11-05" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Booking",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" },
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "clientId", "value": "1", "type": "text" },
+                    { "key": "roomId", "value": "101", "type": "text" },
+                    { "key": "checkIn", "value": "2023-12-01", "type": "text" },
+                    { "key": "checkOut", "value": "2023-12-05", "type": "text" },
+                    { "key": "guests", "value": "2", "type": "text" },
+                    { "key": "paymentMethod", "value": "CASH", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "bookings"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Booking",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" },
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "roomId", "value": "102", "type": "text" },
+                    { "key": "checkIn", "value": "2023-12-02", "type": "text" },
+                    { "key": "checkOut", "value": "2023-12-06", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/bookings/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "bookings", "1"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel Booking",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/bookings/1?reason=Customer Request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "bookings", "1"],
+                  "query": [
+                    { "key": "reason", "value": "Customer Request" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Dashboard",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/dashboard",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "dashboard"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Клієнти (Clients)",
+          "item": [
+            {
+              "name": "Register Client",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" },
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "firstName", "value": "John", "type": "text" },
+                    { "key": "middleName", "value": "Doe", "type": "text" },
+                    { "key": "lastName", "value": "Smith", "type": "text" },
+                    { "key": "phone", "value": "+380501234567", "type": "text" },
+                    { "key": "email", "value": "john.smith@example.com", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/clients",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "clients"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Виселення та Рахунки (Checkout & Bills)",
+          "item": [
+            {
+              "name": "Get Room Status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/rooms/101/status",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "rooms", "101", "status"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Booking Bill",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/bookings/1/bill",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "bookings", "1", "bill"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Process Checkout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" },
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "bookingId", "value": "1", "type": "text" },
+                    { "key": "paymentMethod", "value": "CARD", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/checkout",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "checkout"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Manual Review",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" },
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "bookingId", "value": "1", "type": "text" },
+                    { "key": "rating", "value": "5", "type": "text" },
+                    { "key": "comment", "value": "Excellent service", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/reviews/manual",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "reviews", "manual"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Оплата (Payments)",
+          "item": [
+            {
+              "name": "Accept Payment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/x-www-form-urlencoded", "type": "text" },
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    { "key": "bookingId", "value": "1", "type": "text" },
+                    { "key": "lastName", "value": "Smith", "type": "text" },
+                    { "key": "firstName", "value": "John", "type": "text" },
+                    { "key": "middleName", "value": "D.", "type": "text" },
+                    { "key": "method", "value": "CASH", "type": "text" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/payments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "payments"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Check Debt",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Authorization", "value": "{{token}}", "type": "text" }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/admin/bookings/1/debt",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "admin", "bookings", "1", "debt"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

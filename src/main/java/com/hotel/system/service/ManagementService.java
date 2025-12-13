@@ -58,6 +58,12 @@ public class ManagementService {
         employeeRepository.assignShift(employeeId, date, start, end);
     }
 
+    // --- НОВЕ: Призначення прибирання (Менеджер призначає завдання) ---
+    @Transactional
+    public void assignCleaningTask(Integer roomNumber, Long cleanerId, String note) {
+        employeeRepository.assignCleaningTask(roomNumber, cleanerId, note);
+    }
+
     public Map<String, Object> analyzeStaffWorkload(LocalDate start, LocalDate end, Long hotelId) {
         return statsRepository.getStaffWorkloadAnalysis(start, end, hotelId);
     }

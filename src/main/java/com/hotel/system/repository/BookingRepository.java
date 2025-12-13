@@ -1,13 +1,14 @@
 package com.hotel.system.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
+import java.sql.CallableStatement;
 import java.sql.Date;
+import java.sql.Types;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,22 +22,34 @@ public class BookingRepository {
 
     /** 1.2 Створення бронювання (Адмін) */
     public Long createBookingAdmin(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests, String paymentMethod) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("sp_create_booking");
-        Map<String, Object> inParams = new HashMap<>();
-        inParams.put("p_client_id", clientId);
-        inParams.put("p_room_id", roomId);
-        inParams.put("p_check_in", Date.valueOf(checkIn));
-        inParams.put("p_check_out", Date.valueOf(checkOut));
-        inParams.put("p_guests_count", guests);
-        inParams.put("p_payment_method", paymentMethod);
-        inParams.put("p_booking_id", null);
+        // Явний виклик процедури з OUT параметром
+        String sql = "CALL sp_create_booking(?, ?, ?, ?, ?, ?, ?)";
 
-        Map<String, Object> out = jdbcCall.execute(inParams);
-        return ((Number) out.get("p_booking_id")).longValue();
+        return jdbcTemplate.execute(connection -> {
+            CallableStatement cs = connection.prepareCall(sql);
+
+            // Вхідні параметри (IN)
+            cs.setLong(1, clientId);
+            cs.setLong(2, roomId);
+            cs.setDate(3, Date.valueOf(checkIn));
+            cs.setDate(4, Date.valueOf(checkOut));
+            cs.setInt(5, guests);
+            cs.setString(6, paymentMethod);
+
+            // Вихідний параметр (OUT) - p_booking_id
+            cs.registerOutParameter(7, Types.BIGINT);
+            cs.setNull(7, Types.BIGINT);
+
+            return cs;
+        }, (CallableStatementCallback<Long>) cs -> {
+            cs.execute();
+            return cs.getLong(7); // Повертаємо ID створеного бронювання
+        });
     }
 
     /** 1.3 Скасування (Адмін) */
     public void cancelBookingAdmin(Long bookingId, String reason) {
+        // Для void процедур достатньо jdbcTemplate.update з синтаксисом CALL
         jdbcTemplate.update("CALL sp_cancel_booking(?, ?)", bookingId, reason);
     }
 
@@ -66,17 +79,28 @@ public class BookingRepository {
 
     /** 2.2 Бронювання (Клієнт) */
     public Long createBookingClient(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("sp_client_book_room");
-        Map<String, Object> inParams = new HashMap<>();
-        inParams.put("p_client_id", clientId);
-        inParams.put("p_room_id", roomId);
-        inParams.put("p_check_in", Date.valueOf(checkIn));
-        inParams.put("p_check_out", Date.valueOf(checkOut));
-        inParams.put("p_guests_count", guests);
-        inParams.put("p_booking_id", null);
+        // Явний виклик процедури з OUT параметром
+        String sql = "CALL sp_client_book_room(?, ?, ?, ?, ?, ?)";
 
-        Map<String, Object> out = jdbcCall.execute(inParams);
-        return ((Number) out.get("p_booking_id")).longValue();
+        return jdbcTemplate.execute(connection -> {
+            CallableStatement cs = connection.prepareCall(sql);
+
+            // Вхідні параметри (IN)
+            cs.setLong(1, clientId);
+            cs.setLong(2, roomId);
+            cs.setDate(3, Date.valueOf(checkIn));
+            cs.setDate(4, Date.valueOf(checkOut));
+            cs.setInt(5, guests);
+
+            // Вихідний параметр (OUT) - p_booking_id
+            cs.registerOutParameter(6, Types.BIGINT);
+            cs.setNull(6, Types.BIGINT);
+
+            return cs;
+        }, (CallableStatementCallback<Long>) cs -> {
+            cs.execute();
+            return cs.getLong(6); // Повертаємо ID створеного бронювання
+        });
     }
 
     /** 2.3 Скасування (Клієнт) */
@@ -92,15 +116,26 @@ public class BookingRepository {
 
     /** 8.2 Повторне бронювання */
     public Long repeatBooking(Long clientId, Long oldBookingId, LocalDate newCheckIn, LocalDate newCheckOut) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("sp_client_repeat_booking");
-        Map<String, Object> inParams = new HashMap<>();
-        inParams.put("p_client_id", clientId);
-        inParams.put("p_old_booking_id", oldBookingId);
-        inParams.put("p_new_check_in", Date.valueOf(newCheckIn));
-        inParams.put("p_new_check_out", Date.valueOf(newCheckOut));
-        inParams.put("p_new_booking_id", null);
+        // Явний виклик процедури з OUT параметром
+        String sql = "CALL sp_client_repeat_booking(?, ?, ?, ?, ?)";
 
-        Map<String, Object> out = jdbcCall.execute(inParams);
-        return ((Number) out.get("p_new_booking_id")).longValue();
+        return jdbcTemplate.execute(connection -> {
+            CallableStatement cs = connection.prepareCall(sql);
+
+            // Вхідні параметри (IN)
+            cs.setLong(1, clientId);
+            cs.setLong(2, oldBookingId);
+            cs.setDate(3, Date.valueOf(newCheckIn));
+            cs.setDate(4, Date.valueOf(newCheckOut));
+
+            // Вихідний параметр (OUT) - p_new_booking_id
+            cs.registerOutParameter(5, Types.BIGINT);
+            cs.setNull(5, Types.BIGINT);
+
+            return cs;
+        }, (CallableStatementCallback<Long>) cs -> {
+            cs.execute();
+            return cs.getLong(5); // Повертаємо ID нового бронювання
+        });
     }
 }

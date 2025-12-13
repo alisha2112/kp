@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Login - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div class="container" style="max-width: 450px;">
+
+        <div class="text-center mb-5">
+            <div class="logo-box mx-auto mb-4 bg-dark">
+                <span class="text-white font-serif fw-bold fs-4">H</span>
+            </div>
+            <h2 class="font-serif fw-bold mb-2">Hotel Portal</h2>
+            <p class="text-secondary small">Sign in to access your bookings</p>
+        </div>
+
+        <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1">
+
+            <div th:if="${param.error}" class="alert alert-danger py-2 small mb-4">
+                Login failed. Please check your phone number.
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="phone" class="form-label text-secondary text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Phone Number</label>
+                    <input type="text" class="form-control rounded-1 p-2" id="phone" name="phone" placeholder="+380..." required>
+                </div>
+
+                <button type="submit" class="btn btn-luxury w-100 py-2">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="mt-4 text-center border-top pt-4">
+                 <span class="bg-white px-2 text-secondary small position-relative" style="top: -28px;">
+                     Or return to website
+                 </span>
+                <br>
+                <a href="/" class="text-dark text-decoration-none small fw-bold">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const phone = document.getElementById('phone').value;
+        const btn = this.querySelector('button');
+
+        btn.disabled = true;
+        btn.innerText = "Checking...";
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'phone=' + encodeURIComponent(phone)
+            });
+
+            if (response.ok) {
+                // Просто переходимо на головну або в профіль, як звичайний клієнт
+                window.location.href = '/profile';
+            } else {
+                alert('User not found via phone number');
+                btn.disabled = false;
+                btn.innerText = "Sign In";
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Login error');
+            btn.disabled = false;
+            btn.innerText = "Sign In";
+        }
+    });
+</script>
+
+</body>
+</html>

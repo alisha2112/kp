@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>My Bookings - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 900px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">My Bookings</h1>
+                <p class="text-secondary small mb-0">Manage your upcoming and past stays</p>
+            </div>
+            <span class="badge bg-white text-secondary border border-light-subtle fw-normal rounded-1 px-3 py-2">
+                Client ID: <span th:text="${session.USER_ID}">#</span>
+            </span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+                        <a href="/profile" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Personal Info
+                        </a>
+                        <a href="/my-bookings" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
+                            <span>My Bookings</span>
+                            <span>&rsaquo;</span>
+                        </a>
+                        <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Payment History
+                        </a>
+                        <a href="/promotions" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Promotions
+                        </a>
+                        <a href="/reviews" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            My Reviews
+                        </a>
+                        <a href="/favorites" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Favorites
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1" style="min-height: 400px;">
+
+                    <div th:if="${bookings == null or bookings.isEmpty()}" class="h-100 d-flex flex-column justify-content-center align-items-center text-center py-5">
+                        <div class="mb-4 text-secondary opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        </div>
+                        <h3 class="font-serif fw-bold h4 mb-2 text-dark">No Bookings Found</h3>
+                        <p class="text-secondary mb-4 small" style="max-width: 300px;">
+                            You haven't booked any rooms with us yet.
+                        </p>
+                        <a href="/" class="btn btn-luxury px-5 py-2">Find a Room</a>
+                    </div>
+
+                    <div th:if="${bookings != null and !bookings.isEmpty()}" class="d-flex flex-column gap-4">
+                        <div th:each="booking : ${bookings}" class="border-bottom pb-4 last:border-0 last:pb-0">
+
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h4 class="font-serif fw-bold h5 text-dark mb-1" th:text="${booking.hotel_name}">Hotel Name</h4>
+                                    <p class="text-secondary x-small text-uppercase mb-0">
+                                        <span th:text="${booking.city}">City</span> • ID: <span th:text="${booking.booking_id}">#</span>
+                                    </p>
+                                </div>
+                                <span class="badge rounded-0 fw-normal text-uppercase x-small px-2 py-1"
+                                      th:classappend="${booking.status == 'confirmed' ? 'bg-success' : (booking.status == 'cancelled' ? 'bg-danger' : 'bg-secondary')}"
+                                      th:text="${booking.status}">
+                                    STATUS
+                                </span>
+                            </div>
+
+                            <div class="bg-light p-3 rounded-1 mb-3">
+                                <div class="row g-2 text-secondary small">
+                                    <div class="col-6">
+                                        <span class="d-block x-small fw-bold text-uppercase text-muted">Check-In</span>
+                                        <span class="text-dark" th:text="${booking.check_in}">Date</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="d-block x-small fw-bold text-uppercase text-muted">Check-Out</span>
+                                        <span class="text-dark" th:text="${booking.check_out}">Date</span>
+                                    </div>
+                                    <div class="col-12 mt-2 pt-2 border-top border-light-subtle">
+                                        <span class="d-block x-small fw-bold text-uppercase text-muted">Total Paid</span>
+                                        <span class="fw-bold text-dark" th:text="${booking.total_paid} + ' ₴'">0 ₴</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <button th:if="${booking.status == 'confirmed'}"
+                                        th:onclick="'cancelBooking(' + ${booking.booking_id} + ')'"
+                                        class="btn btn-outline-danger btn-sm text-uppercase fw-bold px-3"
+                                        style="font-size: 0.65rem; letter-spacing: 0.05em;">
+                                    Cancel
+                                </button>
+
+                                <button type="button"
+                                        th:if="${booking.status == 'confirmed'}"
+                                        th:onclick="'openPaymentModal(' + ${booking.booking_id} + ')'"
+                                        class="btn btn-success btn-sm text-uppercase fw-bold px-3"
+                                        style="font-size: 0.65rem; letter-spacing: 0.05em; background-color: #10b981; border-color: #10b981;">
+                                    Pay Online
+                                </button>
+
+                                <button type="button"
+                                        th:if="${booking.status == 'confirmed'}"
+                                        th:onclick="'openServiceModal(' + ${booking.booking_id} + ')'"
+                                        class="btn btn-dark btn-sm text-uppercase fw-bold px-3"
+                                        style="font-size: 0.65rem; letter-spacing: 0.05em;">
+                                    Services
+                                </button>
+
+                                <button type="button"
+                                        th:onclick="'openRepeatModal(' + ${booking.booking_id} + ')'"
+                                        class="btn btn-outline-luxury btn-sm text-uppercase fw-bold px-3 hover-dark"
+                                        style="font-size: 0.65rem; letter-spacing: 0.05em;">
+                                    Book Again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="repeatBookingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Book Again</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">Select new dates for your repeated stay in this room.</p>
+                    <form id="repeatForm">
+                        <input type="hidden" id="repeatBookingId" name="bookingId">
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">New Check-In</label>
+                            <input type="date" id="repeatCheckIn" name="checkIn" class="form-control rounded-1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">New Check-Out</label>
+                            <input type="date" id="repeatCheckOut" name="checkOut" class="form-control rounded-1" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="submitRepeatBooking()" class="btn btn-luxury btn-sm text-uppercase fw-bold px-4">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle bg-light">
+                    <h5 class="modal-title font-serif fw-bold text-dark">Secure Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="text-uppercase x-small fw-bold text-secondary mb-2">Total Amount Due</div>
+                        <h2 class="font-serif fw-bold text-dark">Full Balance</h2>
+                    </div>
+
+                    <form id="paymentForm">
+                        <input type="hidden" id="payBookingId" name="bookingId">
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Card Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></span>
+                                <input type="text" id="payCardToken" name="cardToken" class="form-control rounded-end-1 border-start-0 ps-0" placeholder="0000 0000 0000 0000" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Expiry</label>
+                                <input type="text" class="form-control rounded-1" placeholder="MM/YY">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">CVV</label>
+                                <input type="text" class="form-control rounded-1" placeholder="123">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitPayment()" class="btn btn-success btn-sm text-uppercase fw-bold px-4 w-100" style="background-color: #10b981; border-color: #10b981;">Pay Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Request Service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">Enhance your stay with our premium services.</p>
+
+                    <form id="serviceForm">
+                        <input type="hidden" id="serviceBookingId" name="bookingId">
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Select Service</label>
+                            <select id="serviceSelect" name="serviceId" class="form-select rounded-1" required>
+                                <option value="" selected disabled>Choose a service...</option>
+                                <option th:each="srv : ${services}"
+                                        th:value="${srv.service_id}"
+                                        th:text="${srv.service_name} + ' (' + ${srv.service_price} + ' ₴)'">
+                                    Spa Access (1200 ₴)
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-text x-small text-muted">
+                            Cost will be added to your room bill.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="submitServiceRequest()" class="btn btn-dark btn-sm text-uppercase fw-bold px-4">Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script layout:fragment="script">
+
+    // --- Cancel Logic ---
+    async function cancelBooking(bookingId) {
+        const reason = prompt("Please provide a reason for cancellation:");
+        if (reason === null) return;
+        if (reason.trim() === "") { alert("Reason required."); return; }
+
+        try {
+            const formData = new FormData();
+            formData.append("reason", reason);
+            const response = await fetch(`/api/client/bookings/${bookingId}/cancel`, {
+                method: 'POST', body: formData
+            });
+            if (response.ok) {
+                alert('Booking cancelled.');
+                location.reload();
+            } else {
+                alert('Error: ' + await response.text());
+            }
+        } catch (error) { console.error(error); alert('System error'); }
+    }
+
+    // --- REPEAT Logic ---
+    function openRepeatModal(bookingId) {
+        document.getElementById('repeatBookingId').value = bookingId;
+        document.getElementById('repeatCheckIn').value = '';
+        document.getElementById('repeatCheckOut').value = '';
+        const modal = new bootstrap.Modal(document.getElementById('repeatBookingModal'));
+        modal.show();
+    }
+
+    async function submitRepeatBooking() {
+        const id = document.getElementById('repeatBookingId').value;
+        const checkIn = document.getElementById('repeatCheckIn').value;
+        const checkOut = document.getElementById('repeatCheckOut').value;
+
+        if (!checkIn || !checkOut) { alert("Please select dates."); return; }
+
+        const btn = document.querySelector('#repeatBookingModal .btn-luxury');
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+
+        try {
+            const formData = new FormData();
+            formData.append('checkIn', checkIn);
+            formData.append('checkOut', checkOut);
+
+            const response = await fetch(`/api/client/bookings/${id}/repeat`, {
+                method: 'POST', body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Room re-booked! ID: ' + data.newBookingId);
+                location.reload();
+            } else {
+                alert('Failed: ' + await response.text());
+            }
+        } catch (error) { console.error(error); alert('System error'); }
+        finally { btn.disabled = false; btn.innerText = "Confirm"; }
+    }
+
+    // --- PAYMENT Logic ---
+    function openPaymentModal(bookingId) {
+        document.getElementById('payBookingId').value = bookingId;
+        document.getElementById('payCardToken').value = '';
+        const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        modal.show();
+    }
+
+    async function submitPayment() {
+        const bookingId = document.getElementById('payBookingId').value;
+        const cardToken = document.getElementById('payCardToken').value;
+
+        if (!cardToken) { alert("Please enter card number."); return; }
+
+        const btn = document.querySelector('#paymentModal .btn-success');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+
+        try {
+            const formData = new FormData();
+            formData.append('bookingId', bookingId);
+            formData.append('cardToken', cardToken);
+
+            const response = await fetch('/api/client/pay', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Payment Successful!');
+                location.reload();
+            } else {
+                alert('Payment Failed: ' + await response.text());
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+
+    // --- SERVICE REQUEST Logic (NEW) ---
+    function openServiceModal(bookingId) {
+        document.getElementById('serviceBookingId').value = bookingId;
+        document.getElementById('serviceSelect').value = ""; // Reset
+        const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
+        modal.show();
+    }
+
+    async function submitServiceRequest() {
+        const bookingId = document.getElementById('serviceBookingId').value;
+        const serviceId = document.getElementById('serviceSelect').value;
+
+        if (!serviceId) {
+            alert("Please select a service.");
+            return;
+        }
+
+        const btn = document.querySelector('#serviceModal .btn-dark');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "Sending...";
+
+        try {
+            const formData = new FormData();
+            formData.append('bookingId', bookingId);
+            formData.append('serviceId', serviceId);
+
+            const response = await fetch('/api/client/services/request', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Service requested successfully! Staff will be notified.');
+                // Close modal
+                const modalEl = document.getElementById('serviceModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+            } else {
+                alert('Failed to request service: ' + await response.text());
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
+    .last\:border-0:last-child { border-bottom: 0 !important; padding-bottom: 0 !important; }
+</style>
+
+</body>
+</html>

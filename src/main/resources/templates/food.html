@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Room Service - HotelGroup</title>
+    <style>
+        .food-card { transition: transform 0.2s; }
+        .food-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .cart-sticky { position: sticky; top: 100px; }
+        .qty-input { width: 40px; text-align: center; border: none; background: transparent; }
+        .btn-qty { width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 1100px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">Room Service</h1>
+                <p class="text-secondary small mb-0">Exclusive dining delivered to your room</p>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 bg-white p-2 rounded shadow-sm border">
+                <label for="roomSelect" class="small fw-bold text-uppercase text-secondary mb-0">Deliver to:</label>
+                <select id="roomSelect" class="form-select form-select-sm border-0 bg-light" style="width: auto;">
+                    <option th:each="room : ${activeRooms}"
+                            th:value="${room.room_id}"
+                            th:text="${room.hotel_name} + ' - Room ' + ${room.room_number}">
+                        Grand Hotel - 101
+                    </option>
+                    <option th:if="${activeRooms.isEmpty()}" value="" disabled selected>No active check-in</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+                <div th:if="${activeRooms.isEmpty()}" class="alert alert-warning">
+                    Please check-in to a room to order food.
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6" th:each="item : ${menu}">
+                        <div class="bg-white p-4 rounded-1 border border-light-subtle h-100 food-card d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="fw-bold text-dark m-0" th:text="${item.name}">Burger</h5>
+                                <span class="badge bg-light text-dark border" th:text="${item.price} + ' ₴'">300 ₴</span>
+                            </div>
+                            <p class="text-secondary small flex-grow-1" th:text="${item.description}">Ingredients...</p>
+
+                            <div class="mt-3 d-flex justify-content-end">
+                                <button class="btn btn-outline-dark btn-sm text-uppercase fw-bold x-small px-3"
+                                        th:data-name="${item.name}"
+                                        th:data-price="${item.price}"
+                                        onclick="addToCart(this)">
+                                    Add to Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="bg-white p-4 rounded-1 shadow-sm border border-light-subtle cart-sticky">
+                    <h5 class="font-serif fw-bold border-bottom pb-3 mb-3">Your Order</h5>
+
+                    <div id="cartItems" class="d-flex flex-column gap-2 mb-4">
+                        <div class="text-center text-secondary small py-3" id="emptyCartMsg">Cart is empty</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 pt-3 border-top">
+                        <span class="fw-bold">Total:</span>
+                        <span class="fs-5 fw-bold text-dark" id="cartTotal">0.00 ₴</span>
+                    </div>
+
+                    <button id="orderBtn" onclick="submitOrder()" class="btn btn-warning w-100 py-2 fw-bold text-white text-uppercase" disabled>
+                        Confirm Order
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let cart = {}; // { "Burger": {price: 300, count: 1}, ... }
+
+        // ОНОВЛЕНА ФУНКЦІЯ: Приймає елемент кнопки (this) і бере дані з атрибутів
+        function addToCart(btn) {
+            // Отримуємо дані з data-атрибутів кнопки
+            const name = btn.getAttribute('data-name');
+            const price = parseFloat(btn.getAttribute('data-price'));
+
+            if (cart[name]) {
+                cart[name].count++;
+            } else {
+                cart[name] = { price: price, count: 1 };
+            }
+            renderCart();
+        }
+
+        // Функція для кнопок +/- всередині кошика
+        function changeCount(name, delta) {
+            if (cart[name]) {
+                cart[name].count += delta;
+                if (cart[name].count <= 0) delete cart[name];
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const emptyMsg = document.getElementById('emptyCartMsg');
+            const totalEl = document.getElementById('cartTotal');
+            const btn = document.getElementById('orderBtn');
+
+            container.innerHTML = '';
+            let total = 0;
+            let hasItems = false;
+
+            for (const [name, item] of Object.entries(cart)) {
+                hasItems = true;
+                total += item.price * item.count;
+
+                const div = document.createElement('div');
+                div.className = 'd-flex justify-content-between align-items-center bg-light p-2 rounded';
+                div.innerHTML = `
+                    <div class="lh-1">
+                        <div class="fw-bold small text-dark">${name}</div>
+                        <div class="x-small text-muted">${item.price} ₴</div>
+                    </div>
+                    <div class="d-flex align-items-center bg-white border rounded">
+                        <button class="btn btn-sm btn-qty text-secondary hover-dark" onclick="changeCount('${name}', -1)">-</button>
+                        <span class="qty-input small fw-bold">${item.count}</span>
+                        <button class="btn btn-sm btn-qty text-secondary hover-dark" onclick="changeCount('${name}', 1)">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+
+            if (hasItems) {
+                if(emptyMsg) emptyMsg.style.display = 'none';
+                btn.disabled = false;
+            } else {
+                container.innerHTML = '<div class="text-center text-secondary small py-3">Cart is empty</div>';
+                if(emptyMsg) emptyMsg.style.display = 'block';
+                btn.disabled = true;
+            }
+            totalEl.innerText = total.toFixed(2) + ' ₴';
+        }
+
+        async function submitOrder() {
+            const roomSelect = document.getElementById('roomSelect');
+            if (!roomSelect.value) {
+                alert("Please select a room for delivery (Check-in required).");
+                return;
+            }
+
+            const roomId = roomSelect.value;
+            const items = [];
+            for (const [name, item] of Object.entries(cart)) {
+                items.push({ name: name, count: item.count });
+            }
+
+            const btn = document.getElementById('orderBtn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+
+            try {
+                // Формуємо JSON згідно з вимогами процедури sp_client_order_food
+                const payload = { items: items };
+
+                const response = await fetch(`/api/client/food/order?roomId=${roomId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert("Order placed successfully! Kitchen is preparing your meal.");
+                    cart = {};
+                    renderCart();
+                } else {
+                    alert("Failed: " + await response.text());
+                }
+            } catch (e) {
+                console.error(e);
+                alert("System error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+    </script>
+</div>
+
+</body>
+</html>

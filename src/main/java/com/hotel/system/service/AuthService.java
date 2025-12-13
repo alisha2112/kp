@@ -14,51 +14,58 @@ public class AuthService {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * Перевірка входу для Співробітника (Admin, Manager, Cleaner, Owner)
-     * Використовує таблицю emp_main
+     * Універсальний вхід за номером телефону.
+     * Визначає, чи це співробітник, чи клієнт, і повертає відповідну роль.
      */
-    public Map<String, Object> loginEmployee(String username, String password) {
-        String sql = """
-            SELECT e.employee_id, e.first_name, e.last_name, e.position, e.hotel_id 
-            FROM emp_main em
-            JOIN employees e ON em.e_id = e.employee_id
-            WHERE em.username = ? AND em.password = ?
-        """;
+    public Map<String, Object> universalLogin(String phone) {
+        // 1. Спочатку шукаємо серед СПІВРОБІТНИКІВ (через безпечну функцію)
+        // ВИПРАВЛЕНО: Використовуємо функцію замість прямого SELECT
+        String empSql = "SELECT * FROM sp_login_employee_by_phone(?)";
 
         try {
-            return jdbcTemplate.queryForMap(sql, username, password);
+            Map<String, Object> emp = jdbcTemplate.queryForMap(empSql, phone);
+
+            String position = (String) emp.get("position");
+            String role = mapPositionToRole(position);
+
+            return Map.of(
+                    "type", "EMPLOYEE",
+                    "id", emp.get("employee_id"),
+                    "name", emp.get("first_name") + " " + emp.get("last_name"),
+                    "role", role,
+                    "hotel_id", emp.get("hotel_id")
+            );
         } catch (EmptyResultDataAccessException e) {
-            return null; // Невірний логін або пароль
+            // Не знайшли серед співробітників, йдемо далі
+        }
+
+        // 2. Шукаємо серед КЛІЄНТІВ (ця функція sp_login_client вже працює)
+        String clientSql = "SELECT * FROM sp_login_client(?)";
+        try {
+            Map<String, Object> client = jdbcTemplate.queryForMap(clientSql, phone);
+
+            return Map.of(
+                    "type", "CLIENT",
+                    "id", client.get("client_id"),
+                    "name", client.get("first_name") + " " + client.get("last_name"),
+                    "role", "CLIENT",
+                    "hotel_id", 0
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 
-    /**
-     * Перевірка входу для Клієнта
-     * Використовує таблицю clients (пошук за телефоном)
-     */
-    public Map<String, Object> loginClient(String phone) {
-        String sql = "SELECT * FROM clients WHERE phone = ?";
-
-        try {
-            return jdbcTemplate.queryForMap(sql, phone);
-        } catch (EmptyResultDataAccessException e) {
-            return null; // Клієнта не знайдено
-        }
-    }
-
-    /**
-     * Визначає системну роль (для Dynamic Routing) на основі посади співробітника
-     */
-    public String mapPositionToRole(String position) {
+    private String mapPositionToRole(String position) {
         if (position == null) return "GUEST";
+        String pos = position.toLowerCase();
 
-        return switch (position.toLowerCase()) {
-            case "admin", "receptionist", "адміністратор" -> "ADMIN";
-            case "manager", "менеджер" -> "MANAGER";
-            case "owner", "власник", "ceo" -> "OWNER";
-            case "cleaner", "housekeeper", "прибиральниця" -> "CLEANER";
-            case "accountant", "бухгалтер" -> "ACCOUNTANT";
-            default -> "EMPLOYEE"; // Запасний варіант (можна мапити на role_employee)
-        };
+        if (pos.contains("admin") || pos.contains("адміністратор")) return "ADMIN";
+        if (pos.contains("manager") || pos.contains("менеджер")) return "MANAGER";
+        if (pos.contains("owner") || pos.contains("власник")) return "OWNER";
+        if (pos.contains("cleaner") || pos.contains("прибиральниця")) return "CLEANER";
+        if (pos.contains("accountant") || pos.contains("бухгалтер")) return "ACCOUNTANT";
+
+        return "EMPLOYEE";
     }
 }

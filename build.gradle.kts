@@ -22,17 +22,21 @@ repositories {
 }
 
 dependencies {
-    // Веб-сервер та шаблонізатор
+    // Веб-сервер та шаблонізатор (Thymeleaf)
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    // --- ВАЖЛИВО: Бібліотека для Layouts (щоб працювало layout:decorate у HTML) ---
+    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
+
     // Робота з Базою Даних (JDBC)
+    // У starter-jdbc є JdbcTemplate, який ми використовуємо в репозиторіях
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
 
     // Драйвер PostgreSQL
     runtimeOnly("org.postgresql:postgresql")
 
-    // Інструменти розробника (Lombok)
+    // Інструменти розробника (Lombok, гаряче перезавантаження)
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")

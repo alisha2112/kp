@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Active Promotions - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 900px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">Active Promotions</h1>
+                <p class="text-secondary small mb-0">Exclusive offers just for you</p>
+            </div>
+            <span class="badge bg-white text-secondary border border-light-subtle fw-normal rounded-1 px-3 py-2">
+                Client ID: <span th:text="${session.USER_ID}">#</span>
+            </span>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+                        <a href="/profile" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Personal Info</a>
+                        <a href="/my-bookings" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">My Bookings</a>
+                        <a href="/payments/history" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">Payment History</a>
+
+                        <a href="/promotions" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
+                            <span>Promotions</span>
+                            <span>&rsaquo;</span>
+                        </a>
+                        <a href="/reviews" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            My Reviews
+                        </a>
+                        <a href="/favorites" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Favorites
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1" style="min-height: 400px;">
+
+                    <div th:if="${promos == null or promos.isEmpty()}" class="h-100 d-flex flex-column justify-content-center align-items-center text-center py-5">
+                        <div class="mb-4 text-secondary opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                        </div>
+                        <h3 class="font-serif fw-bold h4 mb-2 text-dark">No Active Offers</h3>
+                        <p class="text-secondary mb-4 small" style="max-width: 300px;">
+                            Check back later for seasonal discounts and special deals.
+                        </p>
+                    </div>
+
+                    <div th:if="${promos != null and !promos.isEmpty()}" class="row g-4">
+                        <div class="col-md-6" th:each="promo : ${promos}">
+                            <div class="p-4 border border-light-subtle rounded-1 bg-light position-relative overflow-hidden h-100 d-flex flex-column">
+                                <div class="position-absolute top-0 end-0 opacity-10 p-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor" class="text-dark"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><circle cx="7" cy="7" r="1.5" fill="white"></circle></svg>
+                                </div>
+
+                                <div class="mb-3">
+                                    <span class="badge bg-dark text-white rounded-0 px-2 py-1 x-small fw-normal text-uppercase">Active</span>
+                                    <h3 class="font-serif fw-bold h2 mt-2 mb-0 text-dark" th:text="${promo.discount_percent} + '% OFF'">10% OFF</h3>
+                                    <p class="text-secondary small mt-1">on your next booking</p>
+                                </div>
+
+                                <div class="mt-auto">
+                                    <div class="bg-white border border-dashed border-secondary rounded-1 p-2 text-center position-relative group cursor-pointer"
+                                         th:data-code="${promo.code}"
+                                         onclick="copyCode(this)"
+                                         title="Click to copy">
+                                        <span class="font-monospace fw-bold text-dark fs-5 tracking-wider" th:text="${promo.code}">SUMMER2025</span>
+                                        <span class="position-absolute top-50 end-0 translate-middle-y me-2 text-secondary opacity-50 small">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                        </span>
+                                    </div>
+                                    <p class="text-center x-small text-secondary mt-2 mb-0">
+                                        Valid until <span th:text="${promo.expires_at}">2025-12-31</span>
+                                        (<span th:text="${promo.days_left}">5</span> days left)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+    // Оновлена функція: бере код з атрибута data-code
+    function copyCode(element) {
+        // Отримуємо значення з data-атрибута
+        const code = element.getAttribute('data-code');
+
+        if (code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const originalBg = element.style.backgroundColor;
+                element.style.backgroundColor = "#dcfce7"; // Greenish
+                setTimeout(() => {
+                    element.style.backgroundColor = originalBg;
+                }, 500);
+                alert("Promo code copied: " + code);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    }
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    .border-dashed { border-style: dashed !important; }
+    .cursor-pointer { cursor: pointer; }
+    .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
+</style>
+
+</body>
+</html>

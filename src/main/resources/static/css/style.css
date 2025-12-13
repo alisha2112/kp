@@ -1,0 +1,80 @@
+/* Імпорт шрифтів, схожих на ті, що в прикладі */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    --primary-color: #111827; /* Gray-900 */
+    --text-color: #374151;    /* Gray-700 */
+    --bg-light: #F9FAFB;      /* Gray-50 */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--primary-color);
+    background-color: #fff;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Перевизначення Bootstrap кнопок під твій стиль */
+.btn-luxury {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 2px; /* rounded-sm */
+    text-transform: uppercase;
+    letter-spacing: 0.1em; /* tracking-widest */
+    font-weight: 700;
+    font-size: 0.75rem; /* text-xs */
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.btn-luxury:hover {
+    background-color: black;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-luxury {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.5rem 1.5rem;
+}
+
+.btn-outline-luxury:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Логотип */
+.logo-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
+
+/* Картки */
+.card-luxury {
+    border: 1px solid #f3f4f6;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.card-luxury:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}

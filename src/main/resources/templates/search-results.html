@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Available Rooms - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="bg-light py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h1 class="font-serif fw-bold h2 m-0">Available Rooms</h1>
+                <a href="/" class="text-secondary text-decoration-none small fw-bold text-uppercase">Modify Search</a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4" th:each="room : ${rooms}">
+                    <div class="card card-luxury h-100 border-0 bg-white p-0 overflow-hidden shadow-sm">
+                        <div class="bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center position-relative" style="height: 200px;">
+                            <span class="text-secondary font-serif fst-italic">Room Image</span>
+                            <span class="position-absolute top-0 end-0 m-3 badge bg-white text-dark border border-secondary fw-normal rounded-0 text-uppercase"
+                                  style="font-size: 0.65rem; letter-spacing: 0.1em;"
+                                  th:text="${room.comfort_level}">LUXURY</span>
+                        </div>
+
+                        <div class="p-4 d-flex flex-column h-100">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h3 class="font-serif fw-bold h5 mb-1" th:text="${room.hotel_name}">Hotel Name</h3>
+                                    <span class="text-secondary small">Room #<span th:text="${room.room_number}">101</span></span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="d-block font-serif fw-bold h5 mb-0" th:text="${room.price_per_night} + ' ₴'">2500 ₴</span>
+                                    <span class="text-secondary x-small">per night</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4 text-secondary small border-top pt-3 mt-2">
+                                <p class="mb-1 d-flex justify-content-between">
+                                    <span>Capacity:</span>
+                                    <span class="fw-bold text-dark" th:text="${room.capacity} + ' Guests'">2 Guests</span>
+                                </p>
+                                <p class="mb-0 d-flex justify-content-between align-items-center">
+                                    <span>Total Price:</span>
+                                    <span class="fw-bold text-dark fs-6" th:text="${room.total_price} + ' ₴'">5000 ₴</span>
+                                </p>
+                            </div>
+
+                            <div class="mt-auto">
+                                <a th:if="${session.USER_ID == null}"
+                                   href="/login"
+                                   class="btn btn-outline-luxury w-100">
+                                    Login to Book
+                                </a>
+
+                                <div th:if="${session.USER_ID != null}" class="d-flex gap-2">
+                                    <a th:href="@{/client/book(roomId=${room.room_id}, checkIn=${checkIn}, checkOut=${checkOut}, guests=${guests})}"
+                                       class="btn btn-luxury flex-grow-1 text-uppercase fw-bold"
+                                       style="font-size: 0.8rem;">
+                                        Book Now
+                                    </a>
+
+                                    <button class="btn btn-outline-secondary px-3"
+                                            title="Add to Favorites"
+                                            th:onclick="'addToFavorites(' + ${room.room_id} + ')'">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 text-center py-5" th:if="${rooms == null or rooms.isEmpty()}">
+                    <div class="text-secondary opacity-25 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <h3 class="font-serif text-dark fw-bold">No rooms found</h3>
+                    <p class="text-secondary">Try changing your dates or number of guests.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function addToFavorites(roomId) {
+            // Анімація кнопки (опціонально, для візуального ефекту)
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            btn.disabled = true;
+
+            try {
+                // Виклик вашого ендпоінту
+                const response = await fetch(`/api/client/rooms/${roomId}/favorite`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    alert("Room added to your Favorites!");
+                    // Можна зафарбувати сердечко
+                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#dc2626" stroke="#dc2626" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+                } else {
+                    const text = await response.text();
+                    alert("Note: " + text); // Наприклад, якщо вже є в улюблених
+                    btn.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error(error);
+                alert("System error. Please try again.");
+                btn.innerHTML = originalHtml;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+
+    <style>
+        .hover-shadow:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; transition: .3s; }
+    </style>
+</div>
+
+</body>
+</html>

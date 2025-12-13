@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Confirm Booking - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 600px;">
+
+        <div class="mb-4">
+            <a href="javascript:history.back()" class="text-decoration-none text-secondary x-small fw-bold text-uppercase hover-dark">&larr; Back to Search</a>
+        </div>
+
+        <div class="text-center mb-5">
+            <h1 class="font-serif fw-bold h2 m-0 text-dark">Confirm Your Stay</h1>
+            <p class="text-secondary small">Please review the details before confirming.</p>
+        </div>
+
+        <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1">
+
+            <div class="mb-4 pb-4 border-bottom">
+                <h3 class="font-serif fw-bold h4 mb-1 text-dark" th:text="${room.hotel_name}">Grand Hotel</h3>
+                <p class="text-secondary small mb-3">
+                    Room #<span th:text="${room.room_number}">101</span> •
+                    <span class="text-uppercase" th:text="${room.comfort_level}">Suite</span>
+                </p>
+
+                <div class="row g-3 bg-light p-3 rounded-1 border border-light-subtle">
+                    <div class="col-6 border-end">
+                        <span class="d-block x-small fw-bold text-uppercase text-muted">Check-In</span>
+                        <span class="text-dark fw-bold fs-6" th:text="${checkIn}">2025-01-01</span>
+                    </div>
+                    <div class="col-6 ps-4">
+                        <span class="d-block x-small fw-bold text-uppercase text-muted">Check-Out</span>
+                        <span class="text-dark fw-bold fs-6" th:text="${checkOut}">2025-01-05</span>
+                    </div>
+                    <div class="col-12 border-top pt-2 mt-2">
+                        <span class="d-block x-small fw-bold text-uppercase text-muted">Guests</span>
+                        <span class="text-dark fw-bold" th:text="${guests}">2</span> Adults
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <span class="font-serif text-secondary">Total Price (<span th:text="${days}">4</span> nights)</span>
+                    <div class="text-end">
+                        <span id="oldPrice" class="text-muted text-decoration-line-through x-small d-none me-2"></span>
+
+                        <span id="displayPrice" class="font-serif fw-bold h3 m-0 text-dark"
+                              th:text="${totalPrice} + ' ₴'"
+                              th:data-original-price="${totalPrice}">5000 ₴</span>
+                    </div>
+                </div>
+
+                <div class="input-group input-group-sm mb-1">
+                    <input type="text" id="promoCodeInput" class="form-control rounded-start-1 border-secondary-subtle" placeholder="Enter promo code">
+                    <button class="btn btn-outline-secondary rounded-end-1 text-uppercase fw-bold x-small hover-dark" type="button" onclick="applyPromoCode()">Apply</button>
+                </div>
+                <div id="promoMessage" class="form-text x-small mt-1" style="min-height: 20px;"></div>
+            </div>
+
+            <form id="bookingForm">
+                <input type="hidden" name="roomId" th:value="${room.room_id}">
+                <input type="hidden" name="checkIn" th:value="${checkIn}">
+                <input type="hidden" name="checkOut" th:value="${checkOut}">
+                <input type="hidden" name="guests" th:value="${guests}">
+
+                <input type="hidden" name="promoCode" id="hiddenPromoCode" value="">
+
+                <button type="button" onclick="confirmBooking()" class="btn btn-luxury w-100 py-3 text-uppercase fw-bold" style="letter-spacing: 0.1em;">
+                    Confirm Booking
+                </button>
+            </form>
+
+            <p class="text-center mt-3 mb-0 x-small text-muted">
+                Payment options available in your profile after booking.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+
+    // --- 1. ЛОГІКА ПРОМОКОДУ ---
+    async function applyPromoCode() {
+        const codeInput = document.getElementById('promoCodeInput');
+        const code = codeInput.value.trim();
+        const messageBox = document.getElementById('promoMessage');
+        const displayPrice = document.getElementById('displayPrice');
+        const oldPrice = document.getElementById('oldPrice');
+
+        if (!code) { messageBox.innerText = ""; return; }
+
+        try {
+            const formData = new FormData();
+            formData.append('code', code);
+
+            // Перевіряємо код на сервері (чи він взагалі існує і активний)
+            const response = await fetch('/api/client/promocode', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const discountPercent = data.discount;
+
+                // Рахуємо нову ціну для показу
+                const originalPrice = parseFloat(displayPrice.getAttribute('data-original-price'));
+                const discountAmount = originalPrice * (discountPercent / 100);
+                const newPrice = originalPrice - discountAmount;
+
+                // Оновлюємо UI
+                oldPrice.innerText = originalPrice.toFixed(2) + ' ₴';
+                oldPrice.classList.remove('d-none');
+
+                displayPrice.innerText = newPrice.toFixed(2) + ' ₴';
+                displayPrice.classList.remove('text-dark');
+                displayPrice.classList.add('text-success');
+
+                messageBox.innerText = `Code applied! You saved ${discountPercent}%`;
+                messageBox.className = "form-text x-small mt-1 text-success fw-bold";
+
+                // --- ГОЛОВНИЙ МОМЕНТ ---
+                // Записуємо код у приховану форму, щоб відправити його при створенні броні
+                document.getElementById('hiddenPromoCode').value = code;
+
+                // Блокуємо поле вводу
+                codeInput.disabled = true;
+                document.querySelector('button[onclick="applyPromoCode()"]').disabled = true;
+
+            } else {
+                const errorText = await response.text();
+                let msg = "Invalid code";
+                try { msg = JSON.parse(errorText).message || msg; } catch(e) {}
+
+                messageBox.innerText = msg;
+                messageBox.className = "form-text x-small mt-1 text-danger";
+
+                // Очищаємо приховане поле, якщо код невірний
+                document.getElementById('hiddenPromoCode').value = "";
+            }
+        } catch (error) {
+            console.error(error);
+            messageBox.innerText = "System error";
+        }
+    }
+
+    // --- 2. ЛОГІКА ПІДТВЕРДЖЕННЯ ---
+    async function confirmBooking() {
+        const form = document.getElementById('bookingForm');
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="confirmBooking()"]');
+        const originalText = btn.innerText;
+
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+
+        try {
+            const response = await fetch('/api/client/bookings', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Booking Confirmed! ID: ' + data.bookingId);
+                window.location.href = '/my-bookings';
+            } else {
+                const text = await response.text();
+                alert('Booking Failed: ' + text);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    .hover-dark:hover { color: #111827 !important; border-color: #111827 !important; }
+    .text-success { color: #10b981 !important; }
+</style>
+
+</body>
+</html>

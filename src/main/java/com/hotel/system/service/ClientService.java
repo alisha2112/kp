@@ -55,14 +55,24 @@ public class ClientService {
         clientRepository.deleteAccount(clientId);
     }
 
+    public Map<String, Object> getClientProfile(Long clientId) {
+        return clientRepository.getClientById(clientId);
+    }
+
     // 2. Бронювання
     public List<Map<String, Object>> searchRoomsForClient(LocalDate checkIn, LocalDate checkOut, String city) {
         return roomRepository.getRoomsForClient(checkIn, checkOut, city);
     }
 
     @Transactional
-    public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests) {
-        return bookingRepository.createBookingClient(clientId, roomId, checkIn, checkOut, guests);
+//    public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests) {
+//        return bookingRepository.createBookingClient(clientId, roomId, checkIn, checkOut, guests);
+//    }
+//    public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests, String promoCode) {
+//        return clientRepository.bookRoom(clientId, roomId, checkIn, checkOut, guests, promoCode);
+//    }
+    public Long bookRoom(Long clientId, Long roomId, LocalDate checkIn, LocalDate checkOut, Integer guests, String promoCode) {
+        return clientRepository.bookRoom(clientId, roomId, checkIn, checkOut, guests, promoCode);
     }
 
     @Transactional
@@ -99,10 +109,21 @@ public class ClientService {
         return marketingRepository.getActivePromotions();
     }
 
+    public List<Map<String, Object>> getAllServices() {
+        return serviceRepository.getAllServices();
+    }
     // 6. Послуги
     @Transactional
     public void requestService(Long clientId, Long bookingId, Long serviceId) {
         serviceRepository.requestService(clientId, bookingId, serviceId);
+    }
+
+    public List<Map<String, Object>> getMenu() {
+        return serviceRepository.getMenu();
+    }
+
+    public List<Map<String, Object>> getActiveRooms(Long clientId) {
+        return serviceRepository.getActiveRooms(clientId);
     }
 
     @Transactional
@@ -110,14 +131,36 @@ public class ClientService {
         serviceRepository.orderFood(clientId, roomId, itemsJson);
     }
 
-    // 7. Відгуки та Вибране
+    public List<Map<String, Object>> getBookingsForReview(Long clientId) {
+        return reviewRepository.getBookingsForReview(clientId);
+    }
+
     @Transactional
     public void leaveReview(Long clientId, Long bookingId, Integer rating, String comment) {
-        reviewRepository.addClientReview(clientId, bookingId, rating, comment);
+        reviewRepository.leaveReview(clientId, bookingId, rating, comment);
+    }
+
+    // 7. Відгуки та Вибране
+//    @Transactional
+//    public void leaveReview(Long clientId, Long bookingId, Integer rating, String comment) {
+//        reviewRepository.addClientReview(clientId, bookingId, rating, comment);
+//    }
+
+    public List<Map<String, Object>> getFavoriteRooms(Long clientId) {
+        return clientRepository.getFavoriteRooms(clientId);
+    }
+
+    public void removeFromFavorites(Long clientId, Long roomId) {
+        clientRepository.removeFromFavorites(clientId, roomId);
     }
 
     @Transactional
     public void addToFavorites(Long clientId, Long roomId) {
         clientRepository.addFavoriteRoom(clientId, roomId);
+    }
+
+    // Додайте цей метод у клас ClientService
+    public Map<String, Object> getRoomDetails(Long roomId) {
+        return clientRepository.getRoomDetails(roomId); // Викликаємо репозиторій
     }
 }

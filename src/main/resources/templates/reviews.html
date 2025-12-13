@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Reviews - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="bg-light py-5 mt-5">
+        <div class="container" style="max-width: 800px;">
+
+            <div class="mb-5 text-center">
+                <h1 class="font-serif fw-bold h2">Guest Reviews</h1>
+                <p class="text-secondary">
+                    Що кажуть гості про <span class="fw-bold text-dark" th:text="${hotelName}">Grand Hotel</span>
+                </p>
+            </div>
+
+            <div class="d-flex flex-column gap-4">
+                <div class="bg-white p-4 shadow-sm border border-light-subtle rounded-1" th:each="review : ${reviews}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center fw-bold font-serif"
+                                 style="width: 40px; height: 40px;"
+                                 th:text="${#strings.substring(review.reviewer_name, 0, 1)}">A</div>
+                            <div>
+                                <h5 class="mb-0 font-serif fw-bold text-dark" th:text="${review.reviewer_name}">Anna K.</h5>
+                                <small class="text-secondary" th:text="${review.date}">2024-01-01</small>
+                            </div>
+                        </div>
+
+                        <div class="text-warning">
+                            <span th:each="i : ${#numbers.sequence(1, review.rating)}">★</span>
+                            <span th:each="i : ${#numbers.sequence(review.rating + 1, 5, 1)}" th:if="${review.rating < 5}" class="text-muted">★</span>
+                        </div>
+                    </div>
+
+                    <p class="text-secondary fst-italic mb-3">
+                        "<span th:text="${review.comment}">Great stay!</span>"
+                    </p>
+
+                    <div class="border-top pt-2" th:if="${review.staff_position != null}">
+                        <small class="text-muted x-small text-uppercase">
+                            Service by: <span th:text="${review.staff_position}">Reception</span>
+                        </small>
+                    </div>
+                </div>
+
+                <div class="text-center py-5" th:if="${reviews == null or reviews.isEmpty()}">
+                    <p class="text-secondary">No reviews yet for this hotel.</p>
+                    <a href="/" class="btn btn-outline-luxury mt-3">Back to Home</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

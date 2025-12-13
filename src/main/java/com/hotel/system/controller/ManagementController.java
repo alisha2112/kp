@@ -31,7 +31,6 @@ public class ManagementController {
 
     // ================== МЕНЕДЖЕР ==================
 
-    // 1. Звітність
     @GetMapping("/reports/financial")
     public ResponseEntity<?> getFinancialReport(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end, HttpSession session) {
@@ -69,6 +68,15 @@ public class ManagementController {
                                          @RequestParam LocalTime start, @RequestParam LocalTime end) {
         managementService.assignShift(id, date, start, end);
         return ResponseEntity.ok("Shift assigned");
+    }
+
+    // --- НОВЕ: Призначення прибирання ---
+    @PostMapping("/staff/assign-cleaning")
+    public ResponseEntity<?> assignCleaningTask(@RequestParam Integer roomNumber,
+                                                @RequestParam Long cleanerId,
+                                                @RequestParam(defaultValue = "Planned cleaning") String note) {
+        managementService.assignCleaningTask(roomNumber, cleanerId, note);
+        return ResponseEntity.ok("Cleaning task assigned successfully");
     }
 
     @GetMapping("/staff/workload")

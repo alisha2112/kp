@@ -21,10 +21,14 @@ public class PaymentRepository {
                 bookingId, lastName, firstName, middleName, method, hotelId);
     }
 
-    /** 4.2 Контроль боргів */
-    public Map<String, Object> getDebtStatus(Long bookingId) {
-        String sql = "SELECT * FROM get_booking_debt_status(?)";
-        return jdbcTemplate.queryForMap(sql, bookingId);
+    /** 4.2 Контроль боргів (ОНОВЛЕНО: з hotelId) */
+    public Map<String, Object> getDebtStatus(Long bookingId, Long hotelId) {
+        String sql = "SELECT * FROM get_booking_debt_status_admin(?, ?)";
+        try {
+            return jdbcTemplate.queryForMap(sql, bookingId, hotelId);
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            return null; // Якщо доступ заборонено або запис не знайдено
+        }
     }
 
     // --- КЛІЄНТ ---

@@ -435,6 +435,32 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="debtModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm"> <div class="modal-content rounded-1 border-0 shadow-lg">
+            <div class="modal-header border-bottom border-light-subtle bg-light">
+                <h5 class="modal-title font-serif fw-bold">Payment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <span class="d-block x-small text-uppercase text-secondary fw-bold">Total Cost</span>
+                    <span class="fs-5 fw-bold text-dark" id="debtTotal">0 ₴</span>
+                </div>
+                <div class="mb-3">
+                    <span class="d-block x-small text-uppercase text-secondary fw-bold">Amount Paid</span>
+                    <span class="fs-5 fw-bold text-success" id="debtPaid">0 ₴</span>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <span class="d-block x-small text-uppercase text-secondary fw-bold">Balance Due</span>
+                    <span class="fs-4 fw-bold text-danger" id="debtBalance">0 ₴</span>
+                </div>
+                <div class="alert alert-light border mb-0 text-center small" id="debtMessage">
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
 
 </div>
 
@@ -532,6 +558,39 @@
         } finally {
             btn.disabled = false;
             btn.innerText = "Check";
+        }
+    }
+
+    // --- 12. CHECK DEBT ---
+    async function checkDebt(bookingId) {
+        try {
+            const response = await fetch(`/api/admin/bookings/${bookingId}/debt`);
+
+            if (response.ok) {
+                const data = await response.json();
+
+                document.getElementById('debtTotal').innerText = data.total_cost + ' ₴';
+                document.getElementById('debtPaid').innerText = data.total_paid + ' ₴';
+
+                const balanceEl = document.getElementById('debtBalance');
+                balanceEl.innerText = data.balance + ' ₴';
+
+                // Візуальне оформлення балансу
+                if (data.balance <= 0) {
+                    balanceEl.className = 'fs-4 fw-bold text-success'; // Зелений, якщо все сплачено
+                } else {
+                    balanceEl.className = 'fs-4 fw-bold text-danger'; // Червоний, якщо борг
+                }
+
+                document.getElementById('debtMessage').innerText = data.status_message;
+
+                new bootstrap.Modal(document.getElementById('debtModal')).show();
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
         }
     }
 
@@ -745,6 +804,10 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                                 </button>
                                 ` : ''}
+                                <button class="btn btn-sm btn-link text-info p-0 me-2" title="Check Debt Status"
+                                    onclick="checkDebt(${b.booking_id})">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                </button>
                                 ${b.status === 'confirmed' ? `
                                 <button class="btn btn-sm btn-link text-success p-0 me-2" title="Check Out"
                                     onclick="openCheckoutModal(${b.booking_id}, '${b.room_number}', '${b.total_price}')">

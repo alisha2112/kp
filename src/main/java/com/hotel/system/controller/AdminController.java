@@ -208,8 +208,22 @@ public class AdminController {
         }
     }
 
+    // --- ПЕРЕВІРКА БОРГУ ---
     @GetMapping("/bookings/{id}/debt")
-    public ResponseEntity<?> checkDebt(@PathVariable Long id) {
-        return ResponseEntity.ok(adminService.checkDebt(id));
+    public ResponseEntity<?> checkDebt(@PathVariable Long id, jakarta.servlet.http.HttpSession session) {
+        // 1. Отримуємо ID готелю
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+        if (hotelId == null) {
+            return ResponseEntity.badRequest().body("Session error");
+        }
+
+        // 2. Викликаємо сервіс
+        Map<String, Object> debtInfo = adminService.checkDebt(id, hotelId);
+
+        if (debtInfo == null) {
+            return ResponseEntity.status(403).body("Access denied or booking not found");
+        }
+
+        return ResponseEntity.ok(debtInfo);
     }
 }

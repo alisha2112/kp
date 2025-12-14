@@ -80,7 +80,8 @@ public class AdminService {
         paymentRepository.acceptPaymentAdmin(bookingId, lastName, firstName, middleName, method, hotelId);
     }
 
-    public Map<String, Object> checkDebt(Long bookingId) {
-        return paymentRepository.getDebtStatus(bookingId);
+    // 4.2 Перевірка боргу - ОНОВЛЕНО
+    public Map<String, Object> checkDebt(Long bookingId, Long hotelId) {
+        return paymentRepository.getDebtStatus(bookingId, hotelId);
     }
 }

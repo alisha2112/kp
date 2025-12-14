@@ -15,10 +15,10 @@ public class PaymentRepository {
 
     // --- АДМІНІСТРАТОР ---
 
-    /** 4.1 Прийом оплати */
-    public void acceptPaymentAdmin(Long bookingId, String lastName, String firstName, String middleName, String method) {
-        jdbcTemplate.update("CALL sp_accept_payment_secure(?, ?, ?, ?, ?)",
-                bookingId, lastName, firstName, middleName, method);
+    /** 4.1 Прийом оплати (ОНОВЛЕНО: з hotelId) */
+    public void acceptPaymentAdmin(Long bookingId, String lastName, String firstName, String middleName, String method, Long hotelId) {
+        jdbcTemplate.update("CALL sp_accept_payment_secure(?, ?, ?, ?, ?, ?)",
+                bookingId, lastName, firstName, middleName, method, hotelId);
     }
 
     /** 4.2 Контроль боргів */

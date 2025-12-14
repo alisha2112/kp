@@ -182,11 +182,30 @@ public class AdminController {
         }
     }
 
+    // --- ОПЛАТА ---
     @PostMapping("/payments")
-    public ResponseEntity<?> acceptPayment(@RequestParam Long bookingId, @RequestParam String lastName,
-                                           @RequestParam String firstName, @RequestParam String middleName, @RequestParam String method) {
-        adminService.acceptPayment(bookingId, lastName, firstName, middleName, method);
-        return ResponseEntity.ok("Payment accepted");
+    public ResponseEntity<?> acceptPayment(
+            @RequestParam Long bookingId,
+            @RequestParam String lastName,
+            @RequestParam String firstName,
+            @RequestParam String middleName,
+            @RequestParam String method,
+            jakarta.servlet.http.HttpSession session) {
+
+        // 1. Отримуємо ID готелю
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+        if (hotelId == null) {
+            return ResponseEntity.badRequest().body("Session error");
+        }
+
+        try {
+            // 2. Викликаємо сервіс
+            adminService.acceptPayment(bookingId, lastName, firstName, middleName, method, hotelId);
+            return ResponseEntity.ok("Payment accepted");
+        } catch (Exception e) {
+            // Обробка помилок (невірне ім'я, вже оплачено, чужий готель)
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/bookings/{id}/debt")

@@ -74,10 +74,10 @@ public class AdminService {
         reviewRepository.addReviewManually(bookingId, rating, comment, hotelId);
     }
 
-    // 4. Оплата
+    // 4. Оплата - ОНОВЛЕНО
     @Transactional
-    public void acceptPayment(Long bookingId, String lastName, String firstName, String middleName, String method) {
-        paymentRepository.acceptPaymentAdmin(bookingId, lastName, firstName, middleName, method);
+    public void acceptPayment(Long bookingId, String lastName, String firstName, String middleName, String method, Long hotelId) {
+        paymentRepository.acceptPaymentAdmin(bookingId, lastName, firstName, middleName, method, hotelId);
     }
 
     public Map<String, Object> checkDebt(Long bookingId) {

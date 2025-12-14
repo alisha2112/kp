@@ -33,11 +33,11 @@
                             <span>&rsaquo;</span>
                         </button>
 
-                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
+                        <button onclick="showSection('occupancy')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
                             Occupancy
                         </button>
 
-                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
+                        <button onclick="showSection('feedback')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
                             Customer Feedback
                         </button>
 
@@ -63,7 +63,7 @@
 
                     <div id="financialSection">
                         <h3 class="font-serif fw-bold h4 mb-4 text-dark">Financial Report</h3>
-                        <p class="text-secondary small mb-4">Select a period to analyze income, expenses, and debts for your hotel.</p>
+                        <p class="text-secondary small mb-4">Select a period to analyze income, expenses, and debts.</p>
 
                         <div class="row g-3 align-items-end mb-5">
                             <div class="col-md-5">
@@ -75,7 +75,7 @@
                                 <input type="date" id="finEnd" class="form-control rounded-1 p-2">
                             </div>
                             <div class="col-md-2">
-                                <button onclick="loadFinancialReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.05em;">
+                                <button onclick="loadFinancialReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
                                     Generate
                                 </button>
                             </div>
@@ -86,40 +86,134 @@
                         <div id="finReportResult" style="display: none;">
                             <div class="row g-4 text-center">
                                 <div class="col-md-4">
-                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100 d-flex flex-column justify-content-center">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100">
                                         <div class="text-secondary x-small text-uppercase fw-bold mb-2">Total Income</div>
                                         <div class="fs-3 fw-bold text-success" id="valIncome">0 ₴</div>
-                                        <div class="x-small text-muted mt-1">Confirmed payments</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100 d-flex flex-column justify-content-center">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100">
                                         <div class="text-secondary x-small text-uppercase fw-bold mb-2">Transactions</div>
                                         <div class="fs-3 fw-bold text-dark" id="valCount">0</div>
-                                        <div class="x-small text-muted mt-1">Total operations</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100 d-flex flex-column justify-content-center">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100">
                                         <div class="text-secondary x-small text-uppercase fw-bold mb-2">Total Debt</div>
                                         <div class="fs-3 fw-bold text-danger" id="valDebt">0 ₴</div>
-                                        <div class="x-small text-muted mt-1">Unpaid services</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div id="finPlaceholder" class="text-center py-5 text-secondary opacity-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                            <p class="mt-3 small">Set dates and click Generate</p>
-                        </div>
-
-                        <div id="finLoading" class="text-center py-5" style="display: none;">
-                            <div class="spinner-border text-dark" role="status"></div>
-                        </div>
-
-                        <div id="finError" class="alert alert-danger mt-3 small" style="display: none;"></div>
                     </div>
+
+                    <div id="occupancySection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Occupancy Analysis</h3>
+                        <p class="text-secondary small mb-4">Check room usage efficiency for your hotel.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="occStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="occEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-2">
+                                <button onclick="loadOccupancyReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="occReportResult" style="display: none;">
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100 d-flex flex-column justify-content-center text-center">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-2">Occupancy Rate</div>
+                                        <div class="display-4 fw-bold text-dark mb-2" id="valOccPercent">0%</div>
+                                        <div class="progress" role="progressbar" style="height: 10px;">
+                                            <div id="occProgressBar" class="progress-bar bg-dark" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row g-3 h-100">
+                                        <div class="col-12">
+                                            <div class="p-3 border border-light-subtle rounded-1 bg-white h-100 d-flex justify-content-between align-items-center">
+                                                <span class="text-secondary x-small text-uppercase fw-bold">Total Rooms</span>
+                                                <span class="fs-5 fw-bold text-dark" id="valTotalRooms">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="p-3 border border-light-subtle rounded-1 bg-white h-100 d-flex justify-content-between align-items-center">
+                                                <span class="text-secondary x-small text-uppercase fw-bold">Occupied Days</span>
+                                                <span class="fs-5 fw-bold text-success" id="valOccDays">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="p-3 border border-light-subtle rounded-1 bg-white h-100 d-flex justify-content-between align-items-center">
+                                                <span class="text-secondary x-small text-uppercase fw-bold">Available Days</span>
+                                                <span class="fs-5 fw-bold text-muted" id="valAvailDays">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="feedbackSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Customer Feedback</h3>
+                        <p class="text-secondary small mb-4">Analyze ratings and complaints for the selected period.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="feedStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="feedEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-2">
+                                <button onclick="loadFeedbackReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Get Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="feedReportResult" style="display: none;">
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100 text-center">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-2">Average Rating</div>
+                                        <div class="display-4 fw-bold text-warning mb-1" id="valAvgRating">0.0</div>
+                                        <div class="text-warning fs-5" id="valStars">★★★★★</div>
+                                        <div class="text-muted small mt-2">Based on <span id="valReviewCount" class="fw-bold text-dark">0</span> reviews</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-white h-100">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-3">Key Complaints (< 4 stars)</div>
+                                        <div class="bg-light p-3 rounded border border-light-subtle small text-secondary fst-italic" id="valComplaints" style="max-height: 150px; overflow-y: auto;">
+                                            No complaints recorded for this period.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="commonLoading" class="text-center py-5" style="display: none;">
+                        <div class="spinner-border text-dark" role="status"></div>
+                    </div>
+                    <div id="commonError" class="alert alert-danger mt-3 small" style="display: none;"></div>
 
                 </div>
             </div>
@@ -129,56 +223,143 @@
 
 <script layout:fragment="script">
 
+    // --- NAVIGATION ---
     function showSection(section) {
-        // Placeholder for future tabs logic
-        console.log("Switching to " + section);
+        document.getElementById('financialSection').style.display = 'none';
+        document.getElementById('occupancySection').style.display = 'none';
+        document.getElementById('feedbackSection').style.display = 'none';
+
+        if (section === 'financial') {
+            document.getElementById('financialSection').style.display = 'block';
+        } else if (section === 'occupancy') {
+            document.getElementById('occupancySection').style.display = 'block';
+        } else if (section === 'feedback') {
+            document.getElementById('feedbackSection').style.display = 'block';
+        }
+
+        document.getElementById('commonError').style.display = 'none';
     }
 
+    // --- FINANCIAL REPORT ---
     async function loadFinancialReport() {
         const start = document.getElementById('finStart').value;
         const end = document.getElementById('finEnd').value;
+        if(!start || !end) { alert("Select dates"); return; }
 
-        const resultDiv = document.getElementById('finReportResult');
-        const placeholderDiv = document.getElementById('finPlaceholder');
-        const loadingDiv = document.getElementById('finLoading');
-        const errorDiv = document.getElementById('finError');
-
-        // Validation
-        if(!start || !end) {
-            alert("Please select both start and end dates.");
-            return;
-        }
-
-        // UI Updates
-        resultDiv.style.display = 'none';
-        placeholderDiv.style.display = 'none';
-        errorDiv.style.display = 'none';
-        loadingDiv.style.display = 'block';
+        toggleLoading(true);
 
         try {
-            // Fetch Data
             const response = await fetch(`/api/management/reports/financial?start=${start}&end=${end}`);
-
             if (response.ok) {
                 const data = await response.json();
-
-                // Update Values
                 document.getElementById('valIncome').innerText = data.total_income + ' ₴';
                 document.getElementById('valCount').innerText = data.transactions_count;
                 document.getElementById('valDebt').innerText = data.total_debt + ' ₴';
-
-                // Show Results
-                loadingDiv.style.display = 'none';
-                resultDiv.style.display = 'block';
+                document.getElementById('finReportResult').style.display = 'block';
             } else {
-                throw new Error(await response.text());
+                showError(await response.text());
             }
         } catch (e) {
-            console.error(e);
-            loadingDiv.style.display = 'none';
-            errorDiv.style.display = 'block';
-            errorDiv.innerText = "Error: " + e.message;
+            showError("System error");
+        } finally {
+            toggleLoading(false);
         }
+    }
+
+    // --- OCCUPANCY REPORT ---
+    async function loadOccupancyReport() {
+        const start = document.getElementById('occStart').value;
+        const end = document.getElementById('occEnd').value;
+        if(!start || !end) { alert("Select dates"); return; }
+
+        toggleLoading(true);
+
+        try {
+            const response = await fetch(`/api/management/reports/occupancy?start=${start}&end=${end}`);
+            if (response.ok) {
+                const data = await response.json();
+
+                document.getElementById('valTotalRooms').innerText = data.total_rooms;
+                document.getElementById('valOccDays').innerText = data.occupied_days;
+                document.getElementById('valAvailDays').innerText = data.available_days;
+
+                const percent = data.occupancy_percentage;
+                document.getElementById('valOccPercent').innerText = percent + '%';
+
+                const bar = document.getElementById('occProgressBar');
+                bar.style.width = percent + '%';
+
+                if (percent > 80) bar.className = 'progress-bar bg-success';
+                else if (percent > 50) bar.className = 'progress-bar bg-dark';
+                else bar.className = 'progress-bar bg-warning text-dark';
+
+                document.getElementById('occReportResult').style.display = 'block';
+            } else {
+                showError(await response.text());
+            }
+        } catch (e) {
+            showError("System error");
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    // --- CUSTOMER FEEDBACK REPORT (НОВЕ) ---
+    async function loadFeedbackReport() {
+        const start = document.getElementById('feedStart').value;
+        const end = document.getElementById('feedEnd').value;
+        if(!start || !end) { alert("Select dates"); return; }
+
+        toggleLoading(true);
+
+        try {
+            const response = await fetch(`/api/management/reports/customer-service?start=${start}&end=${end}`);
+            if (response.ok) {
+                const data = await response.json();
+                // SQL повертає: reviews_count, avg_rating, complaints_list (text)
+
+                document.getElementById('valReviewCount').innerText = data.reviews_count;
+                document.getElementById('valAvgRating').innerText = data.avg_rating || '0.0';
+
+                // Візуалізація зірок
+                const rating = Math.round(data.avg_rating || 0);
+                let starsHtml = '';
+                for(let i=0; i<5; i++) {
+                    if(i < rating) starsHtml += '★';
+                    else starsHtml += '<span class="text-muted opacity-25">★</span>';
+                }
+                document.getElementById('valStars').innerHTML = starsHtml;
+
+                // Скарги
+                const complaints = data.complaints_list;
+                if (complaints && complaints !== 'Скарг немає') {
+                    // Можемо розбити через крапку з комою для кращого вигляду, якщо потрібно
+                    document.getElementById('valComplaints').innerText = complaints;
+                } else {
+                    document.getElementById('valComplaints').innerText = "No significant complaints recorded for this period.";
+                }
+
+                document.getElementById('feedReportResult').style.display = 'block';
+            } else {
+                showError(await response.text());
+            }
+        } catch (e) {
+            showError("System error");
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
+    // --- HELPERS ---
+    function toggleLoading(show) {
+        document.getElementById('commonLoading').style.display = show ? 'block' : 'none';
+        document.getElementById('commonError').style.display = 'none';
+    }
+
+    function showError(msg) {
+        const errDiv = document.getElementById('commonError');
+        errDiv.innerText = "Error: " + msg;
+        errDiv.style.display = 'block';
     }
 
 </script>

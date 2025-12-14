@@ -19,9 +19,10 @@ public class AdminService {
     private final PaymentRepository paymentRepository;
     private final ReviewRepository reviewRepository;
 
-    // 1. Бронювання
-    public List<Map<String, Object>> checkRoomAvailability(LocalDate checkIn, LocalDate checkOut) {
-        return roomRepository.getAvailableRoomsAdmin(checkIn, checkOut);
+    // 1. Бронювання - ОНОВЛЕНО
+    public List<Map<String, Object>> checkRoomAvailability(LocalDate checkIn, LocalDate checkOut, Long hotelId) {
+        // Передаємо hotelId далі в репозиторій
+        return roomRepository.getAvailableRoomsAdmin(checkIn, checkOut, hotelId);
     }
 
     @Transactional

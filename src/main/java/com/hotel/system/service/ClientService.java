@@ -134,12 +134,6 @@ public class ClientService {
         reviewRepository.leaveReview(clientId, bookingId, rating, comment);
     }
 
-    // 7. Відгуки та Вибране
-//    @Transactional
-//    public void leaveReview(Long clientId, Long bookingId, Integer rating, String comment) {
-//        reviewRepository.addClientReview(clientId, bookingId, rating, comment);
-//    }
-
     public List<Map<String, Object>> getFavoriteRooms(Long clientId) {
         return clientRepository.getFavoriteRooms(clientId);
     }

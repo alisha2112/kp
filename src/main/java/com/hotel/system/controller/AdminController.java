@@ -17,20 +17,54 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    // --- БРОНЮВАННЯ ТА ПЕРЕВІРКА НАЯВНОСТІ ---
+
+    /**
+     * Задача 1.1 з SQL-скрипту: Перевірка наявності номерів (get_available_rooms)
+     * Використовується адміністратором, щоб побачити вільні кімнати на конкретні дати.
+     */
     // --- БРОНЮВАННЯ ---
     @GetMapping("/rooms/availability")
-    public ResponseEntity<List<Map<String, Object>>> checkAvailability(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
-                                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
-        return ResponseEntity.ok(adminService.checkRoomAvailability(checkIn, checkOut));
+    public ResponseEntity<List<Map<String, Object>>> checkAvailability(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
+            jakarta.servlet.http.HttpSession session) { // <-- Додаємо HttpSession
+
+        // Дістаємо ID готелю з сесії поточного адміна
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+
+        if (hotelId == null) {
+            // Якщо раптом ID немає (наприклад, сесія протухла або це супер-адмін без готелю)
+            // Можна повернути помилку або порожній список
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(adminService.checkRoomAvailability(checkIn, checkOut, hotelId));
     }
 
+    // ... (решта методів: createBooking, updateBooking, cancelBooking і т.д. залишаються без змін)
+
     @PostMapping("/bookings")
-    public ResponseEntity<?> createBooking(@RequestParam Long clientId, @RequestParam Long roomId,
-                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
-                                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
-                                           @RequestParam Integer guests, @RequestParam String paymentMethod) {
-        Long id = adminService.createBooking(clientId, roomId, checkIn, checkOut, guests, paymentMethod);
-        return ResponseEntity.ok(Map.of("bookingId", id));
+    public ResponseEntity<?> createBooking(
+            @RequestParam Long clientId,
+            @RequestParam Long roomId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
+            @RequestParam Integer guests,
+            @RequestParam String paymentMethod) {
+
+        try {
+            // Викликаємо сервіс, який смикає процедуру в БД
+            Long bookingId = adminService.createBooking(clientId, roomId, checkIn, checkOut, guests, paymentMethod);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Booking created successfully",
+                    "bookingId", bookingId
+            ));
+        } catch (Exception e) {
+            // Якщо тригер в БД (check_room_availability) викине помилку про зайнятість
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/bookings/{id}")
@@ -52,7 +86,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getReceptionDashboard());
     }
 
-    // --- КЛІЄНТИ ---
+    // ... (інші методи для клієнтів, виселення, оплат залишаємо як у твоєму коді)
     @PostMapping("/clients")
     public ResponseEntity<?> registerClient(@RequestParam String firstName, @RequestParam String middleName,
                                             @RequestParam String lastName, @RequestParam String phone, @RequestParam String email) {
@@ -60,7 +94,6 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("clientId", id));
     }
 
-    // --- ВИСЕЛЕННЯ ---
     @GetMapping("/rooms/{number}/status")
     public ResponseEntity<?> getRoomStatus(@PathVariable Integer number) {
         return ResponseEntity.ok(adminService.checkRoomStatus(number));
@@ -83,7 +116,6 @@ public class AdminController {
         return ResponseEntity.ok("Review added");
     }
 
-    // --- ОПЛАТА ---
     @PostMapping("/payments")
     public ResponseEntity<?> acceptPayment(@RequestParam Long bookingId, @RequestParam String lastName,
                                            @RequestParam String firstName, @RequestParam String middleName, @RequestParam String method) {

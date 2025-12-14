@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Reception Dashboard - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 1100px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">Reception Desk</h1>
+                <p class="text-secondary small mb-0">Administrator Control Panel</p>
+            </div>
+            <span class="badge bg-dark text-white border border-light-subtle fw-normal rounded-1 px-3 py-2 text-uppercase" style="letter-spacing: 0.1em;">
+                Admin Access
+            </span>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+
+                        <div class="text-secondary x-small fw-bold text-uppercase mb-2 ps-2">Operations</div>
+
+                        <a href="/admin/dashboard" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center">
+                            <span>Check Availability</span>
+                            <span>&rsaquo;</span>
+                        </a>
+
+                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark" disabled>
+                            Create Booking
+                        </button>
+
+                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark" disabled>
+                            Active Guests
+                        </button>
+
+                        <div class="text-secondary x-small fw-bold text-uppercase mt-3 mb-2 ps-2">System</div>
+
+                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark" disabled>
+                            Reports
+                        </button>
+
+                        <button onclick="logoutUser()" class="btn btn-outline-danger w-100 text-start border-0 mt-2">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1" style="min-height: 500px;">
+
+                    <h3 class="font-serif fw-bold h4 mb-4 text-dark">Check Room Availability</h3>
+
+                    <form id="availabilityForm" class="mb-5">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label text-secondary text-uppercase fw-bold x-small">Check In</label>
+                                <input type="date" id="checkIn" class="form-control rounded-1 p-2" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label text-secondary text-uppercase fw-bold x-small">Check Out</label>
+                                <input type="date" id="checkOut" class="form-control rounded-1 p-2" required>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" onclick="checkRooms()" class="btn btn-luxury w-100 py-2 fw-bold">
+                                    Check
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr class="text-light my-4">
+
+                    <div id="resultsArea">
+                        <div class="text-center py-5 text-secondary opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <p class="mt-3 small">Select dates to view available rooms</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Create Booking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="createBookingForm">
+                        <input type="hidden" id="modalRoomId" name="roomId">
+                        <input type="hidden" id="modalCheckIn" name="checkIn">
+                        <input type="hidden" id="modalCheckOut" name="checkOut">
+
+                        <div class="alert alert-light border text-center mb-3">
+                            Room: <strong id="displayRoomNumber"></strong> <br>
+                            <span id="displayDates" class="small text-secondary"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Client ID</label>
+                            <div class="input-group">
+                                <input type="number" name="clientId" class="form-control rounded-1" placeholder="Enter Client ID" required>
+                            </div>
+                            <div class="form-text x-small">Ask client for their ID or register them first.</div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Guests</label>
+                                <input type="number" name="guests" id="modalGuests" class="form-control rounded-1" min="1" value="1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Payment</label>
+                                <select name="paymentMethod" class="form-select rounded-1" required>
+                                    <option value="cash">Cash</option>
+                                    <option value="credit-card">Credit Card</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitBooking()" class="btn btn-success btn-sm text-uppercase fw-bold px-4" style="background-color: #10b981; border-color: #10b981;">
+                        Confirm Booking
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script layout:fragment="script">
+
+    // 1. Function to check available rooms
+    async function checkRooms() {
+        const checkIn = document.getElementById('checkIn').value;
+        const checkOut = document.getElementById('checkOut').value;
+        const resultsDiv = document.getElementById('resultsArea');
+        const btn = document.querySelector('button[onclick="checkRooms()"]');
+
+        if(!checkIn || !checkOut) {
+            alert("Please select both dates");
+            return;
+        }
+
+        // Loading state
+        btn.disabled = true;
+        btn.innerText = "...";
+        resultsDiv.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-secondary" role="status"></div></div>';
+
+        try {
+            const response = await fetch(`/api/admin/rooms/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+
+            if (response.ok) {
+                const rooms = await response.json();
+
+                if (rooms.length === 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="alert alert-warning border-0 rounded-1 d-flex align-items-center">
+                            <span class="me-2">⚠️</span> No rooms available for this period.
+                        </div>`;
+                    btn.disabled = false;
+                    btn.innerText = "Check";
+                    return;
+                }
+
+                // Build table HTML
+                let html = `
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light small text-uppercase text-secondary">
+                                <tr>
+                                    <th class="py-3 ps-3 border-0">Room</th>
+                                    <th class="py-3 border-0">Type</th>
+                                    <th class="py-3 border-0">Capacity</th>
+                                    <th class="py-3 border-0 text-end">Price</th>
+                                    <th class="py-3 border-0 text-end pe-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                `;
+
+                rooms.forEach(room => {
+                    // IMPORTANT: onclick now calls openBookingModal with correct parameters
+                    html += `
+                        <tr>
+                            <td class="ps-3">
+                                <span class="fw-bold text-dark h5 mb-0">${room.room_number}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border border-secondary-subtle fw-normal text-uppercase x-small px-2">
+                                    ${room.comfort_level}
+                                </span>
+                            </td>
+                            <td class="text-secondary small">
+                                ${room.capacity} Guests
+                            </td>
+                            <td class="text-end fw-bold text-dark">
+                                ${room.price_per_night} ₴
+                            </td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-sm btn-outline-dark text-uppercase fw-bold x-small px-3"
+                                    onclick="openBookingModal(${room.room_id}, '${room.room_number}', ${room.capacity})">
+                                    Select
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                resultsDiv.innerHTML = html;
+            } else {
+                const errText = await response.text();
+                resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${errText}</div>`;
+            }
+        } catch (e) {
+            console.error(e);
+            resultsDiv.innerHTML = '<div class="alert alert-danger">System error</div>';
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Check";
+        }
+    }
+
+    // 2. Function to open the booking modal
+    function openBookingModal(roomId, roomNumber, capacity) {
+        // Get dates from the main form
+        const checkIn = document.getElementById('checkIn').value;
+        const checkOut = document.getElementById('checkOut').value;
+
+        // Populate hidden fields in the modal
+        document.getElementById('modalRoomId').value = roomId;
+        document.getElementById('modalCheckIn').value = checkIn;
+        document.getElementById('modalCheckOut').value = checkOut;
+
+        // Update UI in the modal
+        document.getElementById('displayRoomNumber').innerText = roomNumber;
+        document.getElementById('displayDates').innerText = `${checkIn} — ${checkOut}`;
+
+        // Set guests limit based on room capacity
+        const guestsInput = document.getElementById('modalGuests');
+        guestsInput.max = capacity;
+        guestsInput.value = 1; // reset to 1
+
+        // Show the modal (using Bootstrap 5 API)
+        const modalEl = document.getElementById('bookingModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+
+    // 3. Function to submit the booking
+    async function submitBooking() {
+        const form = document.getElementById('createBookingForm');
+
+        // Basic validation
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitBooking()"]');
+        const originalText = btn.innerText;
+
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+
+        try {
+            const response = await fetch('/api/admin/bookings', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(`Success! Booking created. ID: ${data.bookingId}`);
+
+                // Close modal
+                const modalEl = document.getElementById('bookingModal');
+                const modal = bootstrap.Modal.getInstance(modalEl); // Get existing instance
+                modal.hide();
+
+                // Refresh the room list (booked room should disappear or change status)
+                checkRooms();
+            } else {
+                const text = await response.text();
+                alert('Error: ' + text);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
+</style>
+
+</body>
+</html>

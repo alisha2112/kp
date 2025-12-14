@@ -15,10 +15,11 @@ public class RoomRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    /** 1.1 Перевірка наявності (Адмін) */
-    public List<Map<String, Object>> getAvailableRoomsAdmin(LocalDate checkIn, LocalDate checkOut) {
-        String sql = "SELECT * FROM get_available_rooms(?, ?)";
-        return jdbcTemplate.queryForList(sql, Date.valueOf(checkIn), Date.valueOf(checkOut));
+    /** 1.1 Перевірка наявності (Адмін) - ОНОВЛЕНО */
+    public List<Map<String, Object>> getAvailableRoomsAdmin(LocalDate checkIn, LocalDate checkOut, Long hotelId) {
+        // Додали третій параметр у SQL виклик
+        String sql = "SELECT * FROM get_available_rooms(?, ?, ?)";
+        return jdbcTemplate.queryForList(sql, Date.valueOf(checkIn), Date.valueOf(checkOut), hotelId);
     }
 
     /** 3.1 Розширений статус (Адмін) */

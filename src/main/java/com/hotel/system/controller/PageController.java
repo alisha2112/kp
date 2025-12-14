@@ -32,10 +32,10 @@ public class PageController {
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
         // Логіка перенаправлення (щоб адмін не сидів на головній клієнта)
-        String role = (String) session.getAttribute("CURRENT_ROLE");
-        if ("ADMIN".equals(role) || "MANAGER".equals(role)) {
-            return "redirect:/admin/dashboard";
-        }
+//        String role = (String) session.getAttribute("CURRENT_ROLE");
+//        if ("ADMIN".equals(role) || "MANAGER".equals(role)) {
+//            return "redirect:/admin/dashboard";
+//        }
 
         // Завантаження каталогу (це те, що викликало помилку)
         model.addAttribute("hotels", clientService.getPublicHotelCatalog());

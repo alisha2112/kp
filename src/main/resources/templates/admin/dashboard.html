@@ -241,6 +241,7 @@
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="roomStatusModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-1 border-0 shadow-lg">
@@ -283,65 +284,44 @@
         </div>
     </div>
 
+    <div class="modal fade" id="billModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle bg-light">
+                    <h5 class="modal-title font-serif fw-bold">Booking Bill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <table class="table table-striped mb-0">
+                        <thead class="small text-uppercase">
+                        <tr>
+                            <th class="ps-4 py-3">Item</th>
+                            <th class="text-center py-3">Qty</th>
+                            <th class="text-end py-3">Price</th>
+                            <th class="text-end pe-4 py-3">Total</th>
+                        </tr>
+                        </thead>
+                        <tbody id="billItemsBody">
+                        </tbody>
+                        <tfoot class="table-light border-top">
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold py-3">GRAND TOTAL:</td>
+                            <td class="text-end fw-bold pe-4 py-3 fs-5" id="billGrandTotal">0.00 ₴</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="modal-footer border-top-0 pt-3 pb-4 px-4">
+                    <button type="button" class="btn btn-dark w-100 py-2 text-uppercase fw-bold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script layout:fragment="script">
-    // --- ROOM STATUS CHECKER ---
-    function openRoomStatusModal() {
-        // Очищаємо попередні дані
-        document.getElementById('statusRoomNumber').value = '';
-        document.getElementById('roomStatusResult').style.display = 'none';
-        document.getElementById('roomStatusError').style.display = 'none';
 
-        new bootstrap.Modal(document.getElementById('roomStatusModal')).show();
-    }
-
-    async function fetchRoomStatus() {
-        const roomNumber = document.getElementById('statusRoomNumber').value;
-        const resultDiv = document.getElementById('roomStatusResult');
-        const errorDiv = document.getElementById('roomStatusError');
-
-        if (!roomNumber) {
-            alert("Please enter a room number");
-            return;
-        }
-
-        try {
-            const response = await fetch(`/api/admin/rooms/${roomNumber}/status`);
-
-            if (response.ok) {
-                const data = await response.json();
-
-                // Заповнюємо дані
-                const statusBadge = document.getElementById('rs_status');
-                statusBadge.innerText = data.status;
-                // Змінюємо колір бейджа залежно від статусу
-                if (data.status === 'available') {
-                    statusBadge.className = 'badge bg-success text-uppercase';
-                } else if (data.status === 'occupied') {
-                    statusBadge.className = 'badge bg-danger text-uppercase';
-                } else {
-                    statusBadge.className = 'badge bg-warning text-dark text-uppercase';
-                }
-
-                document.getElementById('rs_cleaning').innerText = data.cleaning_status || 'N/A';
-                document.getElementById('rs_date').innerText = data.last_cleaned_date ? `(${data.last_cleaned_date})` : '';
-                document.getElementById('rs_cleaner').innerText = data.cleaner_name || 'Not assigned';
-                document.getElementById('rs_notes').innerText = data.notes || 'No notes available.';
-
-                resultDiv.style.display = 'block';
-                errorDiv.style.display = 'none';
-            } else {
-                resultDiv.style.display = 'none';
-                errorDiv.style.display = 'block';
-                errorDiv.innerText = "Room not found in this hotel or system error.";
-            }
-        } catch (e) {
-            console.error(e);
-            errorDiv.style.display = 'block';
-            errorDiv.innerText = "System connection error.";
-        }
-    }
     // --- NAVIGATION ---
     function showSection(section) {
         document.getElementById('searchSection').style.display = (section === 'search') ? 'block' : 'none';
@@ -548,6 +528,10 @@
                             </td>
                             <td class="fw-bold text-dark">${b.total_price} ₴</td>
                             <td class="text-end">
+                                <button class="btn btn-sm btn-link text-primary p-0 me-2" title="View Bill"
+                                    onclick="viewBill(${b.booking_id})">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                </button>
                                 <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit"
                                     onclick="openEditModal(${b.booking_id}, '${b.client_name}', '${b.room_number}', '${b.check_in}', '${b.check_out}')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -669,12 +653,8 @@
                 const data = await response.json();
                 alert(`Client Registered! ID: ${data.clientId}`);
 
-                // Clear form and close modal
                 form.reset();
                 bootstrap.Modal.getInstance(document.getElementById('registerClientModal')).hide();
-
-                // Optional: You could auto-fill the client ID in the booking modal if open
-                // or just log it for the admin to use.
             } else {
                 const text = await response.text();
                 alert('Error: ' + text);
@@ -685,6 +665,97 @@
         } finally {
             btn.disabled = false;
             btn.innerText = originalText;
+        }
+    }
+
+    // --- 7. ROOM STATUS CHECKER ---
+    function openRoomStatusModal() {
+        document.getElementById('statusRoomNumber').value = '';
+        document.getElementById('roomStatusResult').style.display = 'none';
+        document.getElementById('roomStatusError').style.display = 'none';
+
+        new bootstrap.Modal(document.getElementById('roomStatusModal')).show();
+    }
+
+    async function fetchRoomStatus() {
+        const roomNumber = document.getElementById('statusRoomNumber').value;
+        const resultDiv = document.getElementById('roomStatusResult');
+        const errorDiv = document.getElementById('roomStatusError');
+
+        if (!roomNumber) {
+            alert("Please enter a room number");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/rooms/${roomNumber}/status`);
+
+            if (response.ok) {
+                const data = await response.json();
+
+                const statusBadge = document.getElementById('rs_status');
+                statusBadge.innerText = data.status;
+                if (data.status === 'available') {
+                    statusBadge.className = 'badge bg-success text-uppercase';
+                } else if (data.status === 'occupied') {
+                    statusBadge.className = 'badge bg-danger text-uppercase';
+                } else {
+                    statusBadge.className = 'badge bg-warning text-dark text-uppercase';
+                }
+
+                document.getElementById('rs_cleaning').innerText = data.cleaning_status || 'N/A';
+                document.getElementById('rs_date').innerText = data.last_cleaned_date ? `(${data.last_cleaned_date})` : '';
+                document.getElementById('rs_cleaner').innerText = data.cleaner_name || 'Not assigned';
+                document.getElementById('rs_notes').innerText = data.notes || 'No notes available.';
+
+                resultDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+            } else {
+                resultDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = "Room not found in this hotel or system error.";
+            }
+        } catch (e) {
+            console.error(e);
+            errorDiv.style.display = 'block';
+            errorDiv.innerText = "System connection error.";
+        }
+    }
+
+    // --- 8. VIEW BILL ---
+    async function viewBill(bookingId) {
+        try {
+            const response = await fetch(`/api/admin/bookings/${bookingId}/bill`);
+
+            if (response.ok) {
+                const items = await response.json();
+                const tbody = document.getElementById('billItemsBody');
+                const totalEl = document.getElementById('billGrandTotal');
+
+                tbody.innerHTML = '';
+                let grandTotal = 0;
+
+                items.forEach(item => {
+                    grandTotal += item.total_price;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4 align-middle">${item.item_name}</td>
+                            <td class="text-center align-middle">${item.quantity}</td>
+                            <td class="text-end align-middle text-muted small">${item.price_per_unit} ₴</td>
+                            <td class="text-end pe-4 align-middle fw-bold">${item.total_price} ₴</td>
+                        </tr>
+                    `;
+                });
+
+                totalEl.innerText = grandTotal.toFixed(2) + ' ₴';
+
+                new bootstrap.Modal(document.getElementById('billModal')).show();
+            } else {
+                alert("Error fetching bill: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
         }
     }
 

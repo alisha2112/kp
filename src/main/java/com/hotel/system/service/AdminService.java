@@ -57,8 +57,9 @@ public class AdminService {
         return roomRepository.getRoomExtendedStatus(roomNumber, hotelId);
     }
 
-    public List<Map<String, Object>> generateBill(Long bookingId) {
-        return bookingRepository.getBillDetails(bookingId);
+    // 3. Генерація рахунку - ОНОВЛЕНО
+    public List<Map<String, Object>> generateBill(Long bookingId, Long hotelId) {
+        return bookingRepository.getBillDetails(bookingId, hotelId);
     }
 
     @Transactional

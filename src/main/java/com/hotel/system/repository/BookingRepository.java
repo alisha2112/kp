@@ -59,10 +59,11 @@ public class BookingRepository {
                 bookingId, newRoomId, Date.valueOf(newCheckIn), Date.valueOf(newCheckOut));
     }
 
-    /** 3.2 Деталі рахунку */
-    public List<Map<String, Object>> getBillDetails(Long bookingId) {
-        String sql = "SELECT * FROM get_booking_bill_details(?)";
-        return jdbcTemplate.queryForList(sql, bookingId);
+    /** 3.2 Деталі рахунку (ОНОВЛЕНО: з hotelId) */
+    public List<Map<String, Object>> getBillDetails(Long bookingId, Long hotelId) {
+        // Викликаємо оновлену функцію з двома параметрами
+        String sql = "SELECT * FROM get_booking_bill_details(?, ?)";
+        return jdbcTemplate.queryForList(sql, bookingId, hotelId);
     }
 
     /** 3.3 Виселення */

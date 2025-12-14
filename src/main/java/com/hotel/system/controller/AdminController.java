@@ -122,8 +122,22 @@ public class AdminController {
     }
 
     @GetMapping("/bookings/{id}/bill")
-    public ResponseEntity<?> getBill(@PathVariable Long id) {
-        return ResponseEntity.ok(adminService.generateBill(id));
+    public ResponseEntity<?> getBill(@PathVariable Long id, jakarta.servlet.http.HttpSession session) {
+        // 1. Отримуємо ID готелю
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+        if (hotelId == null) {
+            return ResponseEntity.badRequest().body("Session error");
+        }
+
+        // 2. Отримуємо дані рахунку
+        List<Map<String, Object>> bill = adminService.generateBill(id, hotelId);
+
+        // 3. Якщо список порожній, можливо, це чуже бронювання або його не існує
+        if (bill.isEmpty()) {
+            return ResponseEntity.status(404).body("Bill not found or access denied");
+        }
+
+        return ResponseEntity.ok(bill);
     }
 
     @PostMapping("/checkout")

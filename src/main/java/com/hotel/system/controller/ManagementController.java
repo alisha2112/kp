@@ -125,8 +125,9 @@ public class ManagementController {
     }
 
     @GetMapping("/staff/quality")
-    public ResponseEntity<?> getQualityControl() {
-        return ResponseEntity.ok(managementService.getQualityControl());
+    public ResponseEntity<?> getQualityControl(HttpSession session) {
+        // Отримуємо статистику тільки для готелю менеджера
+        return ResponseEntity.ok(managementService.getQualityControl(getHotelId(session)));
     }
 
     // 4. Витрати

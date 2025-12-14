@@ -15,6 +15,12 @@ public class RoomRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    /** 2.8 Контроль якості (Менеджер) */
+    public Map<String, Object> getQualityStats(Long hotelId) {
+        String sql = "SELECT * FROM get_quality_control_stats(?)";
+        return jdbcTemplate.queryForMap(sql, hotelId);
+    }
+
     /** 1.1 Перевірка наявності (Адмін) - ОНОВЛЕНО */
     public List<Map<String, Object>> getAvailableRoomsAdmin(LocalDate checkIn, LocalDate checkOut, Long hotelId) {
         // Додали третій параметр у SQL виклик

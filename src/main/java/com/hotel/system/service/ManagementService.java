@@ -85,8 +85,9 @@ public class ManagementService {
         return employeeRepository.getStaffWorkload(start, end, hotelId);
     }
 
-    public List<Map<String, Object>> getQualityControl() {
-        return employeeRepository.getEmployeeQualityControl();
+    // 2.8 Quality Control
+    public Map<String, Object> getQualityControl(Long hotelId) {
+        return roomRepository.getQualityStats(hotelId);
     }
 
     // 4. Витрати

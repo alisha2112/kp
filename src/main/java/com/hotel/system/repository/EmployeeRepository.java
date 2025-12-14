@@ -51,6 +51,12 @@ public class EmployeeRepository {
         });
     }
 
+    /** Отримання списку працівників готелю (Менеджер) */
+    public List<Map<String, Object>> getEmployeesByHotel(Long hotelId) {
+        String sql = "SELECT * FROM employees WHERE hotel_id = ? ORDER BY position, last_name";
+        return jdbcTemplate.queryForList(sql, hotelId);
+    }
+
     /** 2.2 Видалення співробітника */
     public void fireEmployee(Long employeeId) {
         jdbcTemplate.update("CALL sp_fire_employee(?)", employeeId);

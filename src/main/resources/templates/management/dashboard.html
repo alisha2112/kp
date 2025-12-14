@@ -43,7 +43,7 @@
 
                         <div class="text-secondary x-small fw-bold text-uppercase mt-3 mb-2 ps-2">Staff</div>
 
-                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
+                        <button onclick="loadStaff()" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
                             Employees
                         </button>
 
@@ -210,6 +210,22 @@
                         </div>
                     </div>
 
+                    <div id="staffSection" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h3 class="font-serif fw-bold h4 m-0 text-dark">Staff Management</h3>
+                                <p class="text-secondary small mb-0">Manage your hotel team.</p>
+                            </div>
+                            <button onclick="openHireModal()" class="btn btn-dark fw-bold text-uppercase" style="font-size: 0.8rem;">
+                                + Hire Employee
+                            </button>
+                        </div>
+
+                        <div id="staffTableArea">
+                            <div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>
+                        </div>
+                    </div>
+
                     <div id="commonLoading" class="text-center py-5" style="display: none;">
                         <div class="spinner-border text-dark" role="status"></div>
                     </div>
@@ -219,6 +235,57 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="hireModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Hire New Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="hireForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Last Name</label>
+                                <input type="text" name="lastName" class="form-control rounded-1" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">First Name</label>
+                                <input type="text" name="firstName" class="form-control rounded-1" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Middle Name</label>
+                                <input type="text" name="middleName" class="form-control rounded-1">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Phone</label>
+                                <input type="text" name="phone" class="form-control rounded-1" placeholder="+380..." required>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Position</label>
+                                <select name="position" class="form-select rounded-1" required>
+                                    <option value="" selected disabled>Select Role</option>
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Cleaner">Cleaner</option>
+                                    <option value="Accountant">Accountant</option>
+                                    <option value="Receptionist">Receptionist</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitHire()" class="btn btn-dark btn-sm text-uppercase fw-bold px-4">Hire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script layout:fragment="script">
@@ -228,14 +295,12 @@
         document.getElementById('financialSection').style.display = 'none';
         document.getElementById('occupancySection').style.display = 'none';
         document.getElementById('feedbackSection').style.display = 'none';
+        document.getElementById('staffSection').style.display = 'none';
 
-        if (section === 'financial') {
-            document.getElementById('financialSection').style.display = 'block';
-        } else if (section === 'occupancy') {
-            document.getElementById('occupancySection').style.display = 'block';
-        } else if (section === 'feedback') {
-            document.getElementById('feedbackSection').style.display = 'block';
-        }
+        if (section === 'financial') document.getElementById('financialSection').style.display = 'block';
+        else if (section === 'occupancy') document.getElementById('occupancySection').style.display = 'block';
+        else if (section === 'feedback') document.getElementById('feedbackSection').style.display = 'block';
+        else if (section === 'staff') document.getElementById('staffSection').style.display = 'block';
 
         document.getElementById('commonError').style.display = 'none';
     }
@@ -304,7 +369,7 @@
         }
     }
 
-    // --- CUSTOMER FEEDBACK REPORT (НОВЕ) ---
+    // --- CUSTOMER FEEDBACK REPORT ---
     async function loadFeedbackReport() {
         const start = document.getElementById('feedStart').value;
         const end = document.getElementById('feedEnd').value;
@@ -316,12 +381,10 @@
             const response = await fetch(`/api/management/reports/customer-service?start=${start}&end=${end}`);
             if (response.ok) {
                 const data = await response.json();
-                // SQL повертає: reviews_count, avg_rating, complaints_list (text)
 
                 document.getElementById('valReviewCount').innerText = data.reviews_count;
                 document.getElementById('valAvgRating').innerText = data.avg_rating || '0.0';
 
-                // Візуалізація зірок
                 const rating = Math.round(data.avg_rating || 0);
                 let starsHtml = '';
                 for(let i=0; i<5; i++) {
@@ -330,10 +393,8 @@
                 }
                 document.getElementById('valStars').innerHTML = starsHtml;
 
-                // Скарги
                 const complaints = data.complaints_list;
                 if (complaints && complaints !== 'Скарг немає') {
-                    // Можемо розбити через крапку з комою для кращого вигляду, якщо потрібно
                     document.getElementById('valComplaints').innerText = complaints;
                 } else {
                     document.getElementById('valComplaints').innerText = "No significant complaints recorded for this period.";
@@ -347,6 +408,133 @@
             showError("System error");
         } finally {
             toggleLoading(false);
+        }
+    }
+
+    // --- STAFF MANAGEMENT ---
+
+    // 1. Load Staff List
+    async function loadStaff() {
+        showSection('staff');
+        const container = document.getElementById('staffTableArea');
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>';
+
+        try {
+            const response = await fetch('/api/management/staff');
+            if (response.ok) {
+                const employees = await response.json();
+
+                if (employees.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">No employees found.</div>';
+                    return;
+                }
+
+                let html = `
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light small text-uppercase text-secondary">
+                                <tr>
+                                    <th class="ps-3 py-3">ID</th>
+                                    <th class="py-3">Name</th>
+                                    <th class="py-3">Position</th>
+                                    <th class="py-3">Phone</th>
+                                    <th class="text-end pe-3 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                employees.forEach(emp => {
+                    const fullName = `${emp.first_name} ${emp.last_name}`;
+                    html += `
+                        <tr>
+                            <td class="ps-3 small text-secondary">#${emp.employee_id}</td>
+                            <td class="fw-bold text-dark">${fullName}</td>
+                            <td><span class="badge bg-light text-dark border fw-normal text-uppercase x-small">${emp.position}</span></td>
+                            <td class="small text-muted">${emp.phone}</td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-sm btn-outline-danger text-uppercase fw-bold x-small px-3"
+                                        onclick="fireEmployee(${emp.employee_id}, '${fullName}')">
+                                    Fire
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<div class="alert alert-danger">Error loading staff.</div>';
+            }
+        } catch (e) {
+            container.innerHTML = '<div class="alert alert-danger">System error.</div>';
+        }
+    }
+
+    // 2. Hire Employee
+    function openHireModal() {
+        document.getElementById('hireForm').reset();
+        new bootstrap.Modal(document.getElementById('hireModal')).show();
+    }
+
+    async function submitHire() {
+        const form = document.getElementById('hireForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitHire()"]');
+        const originalText = btn.innerText;
+
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+
+        try {
+            const response = await fetch('/api/management/staff', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(`Success! Employee hired. ID: ${data.employeeId}`);
+                bootstrap.Modal.getInstance(document.getElementById('hireModal')).hide();
+                loadStaff(); // Reload list
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+
+    // 3. Fire Employee
+    async function fireEmployee(id, name) {
+        if (!confirm(`Are you sure you want to fire ${name}? This cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/management/staff/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert("Employee record removed.");
+                loadStaff(); // Reload list
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
         }
     }
 

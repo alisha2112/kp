@@ -50,11 +50,29 @@ public class ManagementController {
     }
 
     // 2. Персонал
+    // Отримання списку персоналу
+    @GetMapping("/staff")
+    public ResponseEntity<?> getStaffList(HttpSession session) {
+        return ResponseEntity.ok(managementService.getEmployees(getHotelId(session)));
+    }
+
+    // 2. Персонал - НАЙМ (ОНОВЛЕНО)
     @PostMapping("/staff")
-    public ResponseEntity<?> hireEmployee(@RequestParam String firstName, @RequestParam String lastName,
-                                          @RequestParam String phone, @RequestParam String position, HttpSession session) {
-        Long id = managementService.hireEmployee(firstName, "", lastName, phone, position, getHotelId(session));
-        return ResponseEntity.ok(Map.of("employeeId", id));
+    public ResponseEntity<?> hireEmployee(
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam(required = false, defaultValue = "") String middleName, // <-- Додано
+            @RequestParam String phone,
+            @RequestParam String position,
+            HttpSession session) {
+
+        // 1. Отримуємо ID готелю з сесії (це гарантує, що менеджер наймає тільки в свій готель)
+        Long hotelId = getHotelId(session);
+
+        // 2. Викликаємо сервіс (який викличе процедуру sp_add_employee)
+        Long id = managementService.hireEmployee(firstName, middleName, lastName, phone, position, hotelId);
+
+        return ResponseEntity.ok(Map.of("message", "Employee hired successfully", "employeeId", id));
     }
 
     @DeleteMapping("/staff/{id}")

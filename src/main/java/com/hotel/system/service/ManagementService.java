@@ -42,6 +42,11 @@ public class ManagementService {
         return statsRepository.getStaffPerformanceAnalytics(start, end, hotelId);
     }
 
+    // Отримати список працівників
+    public List<Map<String, Object>> getEmployees(Long hotelId) {
+        return employeeRepository.getEmployeesByHotel(hotelId);
+    }
+
     // 2. Управління персоналом
     @Transactional
     public Long hireEmployee(String firstName, String middleName, String lastName, String phone, String position, Long hotelId) {

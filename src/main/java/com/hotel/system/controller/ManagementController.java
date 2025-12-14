@@ -118,7 +118,9 @@ public class ManagementController {
     }
 
     @GetMapping("/staff/performance")
-    public ResponseEntity<?> getPerformance(@RequestParam LocalDate start, @RequestParam LocalDate end, HttpSession session) {
+    public ResponseEntity<?> getPerformance(@RequestParam LocalDate start,
+                                            @RequestParam LocalDate end,
+                                            HttpSession session) {
         return ResponseEntity.ok(managementService.getStaffPerformanceAnalytics(start, end, getHotelId(session)));
     }
 

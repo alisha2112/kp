@@ -38,8 +38,9 @@ public class ManagementService {
         return statsRepository.getCustomerServiceReport(start, end, hotelId);
     }
 
+    // 2.7 Performance
     public List<Map<String, Object>> getStaffPerformanceAnalytics(LocalDate start, LocalDate end, Long hotelId) {
-        return statsRepository.getStaffPerformanceAnalytics(start, end, hotelId);
+        return employeeRepository.getStaffPerformance(start, end, hotelId);
     }
 
     // Отримати список працівників

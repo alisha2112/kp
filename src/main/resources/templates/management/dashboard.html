@@ -51,6 +51,10 @@
                             Workload
                         </button>
 
+                        <button onclick="showSection('performance')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Performance KPI
+                        </button>
+
                         <button onclick="logoutUser()" class="btn btn-outline-danger w-100 text-start border-0 mt-2">
                             Logout
                         </button>
@@ -277,6 +281,51 @@
                         </div>
                     </div>
 
+                    <div id="performanceSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Staff Performance KPI</h3>
+                        <p class="text-secondary small mb-4">Evaluate task completion rates and customer ratings.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="perfStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="perfEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-2">
+                                <button onclick="loadPerformanceReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="performanceResult" style="display: none;">
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle border">
+                                            <thead class="table-light small text-uppercase">
+                                            <tr>
+                                                <th class="ps-3 py-3">Employee</th>
+                                                <th class="py-3">Position</th>
+                                                <th class="text-center py-3">Tasks Completed</th>
+                                                <th class="text-center py-3">Avg Rating</th>
+                                                <th class="pe-3 py-3 text-end">Score</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="performanceTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="commonLoading" class="text-center py-5" style="display: none;">
                         <div class="spinner-border text-dark" role="status"></div>
                     </div>
@@ -435,17 +484,72 @@
 
     // --- NAVIGATION ---
     function showSection(section) {
-        document.getElementById('financialSection').style.display = 'none';
-        document.getElementById('occupancySection').style.display = 'none';
-        document.getElementById('feedbackSection').style.display = 'none';
-        document.getElementById('staffSection').style.display = 'none';
+        const sections = ['financial', 'occupancy', 'feedback', 'staff', 'workload', 'performance']; // <-- Додано performance
+        sections.forEach(s => {
+            const el = document.getElementById(s + 'Section');
+            if(el) el.style.display = 'none';
+        });
 
-        if (section === 'financial') document.getElementById('financialSection').style.display = 'block';
-        else if (section === 'occupancy') document.getElementById('occupancySection').style.display = 'block';
-        else if (section === 'feedback') document.getElementById('feedbackSection').style.display = 'block';
-        else if (section === 'staff') document.getElementById('staffSection').style.display = 'block';
+        const target = document.getElementById(section + 'Section');
+        if(target) target.style.display = 'block';
 
         document.getElementById('commonError').style.display = 'none';
+    }
+
+    // --- PERFORMANCE REPORT ---
+    async function loadPerformanceReport() {
+        const start = document.getElementById('perfStart').value;
+        const end = document.getElementById('perfEnd').value;
+        if(!start || !end) { alert("Select dates"); return; }
+
+        toggleLoading(true);
+
+        try {
+            const response = await fetch(`/api/management/staff/performance?start=${start}&end=${end}`);
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('performanceTableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No data found.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        // Рахуємо умовний Score (наприклад, рейтинг важливіший за кількість)
+                        // Якщо рейтингу немає (0), то Score базується тільки на завданнях
+                        let scoreHtml = '';
+                        if (row.avg_rating > 0) {
+                            if(row.avg_rating >= 4.5) scoreHtml = '<span class="badge bg-success">Excellent</span>';
+                            else if(row.avg_rating >= 3.5) scoreHtml = '<span class="badge bg-dark">Good</span>';
+                            else scoreHtml = '<span class="badge bg-warning text-dark">Review</span>';
+                        } else {
+                            // Якщо тільки завдання
+                            if(row.tasks_completed > 20) scoreHtml = '<span class="badge bg-dark">High Activity</span>';
+                            else scoreHtml = '<span class="badge bg-light text-secondary border">Normal</span>';
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">${row.full_name}</td>
+                                <td><span class="badge bg-light text-dark border fw-normal x-small">${row.position}</span></td>
+                                <td class="text-center">${row.tasks_completed}</td>
+                                <td class="text-center fw-bold text-warning">
+                                    ${row.avg_rating > 0 ? row.avg_rating + ' ★' : '-'}
+                                </td>
+                                <td class="pe-3 text-end">${scoreHtml}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById('performanceResult').style.display = 'block';
+            } else {
+                showError(await response.text());
+            }
+        } catch (e) {
+            showError("System error");
+        } finally {
+            toggleLoading(false);
+        }
     }
 
     // --- FINANCIAL REPORT ---

@@ -85,6 +85,11 @@ public class EmployeeRepository {
         return jdbcTemplate.queryForList(sql, java.sql.Date.valueOf(start), java.sql.Date.valueOf(end), hotelId);
     }
 
+    /** 2.7 Аналіз ефективності (Менеджер) */
+    public List<Map<String, Object>> getStaffPerformance(LocalDate start, LocalDate end, Long hotelId) {
+        String sql = "SELECT * FROM analyze_staff_performance(?, ?, ?)";
+        return jdbcTemplate.queryForList(sql, java.sql.Date.valueOf(start), java.sql.Date.valueOf(end), hotelId);
+    }
     // --- ВЛАСНИК ---
 
     /** 2.2 Перегляд розкладу */

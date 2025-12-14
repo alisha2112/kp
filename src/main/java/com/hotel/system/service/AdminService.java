@@ -62,9 +62,10 @@ public class AdminService {
         return bookingRepository.getBillDetails(bookingId, hotelId);
     }
 
+    // 3. Check-out - ОНОВЛЕНО
     @Transactional
-    public void processCheckout(Long bookingId, String paymentMethod) {
-        bookingRepository.processCheckout(bookingId, paymentMethod);
+    public void processCheckout(Long bookingId, String paymentMethod, Long hotelId) {
+        bookingRepository.processCheckout(bookingId, paymentMethod, hotelId);
     }
 
     @Transactional

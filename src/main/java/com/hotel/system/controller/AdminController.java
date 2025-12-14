@@ -140,10 +140,25 @@ public class AdminController {
         return ResponseEntity.ok(bill);
     }
 
+    // --- ВИСЕЛЕННЯ (CHECK-OUT) ---
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkout(@RequestParam Long bookingId, @RequestParam String paymentMethod) {
-        adminService.processCheckout(bookingId, paymentMethod);
-        return ResponseEntity.ok("Checkout completed");
+    public ResponseEntity<?> checkout(@RequestParam Long bookingId,
+                                      @RequestParam String paymentMethod,
+                                      jakarta.servlet.http.HttpSession session) {
+        // 1. Отримуємо ID готелю
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+        if (hotelId == null) {
+            return ResponseEntity.badRequest().body("Session error: Hotel ID not found");
+        }
+
+        try {
+            // 2. Викликаємо сервіс
+            adminService.processCheckout(bookingId, paymentMethod, hotelId);
+            return ResponseEntity.ok("Checkout completed successfully");
+        } catch (Exception e) {
+            // Перехоплюємо помилку з БД (наприклад, якщо бронювання чуже)
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/reviews/manual")

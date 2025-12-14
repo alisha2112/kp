@@ -66,9 +66,10 @@ public class BookingRepository {
         return jdbcTemplate.queryForList(sql, bookingId, hotelId);
     }
 
-    /** 3.3 Виселення */
-    public void processCheckout(Long bookingId, String paymentMethod) {
-        jdbcTemplate.update("CALL sp_process_checkout(?, ?)", bookingId, paymentMethod);
+    /** 3.3 Виселення (ОНОВЛЕНО: з hotelId) */
+    public void processCheckout(Long bookingId, String paymentMethod, Long hotelId) {
+        // Викликаємо оновлену процедуру з 3 параметрами
+        jdbcTemplate.update("CALL sp_process_checkout(?, ?, ?)", bookingId, paymentMethod, hotelId);
     }
 
     /** Список активних бронювань (ОНОВЛЕНО: Фільтр по готелю) */

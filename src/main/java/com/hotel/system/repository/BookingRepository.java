@@ -70,9 +70,11 @@ public class BookingRepository {
         jdbcTemplate.update("CALL sp_process_checkout(?, ?)", bookingId, paymentMethod);
     }
 
-    /** Список активних бронювань (View) */
-    public List<Map<String, Object>> getViewReceptionBookings() {
-        return jdbcTemplate.queryForList("SELECT * FROM view_reception_bookings");
+    /** Список активних бронювань (ОНОВЛЕНО: Фільтр по готелю) */
+    public List<Map<String, Object>> getViewReceptionBookings(Long hotelId) {
+        // Викликаємо нашу нову функцію замість простого SELECT з View
+        String sql = "SELECT * FROM get_admin_bookings(?)";
+        return jdbcTemplate.queryForList(sql, hotelId);
     }
 
     // --- КЛІЄНТ ---

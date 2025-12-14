@@ -40,8 +40,9 @@ public class AdminService {
         bookingRepository.updateBooking(bookingId, newRoomId, newCheckIn, newCheckOut);
     }
 
-    public List<Map<String, Object>> getReceptionDashboard() {
-        return bookingRepository.getViewReceptionBookings();
+    // ОНОВЛЕНО: приймаємо hotelId
+    public List<Map<String, Object>> getReceptionDashboard(Long hotelId) {
+        return bookingRepository.getViewReceptionBookings(hotelId);
     }
 
     // 2. Клієнти

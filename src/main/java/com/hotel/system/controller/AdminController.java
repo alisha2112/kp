@@ -82,8 +82,16 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public ResponseEntity<?> getDashboard() {
-        return ResponseEntity.ok(adminService.getReceptionDashboard());
+    public ResponseEntity<?> getDashboard(jakarta.servlet.http.HttpSession session) {
+        // 1. Отримуємо ID готелю поточного адміністратора
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+
+        if (hotelId == null) {
+            return ResponseEntity.badRequest().body("Hotel ID not found in session");
+        }
+
+        // 2. Передаємо його в сервіс
+        return ResponseEntity.ok(adminService.getReceptionDashboard(hotelId));
     }
 
     // ... (інші методи для клієнтів, виселення, оплат залишаємо як у твоєму коді)

@@ -79,6 +79,12 @@ public class EmployeeRepository {
         return jdbcTemplate.queryForList("SELECT * FROM view_employee_quality_control");
     }
 
+    /** 2.6 Аналіз навантаження (Менеджер) */
+    public List<Map<String, Object>> getStaffWorkload(LocalDate start, LocalDate end, Long hotelId) {
+        String sql = "SELECT * FROM analyze_staff_workload(?, ?, ?)";
+        return jdbcTemplate.queryForList(sql, java.sql.Date.valueOf(start), java.sql.Date.valueOf(end), hotelId);
+    }
+
     // --- ВЛАСНИК ---
 
     /** 2.2 Перегляд розкладу */

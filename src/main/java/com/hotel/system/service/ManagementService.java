@@ -75,8 +75,13 @@ public class ManagementService {
         roomRepository.assignCleaningTask(roomNumber, cleanerId, note, hotelId);
     }
 
-    public Map<String, Object> analyzeStaffWorkload(LocalDate start, LocalDate end, Long hotelId) {
-        return statsRepository.getStaffWorkloadAnalysis(start, end, hotelId);
+//    public Map<String, Object> analyzeStaffWorkload(LocalDate start, LocalDate end, Long hotelId) {
+//        return statsRepository.getStaffWorkloadAnalysis(start, end, hotelId);
+//    }
+
+    // 2.6 Workload
+    public List<Map<String, Object>> analyzeStaffWorkload(LocalDate start, LocalDate end, Long hotelId) {
+        return employeeRepository.getStaffWorkload(start, end, hotelId);
     }
 
     public List<Map<String, Object>> getQualityControl() {

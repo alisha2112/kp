@@ -47,7 +47,7 @@
                             Employees
                         </button>
 
-                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
+                        <button onclick="showSection('workload')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
                             Workload
                         </button>
 
@@ -233,6 +233,47 @@
 
                         <div id="staffTableArea">
                             <div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>
+                        </div>
+                    </div>
+
+                    <div id="workloadSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Staff Workload Analysis</h3>
+                        <p class="text-secondary small mb-4">Monitor employee hours and shifts efficiency.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="workStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="workEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-2">
+                                <button onclick="loadWorkloadReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="workloadResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Employee</th>
+                                        <th class="py-3">Position</th>
+                                        <th class="text-center py-3">Total Shifts</th>
+                                        <th class="text-center py-3">Total Hours</th>
+                                        <th class="pe-3 py-3 text-end">Efficiency</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="workloadTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
@@ -635,6 +676,70 @@
         } finally {
             btn.disabled = false;
             btn.innerText = originalText;
+        }
+    }
+
+    // --- NAVIGATION UPDATE ---
+    function showSection(section) {
+        // Ховаємо всі секції
+        const sections = ['financial', 'occupancy', 'feedback', 'staff', 'workload'];
+        sections.forEach(s => {
+            const el = document.getElementById(s + 'Section');
+            if(el) el.style.display = 'none';
+        });
+
+        // Показуємо потрібну
+        const target = document.getElementById(section + 'Section');
+        if(target) target.style.display = 'block';
+
+        document.getElementById('commonError').style.display = 'none';
+    }
+
+    // --- WORKLOAD REPORT ---
+    async function loadWorkloadReport() {
+        const start = document.getElementById('workStart').value;
+        const end = document.getElementById('workEnd').value;
+        if(!start || !end) { alert("Select dates"); return; }
+
+        toggleLoading(true);
+
+        try {
+            const response = await fetch(`/api/management/staff/workload?start=${start}&end=${end}`);
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('workloadTableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No data found for this period.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        // Проста візуалізація "ефективності" на основі годин (для прикладу)
+                        let badgeClass = 'bg-secondary';
+                        if (row.total_hours > 160) badgeClass = 'bg-danger'; // Перепрацювання
+                        else if (row.total_hours > 100) badgeClass = 'bg-success'; // Норма
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">${row.full_name}</td>
+                                <td><span class="badge bg-light text-dark border fw-normal x-small">${row.position}</span></td>
+                                <td class="text-center">${row.shifts_count}</td>
+                                <td class="text-center fw-bold">${row.total_hours} h</td>
+                                <td class="pe-3 text-end">
+                                    <span class="badge ${badgeClass} fw-normal x-small">Logged</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById('workloadResult').style.display = 'block';
+            } else {
+                showError(await response.text());
+            }
+        } catch (e) {
+            showError("System error");
+        } finally {
+            toggleLoading(false);
         }
     }
 

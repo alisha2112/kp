@@ -161,10 +161,25 @@ public class AdminController {
         }
     }
 
+    // --- ВІДГУКИ ---
     @PostMapping("/reviews/manual")
-    public ResponseEntity<?> addManualReview(@RequestParam Long bookingId, @RequestParam Integer rating, @RequestParam String comment) {
-        adminService.addReviewManually(bookingId, rating, comment);
-        return ResponseEntity.ok("Review added");
+    public ResponseEntity<?> addManualReview(@RequestParam Long bookingId,
+                                             @RequestParam Integer rating,
+                                             @RequestParam String comment,
+                                             jakarta.servlet.http.HttpSession session) {
+        // 1. Отримуємо ID готелю
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+        if (hotelId == null) {
+            return ResponseEntity.badRequest().body("Session error");
+        }
+
+        try {
+            // 2. Викликаємо сервіс
+            adminService.addReviewManually(bookingId, rating, comment, hotelId);
+            return ResponseEntity.ok("Review added successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/payments")

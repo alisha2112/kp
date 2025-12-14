@@ -68,10 +68,10 @@ public class AdminService {
         bookingRepository.processCheckout(bookingId, paymentMethod, hotelId);
     }
 
+    // Додавання відгуку вручну - ОНОВЛЕНО
     @Transactional
-    public void addReviewManually(Long bookingId, Integer rating, String comment) {
-        // isClient = false
-        reviewRepository.addReview(bookingId, rating, comment, false);
+    public void addReviewManually(Long bookingId, Integer rating, String comment, Long hotelId) {
+        reviewRepository.addReviewManually(bookingId, rating, comment, hotelId);
     }
 
     // 4. Оплата

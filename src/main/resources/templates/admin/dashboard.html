@@ -352,6 +352,41 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Add Manual Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="reviewForm">
+                        <input type="hidden" id="reviewBookingId" name="bookingId">
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Rating</label>
+                            <select name="rating" class="form-select rounded-1" required>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Good</option>
+                                <option value="3">3 - Average</option>
+                                <option value="2">2 - Poor</option>
+                                <option value="1">1 - Terrible</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Comment</label>
+                            <textarea name="comment" class="form-control rounded-1" rows="3" placeholder="Client feedback..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitReview()" class="btn btn-warning btn-sm text-uppercase fw-bold px-4 text-white">Save Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -449,6 +484,47 @@
         } finally {
             btn.disabled = false;
             btn.innerText = "Check";
+        }
+    }
+
+    // --- 10. MANUAL REVIEW ---
+    function openReviewModal(bookingId) {
+        document.getElementById('reviewBookingId').value = bookingId;
+        // Скидаємо форму
+        document.getElementById('reviewForm').reset();
+        new bootstrap.Modal(document.getElementById('reviewModal')).show();
+    }
+
+    async function submitReview() {
+        const form = document.getElementById('reviewForm');
+        const formData = new FormData(form);
+
+        // Додаткова валідація, якщо треба
+        if (!formData.get('comment')) {
+            alert("Please enter a comment");
+            return;
+        }
+
+        const btn = document.querySelector('button[onclick="submitReview()"]');
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/api/admin/reviews/manual', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Review added successfully!");
+                bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
         }
     }
 
@@ -563,6 +639,12 @@
                             </td>
                             <td class="fw-bold text-dark">${b.total_price} ₴</td>
                             <td class="text-end">
+                                ${b.status === 'completed' ? `
+                                <button class="btn btn-sm btn-link text-warning p-0 me-2" title="Add Review"
+                                     onclick="openReviewModal(${b.booking_id})">
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                </button>
+                                ` : ''}
                                 ${b.status === 'confirmed' ? `
                                 <button class="btn btn-sm btn-link text-success p-0 me-2" title="Check Out"
                                     onclick="openCheckoutModal(${b.booking_id}, '${b.room_number}', '${b.total_price}')">

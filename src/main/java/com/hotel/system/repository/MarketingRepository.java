@@ -86,9 +86,8 @@ public class MarketingRepository {
     // --- МЕНЕДЖЕР ---
 
     /** 4. Додати витрату */
-    public void addExpense(BigDecimal amount, String description, String approvedBy, Long employeeId, Long campaignId) {
-        // Для void процедур достатньо звичайного update
-        jdbcTemplate.update("CALL sp_add_expense(?, ?, ?, ?, ?)",
-                amount, description, approvedBy, employeeId, campaignId);
+    public void addExpense(BigDecimal amount, String description, String approvedBy, Long employeeId, Long campaignId, Long hotelId) {
+        jdbcTemplate.update("CALL sp_add_expense(?, ?, ?, ?, ?, ?)",
+                amount, description, approvedBy, employeeId, campaignId, hotelId);
     }
 }

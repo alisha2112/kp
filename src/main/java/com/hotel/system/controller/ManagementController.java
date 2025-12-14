@@ -132,10 +132,14 @@ public class ManagementController {
 
     // 4. Витрати
     @PostMapping("/expenses")
-    public ResponseEntity<?> addExpense(@RequestParam BigDecimal amount, @RequestParam String description,
-                                        @RequestParam String approvedBy, @RequestParam Long employeeId,
-                                        @RequestParam(required = false) Long campaignId) {
-        managementService.addExpense(amount, description, approvedBy, employeeId, campaignId);
+    public ResponseEntity<?> addExpense(@RequestParam BigDecimal amount,
+                                        @RequestParam String description,
+                                        @RequestParam String approvedBy,
+                                        @RequestParam Long employeeId,
+                                        @RequestParam(required = false) Long campaignId,
+                                        HttpSession session) {
+        // Передаємо ID готелю з сесії для безпеки
+        managementService.addExpense(amount, description, approvedBy, employeeId, campaignId, getHotelId(session));
         return ResponseEntity.ok("Expense added");
     }
 

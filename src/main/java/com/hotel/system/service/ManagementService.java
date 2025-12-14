@@ -92,8 +92,8 @@ public class ManagementService {
 
     // 4. Витрати
     @Transactional
-    public void addExpense(BigDecimal amount, String description, String approvedBy, Long employeeId, Long campaignId) {
-        marketingRepository.addExpense(amount, description, approvedBy, employeeId, campaignId);
+    public void addExpense(BigDecimal amount, String description, String approvedBy, Long employeeId, Long campaignId, Long hotelId) {
+        marketingRepository.addExpense(amount, description, approvedBy, employeeId, campaignId, hotelId);
     }
 
     // ==========================================

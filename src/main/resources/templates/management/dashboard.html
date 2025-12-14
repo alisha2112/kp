@@ -59,6 +59,10 @@
                             Quality Control
                         </button>
 
+                        <button onclick="showSection('expenses')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Expenses
+                        </button>
+
                         <button onclick="logoutUser()" class="btn btn-outline-danger w-100 text-start border-0 mt-2">
                             Logout
                         </button>
@@ -389,6 +393,24 @@
                         </div>
                     </div>
 
+                    <div id="expensesSection" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h3 class="font-serif fw-bold h4 m-0 text-dark">Operational Expenses</h3>
+                                <p class="text-secondary small mb-0">Track hotel operational costs.</p>
+                            </div>
+                            <button onclick="openExpenseModal()" class="btn btn-dark fw-bold text-uppercase" style="font-size: 0.8rem;">
+                                + Add Expense
+                            </button>
+                        </div>
+
+                        <div class="alert alert-light border text-center py-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-secondary opacity-50 mb-3"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            <p class="text-secondary small">Expenses are tracked in the Financial Report.</p>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="showSection('financial')">Go to Financial Report</button>
+                        </div>
+                    </div>
+
                     <div id="commonLoading" class="text-center py-5" style="display: none;">
                         <div class="spinner-border text-dark" role="status"></div>
                     </div>
@@ -540,14 +562,59 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="expenseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Register Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="expenseForm">
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Amount (₴)</label>
+                            <input type="number" name="amount" class="form-control rounded-1" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Description</label>
+                            <textarea name="description" class="form-control rounded-1" rows="2" required placeholder="e.g. Cleaning supplies"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Employee (Who spent?)</label>
+                            <select id="expenseEmployeeSelect" name="employeeId" class="form-select rounded-1" required>
+                                <option value="" disabled selected>Loading staff...</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Approved By</label>
+                            <input type="text" name="approvedBy" class="form-control rounded-1" placeholder="Manager Name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Marketing Campaign (Optional)</label>
+                            <input type="number" name="campaignId" class="form-control rounded-1" placeholder="Campaign ID if applicable">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitExpense()" class="btn btn-dark btn-sm text-uppercase fw-bold px-4">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
 <script layout:fragment="script">
 
     // --- NAVIGATION ---
+    // Оновіть showSection
     function showSection(section) {
-        const sections = ['financial', 'occupancy', 'feedback', 'staff', 'workload', 'performance', 'quality']; // <-- Додано quality
+        const sections = ['financial', 'occupancy', 'feedback', 'staff', 'workload', 'performance', 'quality', 'expenses']; // <-- Додано expenses
         sections.forEach(s => {
             const el = document.getElementById(s + 'Section');
             if(el) el.style.display = 'none';
@@ -557,10 +624,69 @@
         if(target) target.style.display = 'block';
 
         document.getElementById('commonError').style.display = 'none';
+    }
 
-        // Автозавантаження при відкритті секції Quality
-        if (section === 'quality') {
-            loadQualityReport();
+    // --- EXPENSES ---
+    async function openExpenseModal() {
+        document.getElementById('expenseForm').reset();
+        const select = document.getElementById('expenseEmployeeSelect');
+        select.innerHTML = '<option value="" disabled selected>Loading...</option>';
+
+        new bootstrap.Modal(document.getElementById('expenseModal')).show();
+
+        try {
+            // Завантажуємо список співробітників
+            const response = await fetch('/api/management/staff');
+            if (response.ok) {
+                const employees = await response.json();
+                select.innerHTML = '<option value="" disabled selected>Select Employee</option>';
+                employees.forEach(emp => {
+                    select.innerHTML += `<option value="${emp.employee_id}">${emp.first_name} ${emp.last_name} (${emp.position})</option>`;
+                });
+            } else {
+                select.innerHTML = '<option value="" disabled>Error loading staff</option>';
+            }
+        } catch (e) {
+            select.innerHTML = '<option value="" disabled>System error</option>';
+        }
+    }
+
+    async function submitExpense() {
+        const form = document.getElementById('expenseForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitExpense()"]');
+        const originalText = btn.innerText;
+
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        try {
+            const response = await fetch('/api/management/expenses', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Expense registered successfully!");
+                bootstrap.Modal.getInstance(document.getElementById('expenseModal')).hide();
+                // Можна перенаправити на фінансовий звіт
+                if(confirm("Expense added. View Financial Report?")) {
+                    showSection('financial');
+                }
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
     }
 

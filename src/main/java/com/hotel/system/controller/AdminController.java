@@ -102,9 +102,23 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("clientId", id));
     }
 
+    // --- ВИСЕЛЕННЯ ТА СТАТУС ---
     @GetMapping("/rooms/{number}/status")
-    public ResponseEntity<?> getRoomStatus(@PathVariable Integer number) {
-        return ResponseEntity.ok(adminService.checkRoomStatus(number));
+    public ResponseEntity<?> getRoomStatus(@PathVariable Integer number, jakarta.servlet.http.HttpSession session) {
+        // 1. Отримуємо ID готелю
+        Long hotelId = (Long) session.getAttribute("HOTEL_ID");
+        if (hotelId == null) {
+            return ResponseEntity.badRequest().body("Session error: No Hotel ID");
+        }
+
+        // 2. Викликаємо сервіс
+        Map<String, Object> status = adminService.checkRoomStatus(number, hotelId);
+
+        if (status == null) {
+            return ResponseEntity.status(404).body("Room not found in this hotel");
+        }
+
+        return ResponseEntity.ok(status);
     }
 
     @GetMapping("/bookings/{id}/bill")

@@ -52,9 +52,9 @@ public class AdminService {
         return clientRepository.registerClient(firstName, middleName, lastName, phone, email, false);
     }
 
-    // 3. Виселення (Check-out)
-    public Map<String, Object> checkRoomStatus(Integer roomNumber) {
-        return roomRepository.getRoomExtendedStatus(roomNumber);
+    // 3. Виселення / Статус - ОНОВЛЕНО
+    public Map<String, Object> checkRoomStatus(Integer roomNumber, Long hotelId) {
+        return roomRepository.getRoomExtendedStatus(roomNumber, hotelId);
     }
 
     public List<Map<String, Object>> generateBill(Long bookingId) {

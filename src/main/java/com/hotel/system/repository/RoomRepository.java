@@ -22,10 +22,16 @@ public class RoomRepository {
         return jdbcTemplate.queryForList(sql, Date.valueOf(checkIn), Date.valueOf(checkOut), hotelId);
     }
 
-    /** 3.1 Розширений статус (Адмін) */
-    public Map<String, Object> getRoomExtendedStatus(Integer roomNumber) {
-        String sql = "SELECT * FROM get_room_extended_status(?)";
-        return jdbcTemplate.queryForMap(sql, roomNumber);
+    /** 3.1 Розширений статус (Адмін) - ОНОВЛЕНО */
+    public Map<String, Object> getRoomExtendedStatus(Integer roomNumber, Long hotelId) {
+        // Передаємо hotelId у SQL
+        String sql = "SELECT * FROM get_room_extended_status(?, ?)";
+
+        try {
+            return jdbcTemplate.queryForMap(sql, roomNumber, hotelId);
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            return null; // Якщо кімнату не знайдено
+        }
     }
 
     /** 2 (Гість) / 2.1 (Клієнт): Публічний пошук */

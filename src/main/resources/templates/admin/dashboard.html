@@ -37,6 +37,10 @@
                             Register New Client
                         </button>
 
+                        <button onclick="openRoomStatusModal()" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Check Room Status
+                        </button>
+
                         <button onclick="loadBookings()" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
                             Active Guests (Bookings)
                         </button>
@@ -237,11 +241,107 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="roomStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Check Room Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="input-group mb-4">
+                        <input type="number" id="statusRoomNumber" class="form-control rounded-start-1" placeholder="Enter Room Number (e.g. 101)">
+                        <button class="btn btn-dark rounded-end-1" onclick="fetchRoomStatus()">Search</button>
+                    </div>
+
+                    <div id="roomStatusResult" style="display: none;">
+                        <div class="alert alert-light border">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-secondary small text-uppercase fw-bold">Current Status:</span>
+                                <span id="rs_status" class="badge bg-secondary text-uppercase">Unknown</span>
+                            </div>
+                            <hr>
+                            <div class="mb-2">
+                                <span class="text-secondary small text-uppercase fw-bold d-block">Cleaning:</span>
+                                <span id="rs_cleaning" class="text-dark fw-bold">Pending</span>
+                                <span id="rs_date" class="small text-muted ms-2">(2024-01-01)</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-secondary small text-uppercase fw-bold d-block">Cleaner:</span>
+                                <span id="rs_cleaner" class="text-dark">Name</span>
+                            </div>
+                            <div>
+                                <span class="text-secondary small text-uppercase fw-bold d-block">Notes:</span>
+                                <p id="rs_notes" class="small fst-italic text-secondary m-0">No notes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="roomStatusError" class="text-danger small text-center mt-2" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
 <script layout:fragment="script">
+    // --- ROOM STATUS CHECKER ---
+    function openRoomStatusModal() {
+        // Очищаємо попередні дані
+        document.getElementById('statusRoomNumber').value = '';
+        document.getElementById('roomStatusResult').style.display = 'none';
+        document.getElementById('roomStatusError').style.display = 'none';
 
+        new bootstrap.Modal(document.getElementById('roomStatusModal')).show();
+    }
+
+    async function fetchRoomStatus() {
+        const roomNumber = document.getElementById('statusRoomNumber').value;
+        const resultDiv = document.getElementById('roomStatusResult');
+        const errorDiv = document.getElementById('roomStatusError');
+
+        if (!roomNumber) {
+            alert("Please enter a room number");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/rooms/${roomNumber}/status`);
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Заповнюємо дані
+                const statusBadge = document.getElementById('rs_status');
+                statusBadge.innerText = data.status;
+                // Змінюємо колір бейджа залежно від статусу
+                if (data.status === 'available') {
+                    statusBadge.className = 'badge bg-success text-uppercase';
+                } else if (data.status === 'occupied') {
+                    statusBadge.className = 'badge bg-danger text-uppercase';
+                } else {
+                    statusBadge.className = 'badge bg-warning text-dark text-uppercase';
+                }
+
+                document.getElementById('rs_cleaning').innerText = data.cleaning_status || 'N/A';
+                document.getElementById('rs_date').innerText = data.last_cleaned_date ? `(${data.last_cleaned_date})` : '';
+                document.getElementById('rs_cleaner').innerText = data.cleaner_name || 'Not assigned';
+                document.getElementById('rs_notes').innerText = data.notes || 'No notes available.';
+
+                resultDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+            } else {
+                resultDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.innerText = "Room not found in this hotel or system error.";
+            }
+        } catch (e) {
+            console.error(e);
+            errorDiv.style.display = 'block';
+            errorDiv.innerText = "System connection error.";
+        }
+    }
     // --- NAVIGATION ---
     function showSection(section) {
         document.getElementById('searchSection').style.display = (section === 'search') ? 'block' : 'none';

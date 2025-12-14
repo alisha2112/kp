@@ -67,8 +67,10 @@
 
                 // --- ЛОГІКА РОЗДІЛЕННЯ ---
                 // data.role приходить з AuthController
-                if (data.role === 'ADMIN' || data.role === 'MANAGER') {
+                if (data.role === 'ADMIN') {
                     window.location.href = '/admin/dashboard';
+                } else if (data.role === 'MANAGER') {
+                    window.location.href = '/management/dashboard'; // <--- Окрема сторінка
                 } else if (data.role === 'CLEANER') {
                     // Якщо буде сторінка для прибиральниці
                     window.location.href = '/cleaner/schedule';

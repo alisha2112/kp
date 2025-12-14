@@ -82,18 +82,33 @@ public class ManagementController {
     }
 
     @PostMapping("/staff/{id}/shift")
-    public ResponseEntity<?> assignShift(@PathVariable Long id, @RequestParam LocalDate date,
-                                         @RequestParam LocalTime start, @RequestParam LocalTime end) {
-        managementService.assignShift(id, date, start, end);
-        return ResponseEntity.ok("Shift assigned");
+    public ResponseEntity<?> assignShift(@PathVariable Long id,
+                                         @RequestParam LocalDate date,
+                                         @RequestParam LocalTime start,
+                                         @RequestParam LocalTime end,
+                                         HttpSession session) {
+        // 1. Отримуємо ID готелю менеджера
+        Long hotelId = getHotelId(session);
+
+        // 2. Викликаємо сервіс
+        managementService.assignShift(id, date, start, end, hotelId);
+
+        return ResponseEntity.ok("Shift assigned successfully");
     }
 
-    // --- НОВЕ: Призначення прибирання ---
+    // Перегляд розкладу на день
+    @GetMapping("/staff/schedule")
+    public ResponseEntity<?> getSchedule(@RequestParam LocalDate date, HttpSession session) {
+        return ResponseEntity.ok(managementService.viewSchedule(getHotelId(session), date));
+    }
+
     @PostMapping("/staff/assign-cleaning")
     public ResponseEntity<?> assignCleaningTask(@RequestParam Integer roomNumber,
                                                 @RequestParam Long cleanerId,
-                                                @RequestParam(defaultValue = "Planned cleaning") String note) {
-        managementService.assignCleaningTask(roomNumber, cleanerId, note);
+                                                @RequestParam(defaultValue = "Planned cleaning") String note,
+                                                HttpSession session) {
+        // Передаємо hotelId з сесії для безпеки
+        managementService.assignCleaningTask(roomNumber, cleanerId, note, getHotelId(session));
         return ResponseEntity.ok("Cleaning task assigned successfully");
     }
 

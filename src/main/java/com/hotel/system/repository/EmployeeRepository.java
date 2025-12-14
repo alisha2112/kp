@@ -62,10 +62,16 @@ public class EmployeeRepository {
         jdbcTemplate.update("CALL sp_fire_employee(?)", employeeId);
     }
 
-    /** 2.3 Розподіл змін */
-    public void assignShift(Long employeeId, LocalDate date, LocalTime start, LocalTime end) {
-        jdbcTemplate.update("CALL sp_assign_shift(?, ?, ?, ?)",
-                employeeId, Date.valueOf(date), Time.valueOf(start), Time.valueOf(end));
+    /** 2.3 Розподіл змін (ОНОВЛЕНО: з hotelId) */
+    public void assignShift(Long employeeId, LocalDate date, LocalTime start, LocalTime end, Long hotelId) {
+        jdbcTemplate.update("CALL sp_assign_shift(?, ?, ?, ?, ?)",
+                employeeId, java.sql.Date.valueOf(date), java.sql.Time.valueOf(start), java.sql.Time.valueOf(end), hotelId);
+    }
+
+    /** 2.4 Перегляд розкладу (Менеджер) */
+    public List<Map<String, Object>> getHotelSchedule(Long hotelId, LocalDate date) {
+        String sql = "SELECT * FROM get_hotel_schedule(?, ?)";
+        return jdbcTemplate.queryForList(sql, hotelId, java.sql.Date.valueOf(date));
     }
 
     /** 2.5 Контроль якості (View) */

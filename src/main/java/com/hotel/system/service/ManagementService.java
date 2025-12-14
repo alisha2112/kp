@@ -58,15 +58,21 @@ public class ManagementService {
         employeeRepository.fireEmployee(employeeId);
     }
 
+    // 2.3 Зміни - ОНОВЛЕНО
     @Transactional
-    public void assignShift(Long employeeId, LocalDate date, LocalTime start, LocalTime end) {
-        employeeRepository.assignShift(employeeId, date, start, end);
+    public void assignShift(Long employeeId, LocalDate date, LocalTime start, LocalTime end, Long hotelId) {
+        employeeRepository.assignShift(employeeId, date, start, end, hotelId);
     }
 
-    // --- НОВЕ: Призначення прибирання (Менеджер призначає завдання) ---
+    // Перегляд розкладу
+    public List<Map<String, Object>> viewSchedule(Long hotelId, LocalDate date) {
+        return employeeRepository.getHotelSchedule(hotelId, date);
+    }
+
+    // 2.5 Прибирання - ОНОВЛЕНО
     @Transactional
-    public void assignCleaningTask(Integer roomNumber, Long cleanerId, String note) {
-        employeeRepository.assignCleaningTask(roomNumber, cleanerId, note);
+    public void assignCleaningTask(Integer roomNumber, Long cleanerId, String note, Long hotelId) {
+        roomRepository.assignCleaningTask(roomNumber, cleanerId, note, hotelId);
     }
 
     public Map<String, Object> analyzeStaffWorkload(LocalDate start, LocalDate end, Long hotelId) {

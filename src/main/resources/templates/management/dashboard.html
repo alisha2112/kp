@@ -216,9 +216,19 @@
                                 <h3 class="font-serif fw-bold h4 m-0 text-dark">Staff Management</h3>
                                 <p class="text-secondary small mb-0">Manage your hotel team.</p>
                             </div>
-                            <button onclick="openHireModal()" class="btn btn-dark fw-bold text-uppercase" style="font-size: 0.8rem;">
-                                + Hire Employee
-                            </button>
+                            <div>
+                                <button onclick="openCleaningModal()" class="btn btn-outline-dark fw-bold text-uppercase me-2" style="font-size: 0.8rem;">
+                                    Assign Cleaning
+                                </button>
+
+                                <button onclick="openScheduleModal()" class="btn btn-outline-dark fw-bold text-uppercase me-2" style="font-size: 0.8rem;">
+                                    View Schedule
+                                </button>
+
+                                <button onclick="openHireModal()" class="btn btn-dark fw-bold text-uppercase" style="font-size: 0.8rem;">
+                                    + Hire Employee
+                                </button>
+                            </div>
                         </div>
 
                         <div id="staffTableArea">
@@ -281,6 +291,98 @@
                 <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
                     <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" onclick="submitHire()" class="btn btn-dark btn-sm text-uppercase fw-bold px-4">Hire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="shiftModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Assign Shift</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">Scheduling for: <strong id="shiftEmpName" class="text-dark">Name</strong></p>
+                    <form id="shiftForm">
+                        <input type="hidden" id="shiftEmpId" name="id">
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Date</label>
+                            <input type="date" name="date" class="form-control rounded-1" required>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Time</label>
+                                <input type="time" name="start" class="form-control rounded-1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Time</label>
+                                <input type="time" name="end" class="form-control rounded-1" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitShift()" class="btn btn-dark btn-sm text-uppercase fw-bold px-4">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="viewScheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content rounded-1 border-0 shadow-lg">
+            <div class="modal-header border-bottom border-light-subtle">
+                <h5 class="modal-title font-serif fw-bold">Daily Schedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                <div class="d-flex align-items-center mb-4">
+                    <label class="small fw-bold text-uppercase text-secondary me-3">Select Date:</label>
+                    <input type="date" id="scheduleDateInput" class="form-control rounded-1 w-auto me-3">
+                    <button onclick="fetchSchedule()" class="btn btn-dark btn-sm text-uppercase fw-bold">Load</button>
+                </div>
+
+                <div id="scheduleResultArea">
+                    <div class="text-center text-secondary py-4 small">Select a date to view shifts.</div>
+                </div>
+
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="modal fade" id="cleaningModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title font-serif fw-bold">Assign Cleaning Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="cleaningForm">
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Room Number</label>
+                            <input type="number" name="roomNumber" class="form-control rounded-1" placeholder="e.g. 101" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Cleaner</label>
+                            <select id="cleanerSelect" name="cleanerId" class="form-select rounded-1" required>
+                                <option value="" disabled selected>Loading staff...</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Note</label>
+                            <textarea name="note" class="form-control rounded-1" rows="2" placeholder="e.g. Guest requested extra towels"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitCleaning()" class="btn btn-dark btn-sm text-uppercase fw-bold px-4">Assign</button>
                 </div>
             </div>
         </div>
@@ -411,6 +513,204 @@
         }
     }
 
+    // --- ASSIGN CLEANING ---
+    // --- ASSIGN CLEANING ---
+    async function openCleaningModal() {
+        document.getElementById('cleaningForm').reset();
+
+        // Знаходимо селект
+        const select = document.getElementById('cleanerSelect');
+        select.innerHTML = '<option value="" disabled selected>Loading...</option>';
+
+        // Відкриваємо модалку
+        new bootstrap.Modal(document.getElementById('cleaningModal')).show();
+
+        try {
+            // Завантажуємо всіх працівників
+            const response = await fetch('/api/management/staff');
+            if (response.ok) {
+                const employees = await response.json();
+
+                select.innerHTML = '<option value="" disabled selected>Select Cleaner</option>';
+
+                let count = 0;
+                employees.forEach(emp => {
+                    // ФІЛЬТР: Перевіряємо, чи містить посада слово "Cleaner" (або "cleaner")
+                    if (emp.position && emp.position.toLowerCase().includes('cleaner')) {
+                        select.innerHTML += `<option value="${emp.employee_id}">${emp.first_name} ${emp.last_name}</option>`;
+                        count++;
+                    }
+                });
+
+                // Якщо прибиральників не знайдено
+                if (count === 0) {
+                    select.innerHTML = '<option value="" disabled>No cleaners available</option>';
+                }
+
+            } else {
+                select.innerHTML = '<option value="" disabled>Error loading staff</option>';
+            }
+        } catch (e) {
+            console.error(e);
+            select.innerHTML = '<option value="" disabled>System error</option>';
+        }
+    }
+
+    async function submitCleaning() {
+        const form = document.getElementById('cleaningForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitCleaning()"]');
+        const originalText = btn.innerText;
+
+        btn.disabled = true;
+        btn.innerText = "Assigning...";
+
+        try {
+            const response = await fetch('/api/management/staff/assign-cleaning', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Cleaning task assigned successfully!");
+                bootstrap.Modal.getInstance(document.getElementById('cleaningModal')).hide();
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+
+    // --- ASSIGN SHIFT ---
+    function openShiftModal(empId, empName) {
+        document.getElementById('shiftEmpId').value = empId;
+        document.getElementById('shiftEmpName').innerText = empName;
+        document.getElementById('shiftForm').reset();
+        new bootstrap.Modal(document.getElementById('shiftModal')).show();
+    }
+
+    async function submitShift() {
+        const form = document.getElementById('shiftForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const empId = document.getElementById('shiftEmpId').value;
+        const btn = document.querySelector('button[onclick="submitShift()"]');
+        const originalText = btn.innerText;
+
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        try {
+            // URL: /api/management/staff/{id}/shift
+            // Параметри передаються як query params або form-data. Fetch з body: formData автоматично відправляє їх.
+            // Але @RequestParam в контролері очікує їх. FormData підходить.
+            const response = await fetch(`/api/management/staff/${empId}/shift`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Shift assigned successfully!");
+                bootstrap.Modal.getInstance(document.getElementById('shiftModal')).hide();
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+
+    // --- VIEW SCHEDULE ---
+    function openScheduleModal() {
+        // Встановлюємо сьогоднішню дату за замовчуванням
+        document.getElementById('scheduleDateInput').valueAsDate = new Date();
+        // Очищаємо попередні результати
+        document.getElementById('scheduleResultArea').innerHTML = '<div class="text-center text-secondary py-4 small">Click Load to view shifts.</div>';
+
+        new bootstrap.Modal(document.getElementById('viewScheduleModal')).show();
+
+        // Автоматично завантажуємо для зручності
+        fetchSchedule();
+    }
+
+    async function fetchSchedule() {
+        const date = document.getElementById('scheduleDateInput').value;
+        const container = document.getElementById('scheduleResultArea');
+
+        if (!date) { alert("Please select a date"); return; }
+
+        container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-secondary"></div></div>';
+
+        try {
+            const response = await fetch(`/api/management/staff/schedule?date=${date}`);
+
+            if (response.ok) {
+                const shifts = await response.json();
+
+                if (shifts.length === 0) {
+                    container.innerHTML = `<div class="alert alert-info border-0 text-center">No shifts assigned for ${date}.</div>`;
+                    return;
+                }
+
+                let html = `
+                    <table class="table table-hover align-middle border">
+                        <thead class="table-light small text-uppercase">
+                            <tr>
+                                <th>Employee</th>
+                                <th>Position</th>
+                                <th class="text-center">Shift Start</th>
+                                <th class="text-center">Shift End</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                shifts.forEach(s => {
+                    // Проста логіка статусу (чи зараз йде зміна)
+                    // Для точного відображення треба порівнювати з поточним часом, але тут просто покажемо час
+                    html += `
+                        <tr>
+                            <td class="fw-bold text-dark">${s.full_name}</td>
+                            <td><span class="badge bg-light text-secondary border fw-normal x-small">${s.position}</span></td>
+                            <td class="text-center">${s.start_time}</td>
+                            <td class="text-center">${s.end_time}</td>
+                            <td class="text-center">
+                                <span class="badge bg-success fw-normal x-small">Scheduled</span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<div class="alert alert-danger">Error loading schedule.</div>';
+            }
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<div class="alert alert-danger">System error.</div>';
+        }
+    }
+
     // --- STAFF MANAGEMENT ---
 
     // 1. Load Staff List
@@ -453,6 +753,10 @@
                             <td><span class="badge bg-light text-dark border fw-normal text-uppercase x-small">${emp.position}</span></td>
                             <td class="small text-muted">${emp.phone}</td>
                             <td class="text-end pe-3">
+                                <button class="btn btn-sm btn-link text-primary p-0 me-2" title="Assign Shift"
+                                        onclick="openShiftModal(${emp.employee_id}, '${fullName}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                </button>
                                 <button class="btn btn-sm btn-outline-danger text-uppercase fw-bold x-small px-3"
                                         onclick="fireEmployee(${emp.employee_id}, '${fullName}')">
                                     Fire

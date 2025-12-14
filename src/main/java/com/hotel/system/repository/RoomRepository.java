@@ -46,6 +46,12 @@ public class RoomRepository {
         return jdbcTemplate.queryForList(sql, Date.valueOf(checkIn), Date.valueOf(checkOut), city);
     }
 
+    /** 2.5 Призначення прибирання (Менеджер) */
+    public void assignCleaningTask(Integer roomNumber, Long cleanerId, String note, Long hotelId) {
+        jdbcTemplate.update("CALL sp_assign_cleaning_task(?, ?, ?, ?)",
+                roomNumber, cleanerId, note, hotelId);
+    }
+
     // --- ПРИБИРАЛЬНИЦЯ ---
 
     /** 2. Повідомлення про проблему */

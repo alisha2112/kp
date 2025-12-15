@@ -73,11 +73,13 @@
 
                                 <div class="mb-3">
                                     <span class="badge bg-dark text-white rounded-0 px-2 py-1 x-small fw-normal text-uppercase">Active</span>
+
                                     <h3 class="font-serif fw-bold h2 mt-2 mb-0 text-dark" th:text="${promo.discount_percent} + '% OFF'">10% OFF</h3>
                                     <p class="text-secondary small mt-1">on your next booking</p>
                                 </div>
 
                                 <div class="mt-auto">
+
                                     <div class="bg-white border border-dashed border-secondary rounded-1 p-2 text-center position-relative group cursor-pointer"
                                          th:data-code="${promo.code}"
                                          onclick="copyCode(this)"
@@ -87,9 +89,9 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                                         </span>
                                     </div>
+
                                     <p class="text-center x-small text-secondary mt-2 mb-0">
-                                        Valid until <span th:text="${promo.expires_at}">2025-12-31</span>
-                                        (<span th:text="${promo.days_left}">5</span> days left)
+                                        Valid until <span th:text="${promo.valid_to}">2025-12-31</span>
                                     </p>
                                 </div>
                             </div>
@@ -103,17 +105,15 @@
 </div>
 
 <script layout:fragment="script">
-    // Оновлена функція: бере код з атрибута data-code
     function copyCode(element) {
-        // Отримуємо значення з data-атрибута
         const code = element.getAttribute('data-code');
 
         if (code) {
             navigator.clipboard.writeText(code).then(() => {
                 const originalBg = element.style.backgroundColor;
-                element.style.backgroundColor = "#dcfce7"; // Greenish
+                element.style.backgroundColor = "#dcfce7"; // Greenish feedback
                 setTimeout(() => {
-                    element.style.backgroundColor = originalBg;
+                    element.style.backgroundColor = originalBg || '#fff';
                 }, 500);
                 alert("Promo code copied: " + code);
             }).catch(err => {

@@ -261,6 +261,21 @@ public class ManagementController {
         return ResponseEntity.ok(Map.of("taxAmount", managementService.calculateTax(hotelId, start, end, rate)));
     }
 
+    @PostMapping("/accountant/salary-config")
+    public ResponseEntity<?> setSalaryConfig(
+            @RequestParam Long employeeId,
+            @RequestParam BigDecimal baseSalary,
+            @RequestParam BigDecimal tax,
+            HttpSession session) {
+
+        // Отримуємо ID поточного бухгалтера з сесії для перевірки прав в SQL
+        Long accountantId = getUserId(session);
+
+        managementService.setSalaryConfiguration(employeeId, baseSalary, tax, accountantId);
+
+        return ResponseEntity.ok("Salary configuration saved successfully");
+    }
+
     // ================== ПРИБИРАЛЬНИЦЯ ==================
 
     @GetMapping("/cleaner/schedule")

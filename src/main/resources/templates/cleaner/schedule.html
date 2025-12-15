@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Housekeeping Schedule - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 900px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">My Schedule</h1>
+                <p class="text-secondary small mb-0">Daily Housekeeping Tasks</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-info text-dark border border-light-subtle fw-normal rounded-1 px-3 py-2 text-uppercase mb-2">
+                    Cleaner Access
+                </span>
+                <div class="small text-secondary">ID: <span th:text="${userId}">#</span></div>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 shadow-sm border-top border-4 border-info rounded-1" style="min-height: 500px;">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="font-serif fw-bold h5 text-dark m-0">Today's Tasks</h3>
+                <button onclick="loadSchedule()" class="btn btn-sm btn-outline-secondary">
+                    Refresh List
+                </button>
+            </div>
+
+            <div id="scheduleContainer">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border">
+                        <thead class="table-light small text-uppercase">
+                        <tr>
+                            <th class="ps-3 py-3">Room</th>
+                            <th class="py-3">Type</th>
+                            <th class="py-3">Notes</th>
+                            <th class="text-center py-3">Status</th>
+                            <th class="text-end pe-3 py-3">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="scheduleBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="loading" class="text-center py-5" style="display: none;">
+                <div class="spinner-border text-info" role="status"></div>
+            </div>
+
+            <div id="errorMessage" class="alert alert-danger mt-3 small" style="display: none;"></div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="markCleanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle bg-light">
+                    <h5 class="modal-title font-serif fw-bold text-success">Complete Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-dark mb-3">Marking Room <strong id="cleanRoomNum">101</strong> as cleaned.</p>
+                    <form id="cleanForm">
+                        <input type="hidden" id="cleanRoomNumberInput" name="roomNumber">
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Final Notes (Optional)</label>
+                            <textarea name="notes" class="form-control rounded-1" rows="2" placeholder="Towels replaced, mini-bar refilled..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitClean()" class="btn btn-success btn-sm text-uppercase fw-bold px-4">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reportIssueModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-1 border-0 shadow-lg">
+                <div class="modal-header border-bottom border-light-subtle bg-light">
+                    <h5 class="modal-title font-serif fw-bold text-danger">Report Issue</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-dark mb-3">Report a problem in Room <strong id="issueRoomNum">101</strong>.</p>
+                    <form id="issueForm">
+                        <input type="hidden" id="issueRoomNumberInput" name="roomNumber">
+                        <div class="mb-3">
+                            <label class="form-label x-small fw-bold text-uppercase text-secondary">Description</label>
+                            <textarea name="description" class="form-control rounded-1" rows="3" required placeholder="Broken lamp, leak in bathroom, etc..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light btn-sm text-uppercase fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitIssue()" class="btn btn-danger btn-sm text-uppercase fw-bold px-4">Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script layout:fragment="script">
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSchedule();
+    });
+
+    // --- 1. LOAD SCHEDULE ---
+    async function loadSchedule() {
+        const tbody = document.getElementById('scheduleBody');
+        const loader = document.getElementById('loading');
+        const errorDiv = document.getElementById('errorMessage');
+
+        tbody.innerHTML = '';
+        loader.style.display = 'block';
+        errorDiv.style.display = 'none';
+
+        try {
+            // Виклик API ендпоінту, який ви вказали у запиті
+            // (параметри беруться з сесії на сервері, тому URL чистий)
+            const response = await fetch('/api/management/cleaner/schedule');
+
+            if (response.ok) {
+                const data = await response.json(); // Очікуємо: room_number, floor, comfort_level, cleaning_status, notes
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">You have no pending tasks for today. Good job!</td></tr>';
+                } else {
+                    data.forEach(task => {
+                        let statusBadge = '<span class="badge bg-warning text-dark fw-normal x-small text-uppercase">Pending</span>';
+                        if (task.cleaning_status === 'skipped') statusBadge = '<span class="badge bg-secondary fw-normal x-small text-uppercase">Skipped</span>';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3">
+                                    <span class="d-block fw-bold text-dark h5 mb-0">${task.room_number}</span>
+                                    <span class="x-small text-secondary">Floor ${task.floor}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border fw-normal x-small text-uppercase">${task.comfort_level}</span>
+                                </td>
+                                <td class="small text-dark fst-italic">
+                                    "${task.notes || 'Routine cleaning'}"
+                                </td>
+                                <td class="text-center">${statusBadge}</td>
+                                <td class="text-end pe-3">
+                                    <button class="btn btn-sm btn-outline-danger me-2" title="Report Issue"
+                                            onclick="openIssueModal('${task.room_number}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                    </button>
+                                    <button class="btn btn-sm btn-success text-uppercase fw-bold x-small px-3"
+                                            onclick="openCleanModal('${task.room_number}')">
+                                        Done
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            errorDiv.innerText = "Error loading schedule: " + e.message;
+            errorDiv.style.display = 'block';
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // --- 2. MARK AS CLEANED ---
+    function openCleanModal(roomNumber) {
+        document.getElementById('cleanRoomNum').innerText = roomNumber;
+        document.getElementById('cleanRoomNumberInput').value = roomNumber;
+        document.getElementById('cleanForm').reset();
+        new bootstrap.Modal(document.getElementById('markCleanModal')).show();
+    }
+
+    async function submitClean() {
+        const form = document.getElementById('cleanForm');
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/api/management/cleaner/mark-cleaned', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('markCleanModal')).hide();
+                loadSchedule(); // Оновлюємо список
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            alert("System error");
+        }
+    }
+
+    // --- 3. REPORT ISSUE ---
+    function openIssueModal(roomNumber) {
+        document.getElementById('issueRoomNum').innerText = roomNumber;
+        document.getElementById('issueRoomNumberInput').value = roomNumber;
+        document.getElementById('issueForm').reset();
+        new bootstrap.Modal(document.getElementById('reportIssueModal')).show();
+    }
+
+    async function submitIssue() {
+        const form = document.getElementById('issueForm');
+        const formData = new FormData(form);
+
+        // Валідація
+        if (!formData.get('description')) { alert("Please describe the issue."); return; }
+
+        try {
+            const response = await fetch('/api/management/cleaner/issue', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Issue reported to administration.");
+                bootstrap.Modal.getInstance(document.getElementById('reportIssueModal')).hide();
+            } else {
+                alert("Error: " + await response.text());
+            }
+        } catch (e) {
+            alert("System error");
+        }
+    }
+
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+</style>
+
+</body>
+</html>

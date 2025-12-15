@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Accountant Dashboard - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 1100px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">Financial Department</h1>
+                <p class="text-secondary small mb-0">Payroll & Tax Management</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success text-white border border-light-subtle fw-normal rounded-1 px-3 py-2 text-uppercase mb-2">
+                    Accountant Access
+                </span>
+                <div class="small text-secondary">
+                    Hotel ID: <span id="currentHotelId" th:text="${hotelId}">1</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+                        <div class="text-secondary x-small fw-bold text-uppercase mb-2 ps-2">Operations</div>
+                        <button onclick="showSection('salaryConfig')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Salary Config
+                        </button>
+
+                        <button onclick="showSection('payroll')" class="btn btn-luxury w-100 text-start border-0">
+                            Process Payroll
+                        </button>
+
+                        <button onclick="showSection('reports')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark">
+                            Profitability & Tax
+                        </button>
+
+                        <button onclick="logoutUser()" class="btn btn-outline-danger w-100 text-start border-0 mt-3">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-success rounded-1" style="min-height: 600px;">
+
+                    <div id="payrollSection">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Payroll Processing</h3>
+                        <p class="text-secondary small mb-4">Calculate and finalize salary payments for employees.</p>
+
+                        <form id="payrollForm" class="mb-5">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label x-small fw-bold text-uppercase text-secondary">Select Employee</label>
+                                    <select id="empSelect" name="employeeId" class="form-select rounded-1" required>
+                                        <option value="" selected disabled>Loading staff...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label x-small fw-bold text-uppercase text-secondary">Period Start</label>
+                                    <input type="date" name="start" class="form-control rounded-1" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label x-small fw-bold text-uppercase text-secondary">Period End</label>
+                                    <input type="date" name="end" class="form-control rounded-1" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label x-small fw-bold text-uppercase text-secondary">Bonuses (₴)</label>
+                                    <input type="number" name="bonuses" class="form-control rounded-1" value="0" min="0">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label x-small fw-bold text-uppercase text-secondary">Penalties (₴)</label>
+                                    <input type="number" name="penalties" class="form-control rounded-1" value="0" min="0">
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="button" onclick="submitPayroll()" class="btn btn-success w-100 fw-bold text-uppercase py-2">
+                                        Process Payment
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="alert alert-light border small">
+                            <h6 class="fw-bold mb-1">Note:</h6>
+                            <ul class="mb-0 ps-3 text-secondary">
+                                <li>Net Payout = Base Salary + Bonuses - Penalties - Tax.</li>
+                                <li>Processing payroll automatically creates an expense record.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="salaryConfigSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Salary Configuration</h3>
+                        <p class="text-secondary small mb-4">Set base salary and fixed tax for employees.</p>
+
+                        <div class="bg-light p-4 rounded-1 border border-light-subtle mb-4">
+                            <form id="salaryConfigForm">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-5">
+                                        <label class="form-label x-small fw-bold text-uppercase text-secondary">Employee</label>
+                                        <select id="configEmpSelect" name="employeeId" class="form-select rounded-1" required>
+                                            <option value="" selected disabled>Loading staff...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label x-small fw-bold text-uppercase text-secondary">Base Salary (₴)</label>
+                                        <input type="number" name="baseSalary" class="form-control rounded-1" placeholder="e.g. 15000" min="0" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label x-small fw-bold text-uppercase text-secondary">Tax (₴)</label>
+                                        <input type="number" name="tax" class="form-control rounded-1" placeholder="e.g. 2925" min="0" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" onclick="submitSalaryConfig()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="alert alert-info small border-0">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            This creates a record in the database. Use <strong>Process Payroll</strong> to issue the actual payment based on these settings.
+                        </div>
+                    </div>
+
+                    <div id="reportsSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Financial Analysis</h3>
+
+                        <div class="row g-3 align-items-end mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="repStart" class="form-control rounded-1">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="repEnd" class="form-control rounded-1">
+                            </div>
+                            <div class="col-md-4">
+                                <button onclick="loadProfitability()" class="btn btn-dark w-100 fw-bold text-uppercase py-2" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="reportResult" style="display: none;">
+                            <div class="row g-3 text-center mb-4">
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-light border rounded-1">
+                                        <div class="x-small text-uppercase text-secondary fw-bold mb-1">Total Income</div>
+                                        <div class="fs-4 fw-bold text-dark" id="valIncome">0 ₴</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-light border rounded-1">
+                                        <div class="x-small text-uppercase text-secondary fw-bold mb-1">Total Expenses</div>
+                                        <div class="fs-4 fw-bold text-dark" id="valExpense">0 ₴</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3 bg-dark text-white border rounded-1">
+                                        <div class="x-small text-uppercase text-white-50 fw-bold mb-1">Net Profit</div>
+                                        <div class="fs-4 fw-bold" id="valProfit">0 ₴</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-white small text-secondary fw-bold">Tax Rate (%)</span>
+                                <input type="number" id="taxRate" class="form-control" value="18">
+                                <button class="btn btn-outline-secondary fw-bold" onclick="calculateTax()">Calculate Tax</button>
+                            </div>
+                            <div id="taxResult" class="text-end fw-bold text-danger fs-5" style="display: none;">
+                                Tax Due: <span id="valTax">0 ₴</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="accLoading" class="text-center py-5" style="display: none;">
+                        <div class="spinner-border text-success" role="status"></div>
+                    </div>
+                    <div id="commonError" class="alert alert-danger mt-3 small" style="display: none;"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStaff(); // Завантажуємо список при старті
+    });
+
+    // --- NAVIGATION ---
+    function showSection(section) {
+        // Ховаємо все
+        document.getElementById('payrollSection').style.display = 'none';
+        document.getElementById('reportsSection').style.display = 'none';
+        document.getElementById('salaryConfigSection').style.display = 'none'; // Нове
+        document.getElementById('commonError').style.display = 'none';
+
+        // Показуємо потрібне
+        if(section === 'payroll') document.getElementById('payrollSection').style.display = 'block';
+        else if(section === 'reports') document.getElementById('reportsSection').style.display = 'block';
+        else if(section === 'salaryConfig') document.getElementById('salaryConfigSection').style.display = 'block'; // Нове
+    }
+
+    // --- 1. LOAD STAFF (Заповнює обидва списки) ---
+    async function loadStaff() {
+        const selectPayment = document.getElementById('empSelect');
+        const selectConfig = document.getElementById('configEmpSelect'); // Новий селект
+
+        try {
+            const response = await fetch('/api/management/staff');
+            if (response.ok) {
+                const employees = await response.json();
+
+                // HTML для опцій
+                let optionsHtml = '<option value="" selected disabled>Select Employee</option>';
+                employees.forEach(emp => {
+                    optionsHtml += `<option value="${emp.employee_id}">${emp.first_name} ${emp.last_name} (${emp.position})</option>`;
+                });
+
+                // Вставляємо в обидва списки
+                if(selectPayment) selectPayment.innerHTML = optionsHtml;
+                if(selectConfig) selectConfig.innerHTML = optionsHtml;
+
+            } else {
+                const errHtml = '<option disabled>Error loading staff</option>';
+                if(selectPayment) selectPayment.innerHTML = errHtml;
+                if(selectConfig) selectConfig.innerHTML = errHtml;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // --- 5. SET SALARY CONFIGURATION (NEW) ---
+    async function submitSalaryConfig() {
+        const form = document.getElementById('salaryConfigForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitSalaryConfig()"]');
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        try {
+            const response = await fetch('/api/management/accountant/salary-config', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Salary configuration saved successfully!");
+                form.reset();
+            } else {
+                const text = await response.text();
+                alert("Error: " + text);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Save";
+        }
+    }
+
+    // --- 2. PROCESS PAYROLL ---
+    async function submitPayroll() {
+        const form = document.getElementById('payrollForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitPayroll()"]');
+
+        btn.disabled = true;
+        btn.innerText = "Processing...";
+        document.getElementById('commonError').style.display = 'none';
+
+        try {
+            const response = await fetch('/api/management/accountant/payroll', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Payroll processed successfully!");
+                form.reset();
+            } else {
+                const text = await response.text();
+                // Може бути помилка SQL: "сума до виплати від'ємна" або "не налаштована зарплата"
+                document.getElementById('commonError').innerText = "Error: " + text;
+                document.getElementById('commonError').style.display = 'block';
+            }
+        } catch (e) {
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Process Payment";
+        }
+    }
+
+    // --- 3. PROFITABILITY ANALYSIS ---
+    async function loadProfitability() {
+        const start = document.getElementById('repStart').value;
+        const end = document.getElementById('repEnd').value;
+        const hotelId = document.getElementById('currentHotelId').innerText; // З HTML
+
+        if(!start || !end) { alert("Select dates"); return; }
+
+        document.getElementById('accLoading').style.display = 'block';
+        document.getElementById('reportResult').style.display = 'none';
+
+        try {
+            const response = await fetch(`/api/management/accountant/profitability?hotelId=${hotelId}&start=${start}&end=${end}`);
+            if(response.ok) {
+                const data = await response.json();
+
+                document.getElementById('valIncome').innerText = data.total_income + ' ₴';
+                document.getElementById('valExpense').innerText = data.total_expenses + ' ₴';
+                document.getElementById('valProfit').innerText = data.net_profit + ' ₴';
+
+                document.getElementById('reportResult').style.display = 'block';
+            } else {
+                alert(await response.text());
+            }
+        } catch(e) {
+            console.error(e);
+        } finally {
+            document.getElementById('accLoading').style.display = 'none';
+        }
+    }
+
+    // --- 4. CALCULATE TAX ---
+    async function calculateTax() {
+        const start = document.getElementById('repStart').value;
+        const end = document.getElementById('repEnd').value;
+        const rate = document.getElementById('taxRate').value;
+        const hotelId = document.getElementById('currentHotelId').innerText;
+
+        if(!start || !end) return;
+
+        try {
+            const response = await fetch(`/api/management/accountant/tax?hotelId=${hotelId}&start=${start}&end=${end}&rate=${rate}`);
+            if(response.ok) {
+                const data = await response.json();
+                document.getElementById('valTax').innerText = data.taxAmount + ' ₴';
+                document.getElementById('taxResult').style.display = 'block';
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
+</style>
+
+</body>
+</html>

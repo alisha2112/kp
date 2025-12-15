@@ -33,10 +33,6 @@
                             <span>&rsaquo;</span>
                         </button>
 
-                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
-                            Service Popularity
-                        </button>
-
                         <button onclick="showSection('services')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
                             Service Popularity
                         </button>
@@ -87,7 +83,7 @@
 
                     <div id="plSection">
                         <h3 class="font-serif fw-bold h4 mb-4 text-dark">Profit & Loss Analysis</h3>
-                        <p class="text-secondary small mb-4">Analyze financial performance and cash flow (Income, Expenses, Running Balance).</p>
+                        <p class="text-secondary small mb-4">Analyze financial performance and cash flow.</p>
 
                         <div class="row g-3 align-items-end mb-5">
                             <div class="col-md-3">
@@ -155,9 +151,8 @@
                         <div id="plLoading" class="text-center py-5" style="display: none;">
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
-                        <div id="commonError" class="alert alert-danger mt-3 small" style="display: none;"></div>
-
                     </div>
+
                     <div id="servicesSection" style="display: none;">
                         <h3 class="font-serif fw-bold h4 mb-4 text-dark">Service Popularity</h3>
                         <p class="text-secondary small mb-4">Identify top-performing hotel services and revenue sources.</p>
@@ -205,6 +200,7 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+
                     <div id="empStatsSection" style="display: none;">
                         <h3 class="font-serif fw-bold h4 mb-4 text-dark">Employee Performance</h3>
                         <p class="text-secondary small mb-4">Detailed individual statistics and KPI metrics.</p>
@@ -233,11 +229,8 @@
                         <hr class="text-light my-4">
 
                         <div id="empStatsResult" style="display: none;">
-
                             <div class="d-flex align-items-center mb-4">
-                                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center font-serif fw-bold fs-4 me-3" style="width: 60px; height: 60px;" id="esInitials">
-                                    A
-                                </div>
+                                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center font-serif fw-bold fs-4 me-3" style="width: 60px; height: 60px;" id="esInitials">A</div>
                                 <div>
                                     <h4 class="font-serif fw-bold text-dark mb-0" id="esName">Employee Name</h4>
                                     <span class="badge bg-light text-secondary border fw-normal text-uppercase x-small" id="esPosition">Position</span>
@@ -249,21 +242,18 @@
                                     <div class="p-4 border border-light-subtle rounded-1 bg-white h-100 text-center">
                                         <div class="text-secondary x-small text-uppercase fw-bold mb-2">Total Shifts</div>
                                         <div class="fs-2 fw-bold text-dark" id="esShifts">0</div>
-                                        <div class="text-muted x-small">Completed work shifts</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="p-4 border border-light-subtle rounded-1 bg-white h-100 text-center">
                                         <div class="text-secondary x-small text-uppercase fw-bold mb-2">Avg Rating</div>
                                         <div class="fs-2 fw-bold text-warning" id="esRating">0.0</div>
-                                        <div class="text-muted x-small">Based on guest reviews</div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="p-4 border border-light-subtle rounded-1 bg-white h-100 text-center">
                                         <div class="text-secondary x-small text-uppercase fw-bold mb-2">Negative Feedback</div>
                                         <div class="fs-2 fw-bold" id="esComplaints">0</div>
-                                        <div class="text-muted x-small">Reviews < 3 stars</div>
                                     </div>
                                 </div>
                             </div>
@@ -278,6 +268,7 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+
                     <div id="scheduleSection" style="display: none;">
                         <h3 class="font-serif fw-bold h4 mb-4 text-dark">Staff Schedule</h3>
                         <p class="text-secondary small mb-4">View operational shifts across the network.</p>
@@ -322,187 +313,7 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
-                    <div id="payrollSection" style="display: none;">
-                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Payroll Overview</h3>
-                        <p class="text-secondary small mb-4">Current salary configurations and estimated net payouts.</p>
 
-                        <div class="row g-3 align-items-end mb-5">
-                            <div class="col-md-4">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
-                                <input type="number" id="payHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
-                            </div>
-                            <div class="col-md-3">
-                                <button onclick="loadPayrollReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
-                                    Load Sheet
-                                </button>
-                            </div>
-                        </div>
-
-                        <hr class="text-light my-4">
-
-                        <div id="payrollResult" style="display: none;">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle border">
-                                    <thead class="table-light small text-uppercase">
-                                    <tr>
-                                        <th class="ps-3 py-3">Employee</th>
-                                        <th class="py-3">Position</th>
-                                        <th class="text-end py-3">Base Salary</th>
-                                        <th class="text-end pe-3 py-3 fw-bold text-success">Net Payout</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="payrollBody">
-                                    </tbody>
-                                    <tfoot class="table-light border-top">
-                                    <tr>
-                                        <td colspan="3" class="text-end fw-bold py-3 small text-uppercase">Total Estimated Payout:</td>
-                                        <td class="text-end pe-3 fw-bold fs-5 text-dark" id="payrollTotal">0 ₴</td>
-                                    </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div class="mt-3 text-muted x-small fst-italic">
-                                * Net Payout is calculated as: Base Salary + Bonuses - Penalties - Tax.
-                            </div>
-                        </div>
-
-                        <div id="payLoading" class="text-center py-5" style="display: none;">
-                            <div class="spinner-border text-secondary" role="status"></div>
-                        </div>
-                    </div>
-                    <div id="occupancySection" style="display: none;">
-                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Occupancy by Category</h3>
-                        <p class="text-secondary small mb-4">Analyze room usage efficiency based on comfort levels.</p>
-
-                        <div class="row g-3 align-items-end mb-5">
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
-                                <input type="number" id="occHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
-                                <input type="date" id="occStart" class="form-control rounded-1 p-2">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
-                                <input type="date" id="occEnd" class="form-control rounded-1 p-2">
-                            </div>
-                            <div class="col-md-3">
-                                <button onclick="loadOccupancyReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
-                                    Analyze
-                                </button>
-                            </div>
-                        </div>
-
-                        <hr class="text-light my-4">
-
-                        <div id="occupancyResult" style="display: none;">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle border">
-                                    <thead class="table-light small text-uppercase">
-                                    <tr>
-                                        <th class="ps-3 py-3">Category</th>
-                                        <th class="text-center py-3">Total Capacity (Days)</th>
-                                        <th class="text-center py-3">Occupied (Days)</th>
-                                        <th class="pe-3 py-3" style="width: 40%;">Occupancy Rate</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="occupancyBody">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div id="occLoading" class="text-center py-5" style="display: none;">
-                            <div class="spinner-border text-secondary" role="status"></div>
-                        </div>
-                    </div>
-                    <div id="cancellationsSection" style="display: none;">
-                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Cancellation Reasons</h3>
-                        <p class="text-secondary small mb-4">Understand why guests are cancelling their bookings.</p>
-
-                        <div class="row g-3 align-items-end mb-5">
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
-                                <input type="number" id="cancHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
-                                <input type="date" id="cancStart" class="form-control rounded-1 p-2">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
-                                <input type="date" id="cancEnd" class="form-control rounded-1 p-2">
-                            </div>
-                            <div class="col-md-3">
-                                <button onclick="loadCancellationsReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
-                                    Analyze
-                                </button>
-                            </div>
-                        </div>
-
-                        <hr class="text-light my-4">
-
-                        <div id="cancellationsResult" style="display: none;">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle border">
-                                    <thead class="table-light small text-uppercase">
-                                    <tr>
-                                        <th class="ps-3 py-3" style="width: 40%;">Reason</th>
-                                        <th class="text-center py-3">Count</th>
-                                        <th class="pe-3 py-3">Percentage of Total Cancellations</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="cancellationsBody">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div id="cancLoading" class="text-center py-5" style="display: none;">
-                            <div class="spinner-border text-secondary" role="status"></div>
-                        </div>
-                    </div>
-                    <div id="sentimentSection" style="display: none;">
-                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Guest Sentiment Analysis</h3>
-                        <p class="text-secondary small mb-4">Review guest feedback and automated sentiment classification.</p>
-
-                        <div class="row g-3 align-items-end mb-5">
-                            <div class="col-md-4">
-                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
-                                <input type="number" id="sentHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
-                            </div>
-                            <div class="col-md-3">
-                                <button onclick="loadSentimentReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
-                                    Analyze Reviews
-                                </button>
-                            </div>
-                        </div>
-
-                        <hr class="text-light my-4">
-
-                        <div id="sentimentResult" style="display: none;">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle border">
-                                    <thead class="table-light small text-uppercase">
-                                    <tr>
-                                        <th class="ps-3 py-3">Date</th>
-                                        <th class="py-3">Employee Context</th>
-                                        <th class="text-center py-3">Rating</th>
-                                        <th class="text-center py-3">Sentiment</th>
-                                        <th class="pe-3 py-3" style="width: 40%;">Comment</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="sentimentBody">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div id="sentLoading" class="text-center py-5" style="display: none;">
-                            <div class="spinner-border text-secondary" role="status"></div>
-                        </div>
-                    </div>
                     <div id="promosSection" style="display: none;">
                         <h3 class="font-serif fw-bold h4 mb-4 text-dark">Marketing Campaigns</h3>
                         <p class="text-secondary small mb-4">Manage discount codes and promotional offers.</p>
@@ -564,6 +375,7 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+
                     <div id="roiSection" style="display: none;">
                         <h3 class="font-serif fw-bold h4 mb-4 text-dark">Marketing ROI Analysis</h3>
                         <p class="text-secondary small mb-4">Evaluate the profitability of your marketing campaigns.</p>
@@ -610,6 +422,194 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+
+                    <div id="payrollSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Payroll Overview</h3>
+                        <p class="text-secondary small mb-4">Current salary configurations and estimated net payouts.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="payHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadPayrollReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Load Sheet
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="payrollResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Employee</th>
+                                        <th class="py-3">Position</th>
+                                        <th class="text-end py-3">Base Salary</th>
+                                        <th class="text-end pe-3 py-3 fw-bold text-success">Net Payout</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="payrollBody">
+                                    </tbody>
+                                    <tfoot class="table-light border-top">
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold py-3 small text-uppercase">Total Estimated Payout:</td>
+                                        <td class="text-end pe-3 fw-bold fs-5 text-dark" id="payrollTotal">0 ₴</td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="mt-3 text-muted x-small fst-italic">
+                                * Net Payout is calculated as: Base Salary + Bonuses - Penalties - Tax.
+                            </div>
+                        </div>
+
+                        <div id="payLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
+
+                    <div id="occupancySection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Occupancy by Category</h3>
+                        <p class="text-secondary small mb-4">Analyze room usage efficiency based on comfort levels.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="occHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="occStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="occEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadOccupancyReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="occupancyResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Category</th>
+                                        <th class="text-center py-3">Total Capacity (Days)</th>
+                                        <th class="text-center py-3">Occupied (Days)</th>
+                                        <th class="pe-3 py-3" style="width: 40%;">Occupancy Rate</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="occupancyBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="occLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
+
+                    <div id="cancellationsSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Cancellation Reasons</h3>
+                        <p class="text-secondary small mb-4">Understand why guests are cancelling their bookings.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="cancHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="cancStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="cancEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadCancellationsReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="cancellationsResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3" style="width: 40%;">Reason</th>
+                                        <th class="text-center py-3">Count</th>
+                                        <th class="pe-3 py-3">Percentage of Total Cancellations</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="cancellationsBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="cancLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
+
+                    <div id="sentimentSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Guest Sentiment Analysis</h3>
+                        <p class="text-secondary small mb-4">Review guest feedback and automated sentiment classification.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="sentHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadSentimentReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze Reviews
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="sentimentResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Date</th>
+                                        <th class="py-3">Employee Context</th>
+                                        <th class="text-center py-3">Rating</th>
+                                        <th class="text-center py-3">Sentiment</th>
+                                        <th class="pe-3 py-3" style="width: 40%;">Comment</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="sentimentBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="sentLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
+
+                    <div id="commonError" class="alert alert-danger mt-3 small" style="display: none;"></div>
+
                 </div>
             </div>
         </div>
@@ -619,13 +619,15 @@
 <script layout:fragment="script">
 
     // --- NAVIGATION ---
+    // Це основна функція, яка відповідає за перемикання екранів.
+    // ТУТ БУЛА ПОМИЛКА: раніше ми не додавали 'else if' для нових секцій.
     function showSection(section) {
-        // Додаємо roiSection у масив
+        // 1. Спочатку ховаємо ВСІ секції
         const sections = [
             'plSection', 'servicesSection', 'empStatsSection',
             'scheduleSection', 'payrollSection', 'occupancySection',
             'cancellationsSection', 'sentimentSection', 'promosSection',
-            'roiSection' // Нове
+            'roiSection'
         ];
 
         sections.forEach(id => {
@@ -633,606 +635,34 @@
             if(el) el.style.display = 'none';
         });
 
+        // Ховаємо попередні помилки
         const err = document.getElementById('commonError');
         if(err) err.style.display = 'none';
 
-        // ... (попередні умови) ...
-        if (section === 'pl') document.getElementById('plSection').style.display = 'block';
-        // ... інші секції ...
-        else if (section === 'promos') {
-            document.getElementById('promosSection').style.display = 'block';
+        // 2. Тепер показуємо ТІЛЬКИ ТУ, яку натиснули
+        // Ми просто додаємо "Section" до назви, бо так названі ID в HTML
+        const targetId = section + 'Section';
+        const targetEl = document.getElementById(targetId);
+
+        if (targetEl) {
+            targetEl.style.display = 'block';
+        } else {
+            console.error("Section not found: " + targetId);
+        }
+
+        // 3. Для промокодів - одразу вантажимо список (зручність)
+        if (section === 'promos') {
             loadPromotionsList();
         }
-        else if (section === 'roi') document.getElementById('roiSection').style.display = 'block'; // Нове
     }
 
-    // --- 10. MARKETING ROI REPORT (OWNER) ---
-    async function loadRoiReport() {
-        const hotelId = document.getElementById('roiHotelId').value;
-        const resultDiv = document.getElementById('roiResult');
-        const loader = document.getElementById('roiLoading');
-
-        if (!hotelId) {
-            alert("Please enter Hotel ID");
-            return;
-        }
-
-        resultDiv.style.display = 'none';
-        loader.style.display = 'block';
-
+    // --- LOGOUT ---
+    async function logoutUser() {
         try {
-            // Виклик API
-            const response = await fetch(`/api/management/owner/roi?hotelId=${hotelId}`);
-
-            if (response.ok) {
-                const data = await response.json();
-                // Очікуємо поля з SQL: campaign_type, start_date, end_date, cost, revenue, orders, roi
-
-                const tbody = document.getElementById('roiBody');
-                tbody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No campaign data found.</td></tr>';
-                } else {
-                    data.forEach(row => {
-                        // Визначаємо колір ROI
-                        let roiClass = 'text-muted';
-                        let roiIcon = '';
-                        const roiVal = parseFloat(row.roi);
-
-                        if (roiVal > 0) {
-                            roiClass = 'text-success fw-bold';
-                            roiIcon = '▲ ';
-                        } else if (roiVal < 0) {
-                            roiClass = 'text-danger fw-bold';
-                            roiIcon = '▼ ';
-                        }
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 fw-bold text-dark text-capitalize">${row.campaign_type}</td>
-                                <td class="small text-secondary">
-                                    ${row.start_date} <span class="mx-1">&rarr;</span> ${row.end_date}
-                                </td>
-                                <td class="text-end text-danger font-monospace">-${row.cost} ₴</td>
-                                <td class="text-end text-success font-monospace">+${row.revenue} ₴</td>
-                                <td class="text-center">${row.orders}</td>
-                                <td class="text-end pe-3 ${roiClass}">
-                                    ${roiIcon}${row.roi}%
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                loader.style.display = 'none';
-                resultDiv.style.display = 'block';
-            } else {
-                throw new Error(await response.text());
-            }
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/login';
         } catch (e) {
-            console.error(e);
-            loader.style.display = 'none';
-            alert("Error: " + e.message);
-        }
-    }
-
-    // --- 9. PROMOTIONS MANAGEMENT (OWNER) ---
-
-    // А. Завантаження списку
-    async function loadPromotionsList() {
-        const tbody = document.getElementById('promosBody');
-        const loader = document.getElementById('promoLoading');
-
-        // Очищаємо таблицю, але не видаляємо сам елемент tbody
-        tbody.innerHTML = '';
-        loader.style.display = 'block';
-
-        try {
-            const response = await fetch('/api/management/owner/promotions');
-            if (response.ok) {
-                const data = await response.json();
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No promotions created yet.</td></tr>';
-                } else {
-                    const today = new Date().toISOString().split('T')[0];
-
-                    data.forEach(promo => {
-                        // Визначаємо статус
-                        let statusBadge = '<span class="badge bg-secondary">Unknown</span>';
-                        if (promo.valid_to < today) {
-                            statusBadge = '<span class="badge bg-light text-secondary border">Expired</span>';
-                        } else if (promo.valid_from > today) {
-                            statusBadge = '<span class="badge bg-info text-dark">Scheduled</span>';
-                        } else {
-                            statusBadge = '<span class="badge bg-success">Active</span>';
-                        }
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 fw-bold font-monospace text-dark">${promo.code}</td>
-                                <td class="text-center fw-bold text-success">-${promo.discount_percent}%</td>
-                                <td class="small text-secondary">
-                                    ${promo.valid_from} <span class="mx-1">&rarr;</span> ${promo.valid_to}
-                                </td>
-                                <td class="text-center">${statusBadge}</td>
-                            </tr>
-                        `;
-                    });
-                }
-            } else {
-                console.error("Failed to load promotions");
-            }
-        } catch (e) {
-            console.error(e);
-            alert("System error loading promotions");
-        } finally {
-            loader.style.display = 'none';
-        }
-    }
-
-    // Б. Створення промокоду
-    async function submitCreatePromo() {
-        const form = document.getElementById('createPromoForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-
-        const formData = new FormData(form);
-        const btn = document.querySelector('button[onclick="submitCreatePromo()"]');
-
-        btn.disabled = true;
-
-        try {
-            // Spring Boot очікує параметри @RequestParam, тому FormData підходить ідеально
-            const response = await fetch('/api/management/owner/promotions', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                alert("Promotion created successfully!");
-                form.reset();
-                loadPromotionsList(); // Оновлюємо таблицю
-            } else {
-                const text = await response.text();
-                [cite_start]// SQL тригер trg_validate_promocode може повернути помилку (дати, відсотки) [cite: 1478]
-                alert("Error: " + text);
-            }
-        } catch (e) {
-            console.error(e);
-            alert("System error");
-        } finally {
-            btn.disabled = false;
-        }
-    }
-
-    // В. Видалення промокоду
-    async function deletePromotion(id) {
-        if (!confirm("Delete this promotion? If clients have used it, deletion might fail.")) return;
-
-        try {
-            const response = await fetch(`/api/management/owner/promotions/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                loadPromotionsList();
-            } else {
-                alert("Cannot delete: " + await response.text());
-            }
-        } catch (e) {
-            console.error(e);
-            alert("System error");
-        }
-    }
-
-    // ... (попередні функції залишаються без змін) ...
-
-    // --- 8. SENTIMENT REPORT (OWNER) ---
-    async function loadSentimentReport() {
-        const hotelId = document.getElementById('sentHotelId').value;
-        const resultDiv = document.getElementById('sentimentResult');
-        const loader = document.getElementById('sentLoading');
-
-        if (!hotelId) {
-            alert("Please enter Hotel ID");
-            return;
-        }
-
-        resultDiv.style.display = 'none';
-        loader.style.display = 'block';
-
-        try {
-            // Виклик API: /owner/sentiment
-            const response = await fetch(`/api/management/owner/sentiment?hotelId=${hotelId}`);
-
-            if (response.ok) {
-                const data = await response.json(); // Очікуємо масив: employee_name, review_date, rating, sentiment, comment
-                const tbody = document.getElementById('sentimentBody');
-                tbody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No reviews found for this hotel.</td></tr>';
-                } else {
-                    data.forEach(row => {
-                        // Визначаємо колір бейджа настрою (логіка SQL: >=4 Pos, 3 Neu, <3 Neg)
-                        let sentimentBadge = 'bg-secondary';
-                        if (row.sentiment === 'Позитивний' || row.sentiment === 'Positive') sentimentBadge = 'bg-success';
-                        else if (row.sentiment === 'Негативний' || row.sentiment === 'Negative') sentimentBadge = 'bg-danger';
-                        else sentimentBadge = 'bg-warning text-dark';
-
-                        // Форматуємо зірки
-                        const stars = '★'.repeat(row.rating) + '☆'.repeat(5 - row.rating);
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 text-secondary small">${row.review_date}</td>
-                                <td class="fw-bold text-dark small">${row.employee_name}</td>
-                                <td class="text-center text-warning" style="letter-spacing: 2px;">${stars}</td>
-                                <td class="text-center">
-                                    <span class="badge ${sentimentBadge} fw-normal text-uppercase x-small px-2">${row.sentiment}</span>
-                                </td>
-                                <td class="pe-3 small fst-italic text-secondary">"${row.comment}"</td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                loader.style.display = 'none';
-                resultDiv.style.display = 'block';
-            } else {
-                throw new Error(await response.text());
-            }
-        } catch (e) {
-            console.error(e);
-            loader.style.display = 'none';
-            alert("Error: " + e.message);
-        }
-    }
-
-    // ... (попередні функції залишаються без змін) ...
-
-    // --- 7. CANCELLATIONS REPORT (OWNER) ---
-    async function loadCancellationsReport() {
-        const hotelId = document.getElementById('cancHotelId').value;
-        const start = document.getElementById('cancStart').value;
-        const end = document.getElementById('cancEnd').value;
-        const resultDiv = document.getElementById('cancellationsResult');
-        const loader = document.getElementById('cancLoading');
-
-        if (!hotelId || !start || !end) {
-            alert("Please fill all fields");
-            return;
-        }
-
-        resultDiv.style.display = 'none';
-        loader.style.display = 'block';
-
-        try {
-            // Виклик API: /owner/cancellations
-            const response = await fetch(`/api/management/owner/cancellations?hotelId=${hotelId}&start=${start}&end=${end}`);
-
-            if (response.ok) {
-                const data = await response.json(); // Очікуємо масив: cancel_reason, cancellation_count, percentage_of_total
-                const tbody = document.getElementById('cancellationsBody');
-                tbody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">No cancellations found for this period.</td></tr>';
-                } else {
-                    data.forEach(row => {
-                        const percent = row.percentage_of_total || 0;
-
-                        // Червона смужка для найчастіших причин
-                        let barClass = 'bg-secondary';
-                        if (percent > 30) barClass = 'bg-danger';
-                        else if (percent > 15) barClass = 'bg-warning text-dark';
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 fw-bold text-dark text-capitalize">
-                                    "${row.cancel_reason}"
-                                </td>
-                                <td class="text-center fw-bold">${row.cancellation_count}</td>
-                                <td class="pe-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="progress flex-grow-1" style="height: 8px;">
-                                            <div class="progress-bar ${barClass}" role="progressbar" style="width: ${percent}%" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <span class="ms-3 fw-bold small text-dark" style="width: 50px; text-align: right;">${percent}%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                loader.style.display = 'none';
-                resultDiv.style.display = 'block';
-            } else {
-                throw new Error(await response.text());
-            }
-        } catch (e) {
-            console.error(e);
-            loader.style.display = 'none';
-            alert("Error: " + e.message);
-        }
-    }
-
-    // ... (попередні функції залишаються без змін) ...
-
-    // --- 6. OCCUPANCY REPORT (OWNER) ---
-    async function loadOccupancyReport() {
-        const hotelId = document.getElementById('occHotelId').value;
-        const start = document.getElementById('occStart').value;
-        const end = document.getElementById('occEnd').value;
-        const resultDiv = document.getElementById('occupancyResult');
-        const loader = document.getElementById('occLoading');
-
-        if (!hotelId || !start || !end) {
-            alert("Please fill all fields");
-            return;
-        }
-
-        resultDiv.style.display = 'none';
-        loader.style.display = 'block';
-
-        try {
-            // Виклик API: /owner/occupancy-category
-            const response = await fetch(`/api/management/owner/occupancy-category?hotelId=${hotelId}&start=${start}&end=${end}`);
-
-            if (response.ok) {
-                const data = await response.json(); // Очікуємо масив: comfort_level, total_capacity, occupied_days, occupancy_rate
-                const tbody = document.getElementById('occupancyBody');
-                tbody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No data found for this period.</td></tr>';
-                } else {
-                    data.forEach(row => {
-                        const rate = row.occupancy_rate || 0;
-
-                        // Колір прогрес-бару залежно від завантаженості
-                        let barClass = 'bg-info';
-                        if (rate > 80) barClass = 'bg-success';      // Висока ефективність
-                        else if (rate < 30) barClass = 'bg-warning'; // Низька ефективність (простій)
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 fw-bold text-dark text-uppercase small">${row.comfort_level}</td>
-                                <td class="text-center text-secondary">${row.total_capacity}</td>
-                                <td class="text-center fw-bold text-dark">${row.occupied_days}</td>
-                                <td class="pe-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="progress flex-grow-1" style="height: 8px;">
-                                            <div class="progress-bar ${barClass}" role="progressbar" style="width: ${rate}%" aria-valuenow="${rate}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <span class="ms-3 fw-bold small text-dark" style="width: 40px; text-align: right;">${rate}%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                loader.style.display = 'none';
-                resultDiv.style.display = 'block';
-            } else {
-                throw new Error(await response.text());
-            }
-        } catch (e) {
-            console.error(e);
-            loader.style.display = 'none';
-            alert("Error: " + e.message);
-        }
-    }
-
-    // ... (попередні функції loadFinancials, loadServicesReport і т.д. залишаються без змін) ...
-
-    // --- 5. PAYROLL REPORT (OWNER) ---
-    async function loadPayrollReport() {
-        const hotelId = document.getElementById('payHotelId').value;
-        const resultDiv = document.getElementById('payrollResult');
-        const loader = document.getElementById('payLoading');
-
-        if (!hotelId) {
-            alert("Please enter Hotel ID");
-            return;
-        }
-
-        resultDiv.style.display = 'none';
-        loader.style.display = 'block';
-
-        try {
-            // Виклик API
-            const response = await fetch(`/api/management/owner/payroll?hotelId=${hotelId}`);
-
-            if (response.ok) {
-                const data = await response.json(); // Список об'єктів: employee_name, position, base_salary, net_payout
-                const tbody = document.getElementById('payrollBody');
-                const totalEl = document.getElementById('payrollTotal');
-                tbody.innerHTML = '';
-
-                let grandTotal = 0;
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No payroll data found for this hotel.</td></tr>';
-                } else {
-                    data.forEach(row => {
-                        // Підсумовуємо загальну суму виплат
-                        grandTotal += (row.net_payout || 0);
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 fw-bold text-dark">${row.employee_name}</td>
-                                <td><span class="badge bg-light text-secondary border fw-normal x-small text-uppercase">${row.position}</span></td>
-                                <td class="text-end font-monospace text-secondary">${row.base_salary} ₴</td>
-                                <td class="text-end pe-3 font-monospace fw-bold text-success">${row.net_payout} ₴</td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                // Оновлюємо загальну суму в футері таблиці
-                totalEl.innerText = grandTotal.toFixed(2) + ' ₴';
-
-                loader.style.display = 'none';
-                resultDiv.style.display = 'block';
-            } else {
-                throw new Error(await response.text());
-            }
-        } catch (e) {
-            console.error(e);
-            loader.style.display = 'none';
-            alert("Error: " + e.message);
-        }
-    }
-
-    // --- 4. SCHEDULE REPORT (OWNER) ---
-    async function loadOwnerSchedule() {
-        const hotelId = document.getElementById('schHotelId').value;
-        const date = document.getElementById('schDate').value;
-        const resultDiv = document.getElementById('scheduleResult');
-        const loader = document.getElementById('schLoading');
-
-        if (!hotelId || !date) {
-            alert("Please enter Hotel ID and Date");
-            return;
-        }
-
-        resultDiv.style.display = 'none';
-        loader.style.display = 'block';
-
-        try {
-            // Виклик вашого нового ендпоінту
-            const response = await fetch(`/api/management/owner/schedule?hotelId=${hotelId}&date=${date}`);
-
-            if (response.ok) {
-                const data = await response.json(); // Очікуємо список змін
-                const tbody = document.getElementById('scheduleBody');
-                tbody.innerHTML = '';
-
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No shifts scheduled for this date.</td></tr>';
-                } else {
-                    data.forEach(row => {
-                        // row має поля: employee_name, position, start_time, end_time, shift_duration
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 fw-bold text-dark">${row.employee_name}</td>
-                                <td><span class="badge bg-light text-secondary border fw-normal x-small text-uppercase">${row.position}</span></td>
-                                <td class="text-center font-monospace">${row.start_time}</td>
-                                <td class="text-center font-monospace">${row.end_time}</td>
-                                <td class="text-end pe-3 fw-bold text-success">${row.shift_duration} h</td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                loader.style.display = 'none';
-                resultDiv.style.display = 'block';
-            } else {
-                throw new Error(await response.text());
-            }
-        } catch (e) {
-            console.error(e);
-            loader.style.display = 'none';
-            alert("Error: " + e.message);
-        }
-    }
-
-    // --- 3. EMPLOYEE STATS (OWNER) ---
-
-    // Крок 1: Завантажити список працівників для вибраного готелю
-    async function loadOwnerStaffList() {
-        const hotelId = document.getElementById('empHotelId').value;
-        const select = document.getElementById('empSelect');
-        const btn = document.querySelector('button[onclick="loadOwnerStaffList()"]');
-
-        if (!hotelId) { alert("Enter Hotel ID"); return; }
-
-        btn.disabled = true;
-        btn.innerText = "...";
-        select.innerHTML = '<option selected disabled>Loading...</option>';
-
-        try {
-            // Використовуємо новий ендпоінт для списку
-            const response = await fetch(`/api/management/owner/staff-list?hotelId=${hotelId}`);
-            if (response.ok) {
-                const staff = await response.json();
-                select.innerHTML = '<option value="" selected disabled>Select an employee...</option>';
-
-                if (staff.length === 0) {
-                    select.innerHTML = '<option disabled>No staff found in this hotel</option>';
-                } else {
-                    staff.forEach(emp => {
-                        select.innerHTML += `<option value="${emp.employee_id}">${emp.first_name} ${emp.last_name} (${emp.position})</option>`;
-                    });
-                }
-            } else {
-                alert("Error fetching staff");
-            }
-        } catch (e) {
-            console.error(e);
-            alert("System error");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Load";
-        }
-    }
-
-    // Крок 2: Отримати статистику по вибраному працівнику
-    async function loadEmployeeStats() {
-        const hotelId = document.getElementById('empHotelId').value;
-        const employeeId = document.getElementById('empSelect').value;
-        const resultDiv = document.getElementById('empStatsResult');
-        const loader = document.getElementById('empLoading');
-
-        if (!hotelId || !employeeId) {
-            alert("Please select Hotel and Employee");
-            return;
-        }
-
-        resultDiv.style.display = 'none';
-        loader.style.display = 'block';
-
-        try {
-            const response = await fetch(`/api/management/owner/employee-stats?hotelId=${hotelId}&employeeId=${employeeId}`);
-
-            if (response.ok) {
-                const data = await response.json();
-
-                // Заповнення даних
-                document.getElementById('esName').innerText = data.full_name;
-                document.getElementById('esPosition').innerText = data.position;
-
-                // Ініціали для аватарки
-                const initials = data.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                document.getElementById('esInitials').innerText = initials;
-
-                document.getElementById('esShifts').innerText = data.shifts_worked;
-                document.getElementById('esRating').innerText = data.avg_rating > 0 ? data.avg_rating : 'N/A';
-
-                const complaintsEl = document.getElementById('esComplaints');
-                complaintsEl.innerText = data.complaints_count;
-                // Підсвічуємо червоним, якщо є скарги
-                complaintsEl.className = data.complaints_count > 0 ? 'fs-2 fw-bold text-danger' : 'fs-2 fw-bold text-success';
-
-                const comment = data.last_review_comment;
-                document.getElementById('esComment').innerText = comment ? `"${comment}"` : "No recent reviews.";
-
-                loader.style.display = 'none';
-                resultDiv.style.display = 'block';
-            } else {
-                throw new Error(await response.text());
-            }
-        } catch (e) {
-            console.error(e);
-            loader.style.display = 'none';
-            alert("Error: " + e.message);
+            window.location.href = '/';
         }
     }
 
@@ -1313,12 +743,12 @@
         }
     }
 
-    // --- 2. SERVICE POPULARITY REPORT (NEW) ---
+    // --- 2. SERVICE POPULARITY REPORT ---
     async function loadServicesReport() {
         const hotelId = document.getElementById('srvHotelId').value;
         const start = document.getElementById('srvStart').value;
         const end = document.getElementById('srvEnd').value;
-        const errorDiv = document.getElementById('commonError'); // Можна використати спільний блок помилок
+        const errorDiv = document.getElementById('commonError');
 
         if (!hotelId || !start || !end) {
             alert("Please fill Hotel ID and Dates");
@@ -1329,7 +759,6 @@
         document.getElementById('srvLoading').style.display = 'block';
 
         try {
-            // Запит до нового ендпоінту
             const response = await fetch(`/api/management/owner/service-popularity?hotelId=${hotelId}&start=${start}&end=${end}`);
 
             if (response.ok) {
@@ -1341,9 +770,6 @@
                     tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No service usage recorded for this period.</td></tr>';
                 } else {
                     data.forEach(item => {
-                        // item.popularity_rank, item.service_name, item.usage_count, item.total_revenue
-
-                        // Додаємо іконку кубка для ТОП-1
                         let rankHtml = `<span class="fw-bold text-secondary">#${item.popularity_rank}</span>`;
                         if(item.popularity_rank === 1) {
                             rankHtml = `<span class="badge bg-warning text-dark border border-warning">🏆 #1</span>`;
@@ -1371,6 +797,543 @@
             console.error(e);
             document.getElementById('srvLoading').style.display = 'none';
             alert("Error loading service report: " + e.message);
+        }
+    }
+
+    // --- 3. EMPLOYEE STATS ---
+    async function loadOwnerStaffList() {
+        const hotelId = document.getElementById('empHotelId').value;
+        const select = document.getElementById('empSelect');
+        const btn = document.querySelector('button[onclick="loadOwnerStaffList()"]');
+
+        if (!hotelId) { alert("Enter Hotel ID"); return; }
+
+        btn.disabled = true;
+        btn.innerText = "...";
+        select.innerHTML = '<option selected disabled>Loading...</option>';
+
+        try {
+            const response = await fetch(`/api/management/owner/staff-list?hotelId=${hotelId}`);
+            if (response.ok) {
+                const staff = await response.json();
+                select.innerHTML = '<option value="" selected disabled>Select an employee...</option>';
+
+                if (staff.length === 0) {
+                    select.innerHTML = '<option disabled>No staff found in this hotel</option>';
+                } else {
+                    staff.forEach(emp => {
+                        select.innerHTML += `<option value="${emp.employee_id}">${emp.first_name} ${emp.last_name} (${emp.position})</option>`;
+                    });
+                }
+            } else {
+                alert("Error fetching staff");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Load";
+        }
+    }
+
+    async function loadEmployeeStats() {
+        const hotelId = document.getElementById('empHotelId').value;
+        const employeeId = document.getElementById('empSelect').value;
+        const resultDiv = document.getElementById('empStatsResult');
+        const loader = document.getElementById('empLoading');
+
+        if (!hotelId || !employeeId) {
+            alert("Please select Hotel and Employee");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/employee-stats?hotelId=${hotelId}&employeeId=${employeeId}`);
+
+            if (response.ok) {
+                const data = await response.json();
+
+                document.getElementById('esName').innerText = data.full_name;
+                document.getElementById('esPosition').innerText = data.position;
+
+                const initials = data.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                document.getElementById('esInitials').innerText = initials;
+
+                document.getElementById('esShifts').innerText = data.shifts_worked;
+                document.getElementById('esRating').innerText = data.avg_rating > 0 ? data.avg_rating : 'N/A';
+
+                const complaintsEl = document.getElementById('esComplaints');
+                complaintsEl.innerText = data.complaints_count;
+                complaintsEl.className = data.complaints_count > 0 ? 'fs-2 fw-bold text-danger' : 'fs-2 fw-bold text-success';
+
+                const comment = data.last_review_comment;
+                document.getElementById('esComment').innerText = comment ? `"${comment}"` : "No recent reviews.";
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // --- 4. SCHEDULE REPORT ---
+    async function loadOwnerSchedule() {
+        const hotelId = document.getElementById('schHotelId').value;
+        const date = document.getElementById('schDate').value;
+        const resultDiv = document.getElementById('scheduleResult');
+        const loader = document.getElementById('schLoading');
+
+        if (!hotelId || !date) {
+            alert("Please enter Hotel ID and Date");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/schedule?hotelId=${hotelId}&date=${date}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('scheduleBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No shifts scheduled for this date.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">${row.employee_name}</td>
+                                <td><span class="badge bg-light text-secondary border fw-normal x-small text-uppercase">${row.position}</span></td>
+                                <td class="text-center font-monospace">${row.start_time}</td>
+                                <td class="text-center font-monospace">${row.end_time}</td>
+                                <td class="text-end pe-3 fw-bold text-success">${row.shift_duration} h</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // --- 5. PAYROLL REPORT ---
+    async function loadPayrollReport() {
+        const hotelId = document.getElementById('payHotelId').value;
+        const resultDiv = document.getElementById('payrollResult');
+        const loader = document.getElementById('payLoading');
+
+        if (!hotelId) {
+            alert("Please enter Hotel ID");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/payroll?hotelId=${hotelId}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('payrollBody');
+                const totalEl = document.getElementById('payrollTotal');
+                tbody.innerHTML = '';
+
+                let grandTotal = 0;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No payroll data found for this hotel.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        grandTotal += (row.net_payout || 0);
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">${row.employee_name}</td>
+                                <td><span class="badge bg-light text-secondary border fw-normal x-small text-uppercase">${row.position}</span></td>
+                                <td class="text-end font-monospace text-secondary">${row.base_salary} ₴</td>
+                                <td class="text-end pe-3 font-monospace fw-bold text-success">${row.net_payout} ₴</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                totalEl.innerText = grandTotal.toFixed(2) + ' ₴';
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // --- 6. OCCUPANCY REPORT ---
+    async function loadOccupancyReport() {
+        const hotelId = document.getElementById('occHotelId').value;
+        const start = document.getElementById('occStart').value;
+        const end = document.getElementById('occEnd').value;
+        const resultDiv = document.getElementById('occupancyResult');
+        const loader = document.getElementById('occLoading');
+
+        if (!hotelId || !start || !end) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/occupancy-category?hotelId=${hotelId}&start=${start}&end=${end}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('occupancyBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No data found for this period.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        const rate = row.occupancy_rate || 0;
+                        let barClass = 'bg-info';
+                        if (rate > 80) barClass = 'bg-success';
+                        else if (rate < 30) barClass = 'bg-warning';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark text-uppercase small">${row.comfort_level}</td>
+                                <td class="text-center text-secondary">${row.total_capacity}</td>
+                                <td class="text-center fw-bold text-dark">${row.occupied_days}</td>
+                                <td class="pe-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar ${barClass}" role="progressbar" style="width: ${rate}%" aria-valuenow="${rate}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="ms-3 fw-bold small text-dark" style="width: 40px; text-align: right;">${rate}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // --- 7. CANCELLATIONS REPORT ---
+    async function loadCancellationsReport() {
+        const hotelId = document.getElementById('cancHotelId').value;
+        const start = document.getElementById('cancStart').value;
+        const end = document.getElementById('cancEnd').value;
+        const resultDiv = document.getElementById('cancellationsResult');
+        const loader = document.getElementById('cancLoading');
+
+        if (!hotelId || !start || !end) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/cancellations?hotelId=${hotelId}&start=${start}&end=${end}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('cancellationsBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">No cancellations found for this period.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        const percent = row.percentage_of_total || 0;
+                        let barClass = 'bg-secondary';
+                        if (percent > 30) barClass = 'bg-danger';
+                        else if (percent > 15) barClass = 'bg-warning text-dark';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark text-capitalize">
+                                    "${row.cancel_reason}"
+                                </td>
+                                <td class="text-center fw-bold">${row.cancellation_count}</td>
+                                <td class="pe-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar ${barClass}" role="progressbar" style="width: ${percent}%" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="ms-3 fw-bold small text-dark" style="width: 50px; text-align: right;">${percent}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // --- 8. SENTIMENT REPORT ---
+    async function loadSentimentReport() {
+        const hotelId = document.getElementById('sentHotelId').value;
+        const resultDiv = document.getElementById('sentimentResult');
+        const loader = document.getElementById('sentLoading');
+
+        if (!hotelId) {
+            alert("Please enter Hotel ID");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/sentiment?hotelId=${hotelId}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('sentimentBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No reviews found for this hotel.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        let sentimentBadge = 'bg-secondary';
+                        if (row.sentiment === 'Позитивний' || row.sentiment === 'Positive') sentimentBadge = 'bg-success';
+                        else if (row.sentiment === 'Негативний' || row.sentiment === 'Negative') sentimentBadge = 'bg-danger';
+                        else sentimentBadge = 'bg-warning text-dark';
+
+                        const stars = '★'.repeat(row.rating) + '☆'.repeat(5 - row.rating);
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 text-secondary small">${row.review_date}</td>
+                                <td class="fw-bold text-dark small">${row.employee_name}</td>
+                                <td class="text-center text-warning" style="letter-spacing: 2px;">${stars}</td>
+                                <td class="text-center">
+                                    <span class="badge ${sentimentBadge} fw-normal text-uppercase x-small px-2">${row.sentiment}</span>
+                                </td>
+                                <td class="pe-3 small fst-italic text-secondary">"${row.comment}"</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // --- 9. PROMOTIONS LIST ---
+    async function loadPromotionsList() {
+        const tbody = document.getElementById('promosBody');
+        const loader = document.getElementById('promoLoading');
+
+        tbody.innerHTML = '';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch('/api/management/owner/promotions');
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Promotions data from server:", data);
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No promotions created yet.</td></tr>';
+                } else {
+                    const today = new Date().toISOString().split('T')[0];
+
+                    data.forEach(promo => {
+                        const validFrom = promo.valid_from || promo.validFrom || promo.validfrom || 'Now';
+                        const validTo = promo.valid_to || promo.validTo || promo.validto || promo.expires_at;
+                        const discount = promo.discount_percent || promo.discountPercent || promo.discount_percent;
+
+                        let statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+
+                        if (validTo) {
+                            if (validTo < today) {
+                                statusBadge = '<span class="badge bg-light text-secondary border">Expired</span>';
+                            } else {
+                                statusBadge = '<span class="badge bg-success">Active</span>';
+                            }
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold font-monospace text-dark">${promo.code || 'N/A'}</td>
+                                <td class="text-center fw-bold text-success">-${discount || 0}%</td>
+                                <td class="small text-secondary">
+                                    ${validFrom} <span class="mx-1">&rarr;</span> ${validTo || '?'}
+                                </td>
+                                <td class="text-center">${statusBadge}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else {
+                console.error("Failed to load promotions");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error loading promotions: " + e.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // --- 10. CREATE PROMOTION ---
+    async function submitCreatePromo() {
+        const form = document.getElementById('createPromoForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitCreatePromo()"]');
+
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/api/management/owner/promotions', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Promotion created successfully!");
+                form.reset();
+                loadPromotionsList();
+            } else {
+                const text = await response.text();
+                alert("Error: " + text);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // --- 11. ROI REPORT ---
+    async function loadRoiReport() {
+        const hotelId = document.getElementById('roiHotelId').value;
+        const resultDiv = document.getElementById('roiResult');
+        const loader = document.getElementById('roiLoading');
+
+        if (!hotelId) {
+            alert("Please enter Hotel ID");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/roi?hotelId=${hotelId}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('roiBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No campaign data found.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        let roiClass = 'text-muted';
+                        let roiIcon = '';
+                        const roiVal = parseFloat(row.roi);
+
+                        if (roiVal > 0) {
+                            roiClass = 'text-success fw-bold';
+                            roiIcon = '▲ ';
+                        } else if (roiVal < 0) {
+                            roiClass = 'text-danger fw-bold';
+                            roiIcon = '▼ ';
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark text-capitalize">${row.campaign_type}</td>
+                                <td class="small text-secondary">
+                                    ${row.start_date} <span class="mx-1">&rarr;</span> ${row.end_date}
+                                </td>
+                                <td class="text-end text-danger font-monospace">-${row.cost} ₴</td>
+                                <td class="text-end text-success font-monospace">+${row.revenue} ₴</td>
+                                <td class="text-center">${row.orders}</td>
+                                <td class="text-end pe-3 ${roiClass}">
+                                    ${roiIcon}${row.roi}%
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
         }
     }
 

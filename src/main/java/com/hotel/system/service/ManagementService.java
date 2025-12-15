@@ -174,6 +174,12 @@ public class ManagementService {
         return statsRepository.calculateTaxLiability(hotelId, start, end, taxRate);
     }
 
+    // Бухгалтер: Налаштування зарплати
+    @Transactional
+    public void setSalaryConfiguration(Long targetEmployeeId, BigDecimal baseSalary, BigDecimal tax, Long accountantId) {
+        employeeRepository.setEmployeeSalary(targetEmployeeId, baseSalary, tax, accountantId);
+    }
+
     // ==========================================
     // РОЛЬ: ПРИБИРАЛЬНИЦЯ (CLEANER)
     // ==========================================

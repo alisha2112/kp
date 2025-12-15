@@ -112,6 +112,14 @@ public class EmployeeRepository {
                 employeeId, Date.valueOf(start), Date.valueOf(end), bonuses, penalties);
     }
 
+    // --- БУХГАЛТЕР ---
+
+    /** Встановлення базової зарплати */
+    public void setEmployeeSalary(Long targetEmployeeId, BigDecimal baseSalary, BigDecimal tax, Long accountantId) {
+        jdbcTemplate.update("CALL sp_set_employee_salary(?, ?, ?, ?)",
+                targetEmployeeId, baseSalary, tax, accountantId);
+    }
+
     // --- ПРИБИРАЛЬНИЦЯ ---
 
     /** 1. Графік прибирань */

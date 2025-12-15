@@ -51,7 +51,7 @@
 
                         <div class="text-secondary x-small fw-bold text-uppercase mt-3 mb-2 ps-2">Network</div>
 
-                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
+                        <button onclick="showSection('payroll')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
                             Payroll
                         </button>
 
@@ -302,6 +302,54 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+                    <div id="payrollSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Payroll Overview</h3>
+                        <p class="text-secondary small mb-4">Current salary configurations and estimated net payouts.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="payHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadPayrollReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Load Sheet
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="payrollResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Employee</th>
+                                        <th class="py-3">Position</th>
+                                        <th class="text-end py-3">Base Salary</th>
+                                        <th class="text-end pe-3 py-3 fw-bold text-success">Net Payout</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="payrollBody">
+                                    </tbody>
+                                    <tfoot class="table-light border-top">
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold py-3 small text-uppercase">Total Estimated Payout:</td>
+                                        <td class="text-end pe-3 fw-bold fs-5 text-dark" id="payrollTotal">0 ₴</td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="mt-3 text-muted x-small fst-italic">
+                                * Net Payout is calculated as: Base Salary + Bonuses - Penalties - Tax.
+                            </div>
+                        </div>
+
+                        <div id="payLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -312,8 +360,8 @@
 
     // --- NAVIGATION ---
     function showSection(section) {
-        // Додаємо ID нової секції в масив
-        const sections = ['plSection', 'servicesSection', 'empStatsSection', 'scheduleSection'];
+        // Додаємо payrollSection у список
+        const sections = ['plSection', 'servicesSection', 'empStatsSection', 'scheduleSection', 'payrollSection'];
         sections.forEach(id => {
             const el = document.getElementById(id);
             if(el) el.style.display = 'none';
@@ -327,6 +375,68 @@
         else if (section === 'services') document.getElementById('servicesSection').style.display = 'block';
         else if (section === 'empStats') document.getElementById('empStatsSection').style.display = 'block';
         else if (section === 'schedule') document.getElementById('scheduleSection').style.display = 'block';
+        else if (section === 'payroll') document.getElementById('payrollSection').style.display = 'block'; // Нове
+    }
+
+    // ... (попередні функції loadFinancials, loadServicesReport і т.д. залишаються без змін) ...
+
+    // --- 5. PAYROLL REPORT (OWNER) ---
+    async function loadPayrollReport() {
+        const hotelId = document.getElementById('payHotelId').value;
+        const resultDiv = document.getElementById('payrollResult');
+        const loader = document.getElementById('payLoading');
+
+        if (!hotelId) {
+            alert("Please enter Hotel ID");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            // Виклик API
+            const response = await fetch(`/api/management/owner/payroll?hotelId=${hotelId}`);
+
+            if (response.ok) {
+                const data = await response.json(); // Список об'єктів: employee_name, position, base_salary, net_payout
+                const tbody = document.getElementById('payrollBody');
+                const totalEl = document.getElementById('payrollTotal');
+                tbody.innerHTML = '';
+
+                let grandTotal = 0;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No payroll data found for this hotel.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        // Підсумовуємо загальну суму виплат
+                        grandTotal += (row.net_payout || 0);
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">${row.employee_name}</td>
+                                <td><span class="badge bg-light text-secondary border fw-normal x-small text-uppercase">${row.position}</span></td>
+                                <td class="text-end font-monospace text-secondary">${row.base_salary} ₴</td>
+                                <td class="text-end pe-3 font-monospace fw-bold text-success">${row.net_payout} ₴</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                // Оновлюємо загальну суму в футері таблиці
+                totalEl.innerText = grandTotal.toFixed(2) + ' ₴';
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
     }
 
     // --- 4. SCHEDULE REPORT (OWNER) ---

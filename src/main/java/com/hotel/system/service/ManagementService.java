@@ -141,6 +141,12 @@ public class ManagementService {
         return reviewRepository.analyzeSentiment(hotelId, employeeId);
     }
 
+    // У класі com.hotel.system.service.ManagementService
+
+    public List<Map<String, Object>> getAllPromotions() {
+        return marketingRepository.getActivePromotions();
+    }
+
     // Маркетинг
     @Transactional
     public Long createPromotion(String code, Integer discount, LocalDate validFrom, LocalDate validTo) {

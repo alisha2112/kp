@@ -216,11 +216,23 @@ public class ManagementController {
         return ResponseEntity.ok(managementService.analyzeSentiment(hotelId, null));
     }
 
+    // У класі com.hotel.system.controller.ManagementController
+
+    // --- МАРКЕТИНГ (PROMOTIONS) ---
+
+    // 1. Створити (Ваш код)
     @PostMapping("/owner/promotions")
     public ResponseEntity<?> createPromotion(@RequestParam String code, @RequestParam Integer discount,
-                                             @RequestParam LocalDate from, @RequestParam LocalDate to) {
+                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         Long id = managementService.createPromotion(code, discount, from, to);
         return ResponseEntity.ok(Map.of("promoId", id));
+    }
+
+    // 2. Отримати список усіх (Нове)
+    @GetMapping("/owner/promotions")
+    public ResponseEntity<?> getAllPromotions() {
+        return ResponseEntity.ok(managementService.getAllPromotions());
     }
 
     @GetMapping("/owner/roi")

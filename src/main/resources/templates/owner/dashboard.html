@@ -49,6 +49,10 @@
                             Daily Schedule
                         </button>
 
+                        <button onclick="showSection('promos')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Marketing & Promos
+                        </button>
+
                         <div class="text-secondary x-small fw-bold text-uppercase mt-3 mb-2 ps-2">Network</div>
 
                         <button onclick="showSection('payroll')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
@@ -495,6 +499,67 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+                    <div id="promosSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Marketing Campaigns</h3>
+                        <p class="text-secondary small mb-4">Manage discount codes and promotional offers.</p>
+
+                        <div class="bg-light p-4 rounded-1 border border-light-subtle mb-5">
+                            <h5 class="font-serif fw-bold h6 mb-3">Create New Promotion</h5>
+                            <form id="createPromoForm">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-3">
+                                        <label class="form-label x-small fw-bold text-uppercase text-secondary">Code</label>
+                                        <input type="text" name="code" class="form-control rounded-1 p-2" placeholder="SUMMER2025" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label x-small fw-bold text-uppercase text-secondary">Discount %</label>
+                                        <input type="number" name="discount" class="form-control rounded-1 p-2" min="1" max="100" placeholder="10" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label x-small fw-bold text-uppercase text-secondary">Valid From</label>
+                                        <input type="date" name="from" class="form-control rounded-1 p-2" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label x-small fw-bold text-uppercase text-secondary">Valid To</label>
+                                        <input type="date" name="to" class="form-control rounded-1 p-2" required>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" onclick="submitCreatePromo()" class="btn btn-dark w-100 fw-bold py-2">
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="font-serif fw-bold m-0">All Promotions</h5>
+                            <button onclick="loadPromotionsList()" class="btn btn-sm btn-outline-secondary">Refresh List</button>
+                        </div>
+
+                        <div id="promosResult">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Code</th>
+                                        <th class="text-center py-3">Discount</th>
+                                        <th class="py-3">Valid Period</th>
+                                        <th class="text-center py-3">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="promosBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="promoLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -505,11 +570,11 @@
 
     // --- NAVIGATION ---
     function showSection(section) {
-        // Додаємо sentimentSection у масив
+        // Додаємо promosSection у масив
         const sections = [
             'plSection', 'servicesSection', 'empStatsSection',
             'scheduleSection', 'payrollSection', 'occupancySection',
-            'cancellationsSection', 'sentimentSection' // Нове
+            'cancellationsSection', 'sentimentSection', 'promosSection' // Нове
         ];
 
         sections.forEach(id => {
@@ -520,15 +585,126 @@
         const err = document.getElementById('commonError');
         if(err) err.style.display = 'none';
 
-        // Логіка перемикання
+        // ... (попередні умови)
         if (section === 'pl') document.getElementById('plSection').style.display = 'block';
-        else if (section === 'services') document.getElementById('servicesSection').style.display = 'block';
-        else if (section === 'empStats') document.getElementById('empStatsSection').style.display = 'block';
-        else if (section === 'schedule') document.getElementById('scheduleSection').style.display = 'block';
-        else if (section === 'payroll') document.getElementById('payrollSection').style.display = 'block';
-        else if (section === 'occupancy') document.getElementById('occupancySection').style.display = 'block';
-        else if (section === 'cancellations') document.getElementById('cancellationsSection').style.display = 'block';
-        else if (section === 'sentiment') document.getElementById('sentimentSection').style.display = 'block'; // Нове
+        // ... інші секції ...
+        else if (section === 'sentiment') document.getElementById('sentimentSection').style.display = 'block';
+        else if (section === 'promos') {
+            document.getElementById('promosSection').style.display = 'block';
+            loadPromotionsList(); // Автоматично завантажуємо список при відкритті
+        }
+    }
+
+    // --- 9. PROMOTIONS MANAGEMENT (OWNER) ---
+
+    // А. Завантаження списку
+    async function loadPromotionsList() {
+        const tbody = document.getElementById('promosBody');
+        const loader = document.getElementById('promoLoading');
+
+        // Очищаємо таблицю, але не видаляємо сам елемент tbody
+        tbody.innerHTML = '';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch('/api/management/owner/promotions');
+            if (response.ok) {
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No promotions created yet.</td></tr>';
+                } else {
+                    const today = new Date().toISOString().split('T')[0];
+
+                    data.forEach(promo => {
+                        // Визначаємо статус
+                        let statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+                        if (promo.valid_to < today) {
+                            statusBadge = '<span class="badge bg-light text-secondary border">Expired</span>';
+                        } else if (promo.valid_from > today) {
+                            statusBadge = '<span class="badge bg-info text-dark">Scheduled</span>';
+                        } else {
+                            statusBadge = '<span class="badge bg-success">Active</span>';
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold font-monospace text-dark">${promo.code}</td>
+                                <td class="text-center fw-bold text-success">-${promo.discount_percent}%</td>
+                                <td class="small text-secondary">
+                                    ${promo.valid_from} <span class="mx-1">&rarr;</span> ${promo.valid_to}
+                                </td>
+                                <td class="text-center">${statusBadge}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } else {
+                console.error("Failed to load promotions");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error loading promotions");
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // Б. Створення промокоду
+    async function submitCreatePromo() {
+        const form = document.getElementById('createPromoForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const btn = document.querySelector('button[onclick="submitCreatePromo()"]');
+
+        btn.disabled = true;
+
+        try {
+            // Spring Boot очікує параметри @RequestParam, тому FormData підходить ідеально
+            const response = await fetch('/api/management/owner/promotions', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("Promotion created successfully!");
+                form.reset();
+                loadPromotionsList(); // Оновлюємо таблицю
+            } else {
+                const text = await response.text();
+                [cite_start]// SQL тригер trg_validate_promocode може повернути помилку (дати, відсотки) [cite: 1478]
+                alert("Error: " + text);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // В. Видалення промокоду
+    async function deletePromotion(id) {
+        if (!confirm("Delete this promotion? If clients have used it, deletion might fail.")) return;
+
+        try {
+            const response = await fetch(`/api/management/owner/promotions/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                loadPromotionsList();
+            } else {
+                alert("Cannot delete: " + await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        }
     }
 
     // ... (попередні функції залишаються без змін) ...

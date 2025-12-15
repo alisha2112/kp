@@ -78,10 +78,19 @@ public class MarketingRepository {
         });
     }
 
-    /** 5. Доступні акції */
+    // У класі com.hotel.system.repository.MarketingRepository
+
+    // Отримати ВСІ промокоди (для власника)
     public List<Map<String, Object>> getActivePromotions() {
-        return jdbcTemplate.queryForList("SELECT * FROM view_active_promotions_client");
+        String sql = "SELECT * FROM promocode ORDER BY valid_to DESC";
+        return jdbcTemplate.queryForList(sql);
     }
+
+//
+//    /** 5. Доступні акції */
+//    public List<Map<String, Object>> getActivePromotions() {
+//        return jdbcTemplate.queryForList("SELECT * FROM view_active_promotions_client");
+//    }
 
     // --- МЕНЕДЖЕР ---
 

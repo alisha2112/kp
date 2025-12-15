@@ -45,6 +45,10 @@
                             Employees Stats
                         </button>
 
+                        <button onclick="showSection('schedule')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Daily Schedule
+                        </button>
+
                         <div class="text-secondary x-small fw-bold text-uppercase mt-3 mb-2 ps-2">Network</div>
 
                         <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
@@ -254,6 +258,50 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+                    <div id="scheduleSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Staff Schedule</h3>
+                        <p class="text-secondary small mb-4">View operational shifts across the network.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="schHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Date</label>
+                                <input type="date" id="schDate" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadOwnerSchedule()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Load Schedule
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="scheduleResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Employee</th>
+                                        <th class="py-3">Position</th>
+                                        <th class="text-center py-3">Start Time</th>
+                                        <th class="text-center py-3">End Time</th>
+                                        <th class="text-end pe-3 py-3">Duration</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="scheduleBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="schLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -264,24 +312,73 @@
 
     // --- NAVIGATION ---
     function showSection(section) {
-        // Ховаємо всі секції
-        const sections = ['plSection', 'servicesSection', 'empStatsSection'];
+        // Додаємо ID нової секції в масив
+        const sections = ['plSection', 'servicesSection', 'empStatsSection', 'scheduleSection'];
         sections.forEach(id => {
             const el = document.getElementById(id);
             if(el) el.style.display = 'none';
         });
 
-        // Ховаємо помилки
         const err = document.getElementById('commonError');
         if(err) err.style.display = 'none';
 
-        // Показуємо потрібну
-        if (section === 'pl') {
-            document.getElementById('plSection').style.display = 'block';
-        } else if (section === 'services') {
-            document.getElementById('servicesSection').style.display = 'block';
-        } else if (section === 'empStats') {
-            document.getElementById('empStatsSection').style.display = 'block';
+        // Логіка показу
+        if (section === 'pl') document.getElementById('plSection').style.display = 'block';
+        else if (section === 'services') document.getElementById('servicesSection').style.display = 'block';
+        else if (section === 'empStats') document.getElementById('empStatsSection').style.display = 'block';
+        else if (section === 'schedule') document.getElementById('scheduleSection').style.display = 'block';
+    }
+
+    // --- 4. SCHEDULE REPORT (OWNER) ---
+    async function loadOwnerSchedule() {
+        const hotelId = document.getElementById('schHotelId').value;
+        const date = document.getElementById('schDate').value;
+        const resultDiv = document.getElementById('scheduleResult');
+        const loader = document.getElementById('schLoading');
+
+        if (!hotelId || !date) {
+            alert("Please enter Hotel ID and Date");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            // Виклик вашого нового ендпоінту
+            const response = await fetch(`/api/management/owner/schedule?hotelId=${hotelId}&date=${date}`);
+
+            if (response.ok) {
+                const data = await response.json(); // Очікуємо список змін
+                const tbody = document.getElementById('scheduleBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No shifts scheduled for this date.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        // row має поля: employee_name, position, start_time, end_time, shift_duration
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark">${row.employee_name}</td>
+                                <td><span class="badge bg-light text-secondary border fw-normal x-small text-uppercase">${row.position}</span></td>
+                                <td class="text-center font-monospace">${row.start_time}</td>
+                                <td class="text-center font-monospace">${row.end_time}</td>
+                                <td class="text-end pe-3 fw-bold text-success">${row.shift_duration} h</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
         }
     }
 

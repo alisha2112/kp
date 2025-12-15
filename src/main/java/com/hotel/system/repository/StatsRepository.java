@@ -48,12 +48,18 @@ public class StatsRepository {
         return jdbcTemplate.queryForMap(sql, Date.valueOf(start), Date.valueOf(end), hotelId);
     }
 
+    public List<Map<String, Object>> getExpensesByHotel(Long hotelId, LocalDate start, LocalDate end) {
+        String sql = "SELECT * FROM get_hotel_expenses_report(?, ?, ?)";
+        return jdbcTemplate.queryForList(sql, hotelId, java.sql.Date.valueOf(start), java.sql.Date.valueOf(end));
+    }
+
     // --- ВЛАСНИК ---
 
     /** 1.1 Контроль прибутку та витрат (щоденний) */
+    /** (Власник) Щоденний P&L звіт */
     public Map<String, Object> getDailyProfitLoss(LocalDate date, Long hotelId) {
         String sql = "SELECT * FROM get_daily_profit_loss(?, ?)";
-        return jdbcTemplate.queryForMap(sql, Date.valueOf(date), hotelId);
+        return jdbcTemplate.queryForMap(sql, java.sql.Date.valueOf(date), hotelId);
     }
 
     /** 1.2 Формування детальних фінансових звітів */

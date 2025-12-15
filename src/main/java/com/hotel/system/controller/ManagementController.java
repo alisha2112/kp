@@ -143,6 +143,14 @@ public class ManagementController {
         return ResponseEntity.ok("Expense added");
     }
 
+    // Перегляд витрат (Менеджер)
+    @GetMapping("/expenses")
+    public ResponseEntity<?> getExpenses(@RequestParam LocalDate start,
+                                         @RequestParam LocalDate end,
+                                         HttpSession session) {
+        return ResponseEntity.ok(managementService.getHotelExpenses(getHotelId(session), start, end));
+    }
+
     // ================== ВЛАСНИК ==================
 
     @GetMapping("/owner/profit-loss")
@@ -155,15 +163,32 @@ public class ManagementController {
         return ResponseEntity.ok(managementService.getDetailedFinancialReport(hotelId, start, end));
     }
 
+    // У класі com.hotel.system.controller.ManagementController
+
     @GetMapping("/owner/service-popularity")
-    public ResponseEntity<?> getServicePopularity(@RequestParam Long hotelId, @RequestParam LocalDate start, @RequestParam LocalDate end,
-                                                  @RequestParam(required = false) Long serviceId) {
+    public ResponseEntity<?> getServicePopularity(
+            @RequestParam Long hotelId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam(required = false) Long serviceId) {
+
+        // Викликає ManagementService -> StatsRepository -> SQL функцію analyze_service_popularity
         return ResponseEntity.ok(managementService.getServicePopularity(start, end, hotelId, serviceId));
     }
 
+    // У com.hotel.system.controller.ManagementController
+
+    // --- СТАТИСТИКА ПРАЦІВНИКА (ВЛАСНИК) ---
     @GetMapping("/owner/employee-stats")
     public ResponseEntity<?> getEmployeeStats(@RequestParam Long employeeId, @RequestParam Long hotelId) {
+        // Викликає процедуру get_owner_employee_stats
         return ResponseEntity.ok(managementService.getEmployeeStats(employeeId, hotelId));
+    }
+
+    // Допоміжний метод: Отримати список працівників по ID готелю (для випадаючого списку власника)
+    @GetMapping("/owner/staff-list")
+    public ResponseEntity<?> getStaffByHotel(@RequestParam Long hotelId) {
+        return ResponseEntity.ok(managementService.getEmployees(hotelId));
     }
 
     @GetMapping("/owner/schedule")

@@ -22,22 +22,8 @@ public class PageController {
     private final ClientService clientService;
     private final CommonService commonService; // Додали CommonService для послуг
 
-//    // --- Головна + Каталог готелів ---
-//    @GetMapping("/")
-//    public String home(Model model) {
-//        model.addAttribute("hotels", clientService.getPublicHotelCatalog());
-//        return "home";
-//    }
-
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
-        // Логіка перенаправлення (щоб адмін не сидів на головній клієнта)
-//        String role = (String) session.getAttribute("CURRENT_ROLE");
-//        if ("ADMIN".equals(role) || "MANAGER".equals(role)) {
-//            return "redirect:/admin/dashboard";
-//        }
-
-        // Завантаження каталогу (це те, що викликало помилку)
         model.addAttribute("hotels", clientService.getPublicHotelCatalog());
         return "home"; // або "home", як називається ваш HTML файл
     }

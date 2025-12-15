@@ -397,17 +397,33 @@
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h3 class="font-serif fw-bold h4 m-0 text-dark">Operational Expenses</h3>
-                                <p class="text-secondary small mb-0">Track hotel operational costs.</p>
+                                <p class="text-secondary small mb-0">Track and manage hotel costs.</p>
                             </div>
                             <button onclick="openExpenseModal()" class="btn btn-dark fw-bold text-uppercase" style="font-size: 0.8rem;">
                                 + Add Expense
                             </button>
                         </div>
 
-                        <div class="alert alert-light border text-center py-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-secondary opacity-50 mb-3"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                            <p class="text-secondary small">Expenses are tracked in the Financial Report.</p>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="showSection('financial')">Go to Financial Report</button>
+                        <div class="row g-3 align-items-end mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="expStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="expEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-2">
+                                <button onclick="loadExpensesList()" class="btn btn-outline-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Load List
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="expensesTableArea">
+                            <div class="alert alert-light border text-center py-4 text-muted small">
+                                Select dates and click "Load List" to view expenses.
+                            </div>
                         </div>
                     </div>
 
@@ -612,9 +628,8 @@
 <script layout:fragment="script">
 
     // --- NAVIGATION ---
-    // Оновіть showSection
     function showSection(section) {
-        const sections = ['financial', 'occupancy', 'feedback', 'staff', 'workload', 'performance', 'quality', 'expenses']; // <-- Додано expenses
+        const sections = ['financial', 'occupancy', 'feedback', 'staff', 'workload', 'performance', 'quality', 'expenses'];
         sections.forEach(s => {
             const el = document.getElementById(s + 'Section');
             if(el) el.style.display = 'none';
@@ -690,6 +705,65 @@
         }
     }
 
+    // --- LOAD EXPENSES LIST ---
+    async function loadExpensesList() {
+        const start = document.getElementById('expStart').value;
+        const end = document.getElementById('expEnd').value;
+        const container = document.getElementById('expensesTableArea');
+
+        if(!start || !end) { alert("Please select dates"); return; }
+
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>';
+
+        try {
+            const response = await fetch(`/api/management/expenses?start=${start}&end=${end}`);
+            if (response.ok) {
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info text-center">No expenses found for this period.</div>';
+                    return;
+                }
+
+                let html = `
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle border">
+                            <thead class="table-light small text-uppercase">
+                                <tr>
+                                    <th class="ps-3 py-3">Date</th>
+                                    <th class="py-3">Description</th>
+                                    <th class="py-3">Employee</th>
+                                    <th class="py-3">Approved By</th>
+                                    <th class="py-3 text-end pe-3">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                data.forEach(row => {
+                    html += `
+                        <tr>
+                            <td class="ps-3 text-secondary small">${row.expense_date}</td>
+                            <td class="fw-bold text-dark">${row.description}</td>
+                            <td class="small">${row.employee_name}</td>
+                            <td><span class="badge bg-light text-secondary border fw-normal x-small">${row.approved_by}</span></td>
+                            <td class="text-end pe-3 fw-bold text-danger">-${row.amount} ₴</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+
+            } else {
+                container.innerHTML = '<div class="alert alert-danger">Error loading data.</div>';
+            }
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<div class="alert alert-danger">System error.</div>';
+        }
+    }
+
     // --- PERFORMANCE REPORT ---
     async function loadPerformanceReport() {
         const start = document.getElementById('perfStart').value;
@@ -709,15 +783,12 @@
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No data found.</td></tr>';
                 } else {
                     data.forEach(row => {
-                        // Рахуємо умовний Score (наприклад, рейтинг важливіший за кількість)
-                        // Якщо рейтингу немає (0), то Score базується тільки на завданнях
                         let scoreHtml = '';
                         if (row.avg_rating > 0) {
                             if(row.avg_rating >= 4.5) scoreHtml = '<span class="badge bg-success">Excellent</span>';
                             else if(row.avg_rating >= 3.5) scoreHtml = '<span class="badge bg-dark">Good</span>';
                             else scoreHtml = '<span class="badge bg-warning text-dark">Review</span>';
                         } else {
-                            // Якщо тільки завдання
                             if(row.tasks_completed > 20) scoreHtml = '<span class="badge bg-dark">High Activity</span>';
                             else scoreHtml = '<span class="badge bg-light text-secondary border">Normal</span>';
                         }
@@ -749,27 +820,22 @@
     // --- QUALITY CONTROL REPORT ---
     async function loadQualityReport() {
         toggleLoading(true);
-        // Тут ховаємо результат, поки грузиться, але для quality краще залишити старе, якщо є
-        // document.getElementById('qualityResult').style.display = 'none';
 
         try {
             const response = await fetch('/api/management/staff/quality');
             if (response.ok) {
                 const data = await response.json();
 
-                // Заповнюємо цифри
                 document.getElementById('qcClean').innerText = data.clean_rooms;
                 document.getElementById('qcDirty').innerText = data.dirty_rooms;
                 document.getElementById('qcRepair').innerText = data.repair_rooms;
 
-                // Pending tasks info
                 if (data.cleaning_pending > 0) {
                     document.getElementById('qcPendingText').innerText = `(${data.cleaning_pending} tasks pending)`;
                 } else {
                     document.getElementById('qcPendingText').innerText = '';
                 }
 
-                // Прогрес бар
                 const total = data.total_rooms;
                 if (total > 0) {
                     const pClean = (data.clean_rooms / total) * 100;
@@ -899,19 +965,15 @@
     }
 
     // --- ASSIGN CLEANING ---
-    // --- ASSIGN CLEANING ---
     async function openCleaningModal() {
         document.getElementById('cleaningForm').reset();
 
-        // Знаходимо селект
         const select = document.getElementById('cleanerSelect');
         select.innerHTML = '<option value="" disabled selected>Loading...</option>';
 
-        // Відкриваємо модалку
         new bootstrap.Modal(document.getElementById('cleaningModal')).show();
 
         try {
-            // Завантажуємо всіх працівників
             const response = await fetch('/api/management/staff');
             if (response.ok) {
                 const employees = await response.json();
@@ -920,14 +982,12 @@
 
                 let count = 0;
                 employees.forEach(emp => {
-                    // ФІЛЬТР: Перевіряємо, чи містить посада слово "Cleaner" (або "cleaner")
                     if (emp.position && emp.position.toLowerCase().includes('cleaner')) {
                         select.innerHTML += `<option value="${emp.employee_id}">${emp.first_name} ${emp.last_name}</option>`;
                         count++;
                     }
                 });
 
-                // Якщо прибиральників не знайдено
                 if (count === 0) {
                     select.innerHTML = '<option value="" disabled>No cleaners available</option>';
                 }
@@ -1000,9 +1060,6 @@
         btn.innerText = "Saving...";
 
         try {
-            // URL: /api/management/staff/{id}/shift
-            // Параметри передаються як query params або form-data. Fetch з body: formData автоматично відправляє їх.
-            // Але @RequestParam в контролері очікує їх. FormData підходить.
             const response = await fetch(`/api/management/staff/${empId}/shift`, {
                 method: 'POST',
                 body: formData
@@ -1021,22 +1078,6 @@
             btn.disabled = false;
             btn.innerText = originalText;
         }
-    }
-
-    // --- NAVIGATION UPDATE ---
-    function showSection(section) {
-        // Ховаємо всі секції
-        const sections = ['financial', 'occupancy', 'feedback', 'staff', 'workload'];
-        sections.forEach(s => {
-            const el = document.getElementById(s + 'Section');
-            if(el) el.style.display = 'none';
-        });
-
-        // Показуємо потрібну
-        const target = document.getElementById(section + 'Section');
-        if(target) target.style.display = 'block';
-
-        document.getElementById('commonError').style.display = 'none';
     }
 
     // --- WORKLOAD REPORT ---
@@ -1058,10 +1099,9 @@
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No data found for this period.</td></tr>';
                 } else {
                     data.forEach(row => {
-                        // Проста візуалізація "ефективності" на основі годин (для прикладу)
                         let badgeClass = 'bg-secondary';
-                        if (row.total_hours > 160) badgeClass = 'bg-danger'; // Перепрацювання
-                        else if (row.total_hours > 100) badgeClass = 'bg-success'; // Норма
+                        if (row.total_hours > 160) badgeClass = 'bg-danger';
+                        else if (row.total_hours > 100) badgeClass = 'bg-success';
 
                         tbody.innerHTML += `
                             <tr>
@@ -1089,14 +1129,11 @@
 
     // --- VIEW SCHEDULE ---
     function openScheduleModal() {
-        // Встановлюємо сьогоднішню дату за замовчуванням
         document.getElementById('scheduleDateInput').valueAsDate = new Date();
-        // Очищаємо попередні результати
         document.getElementById('scheduleResultArea').innerHTML = '<div class="text-center text-secondary py-4 small">Click Load to view shifts.</div>';
 
         new bootstrap.Modal(document.getElementById('viewScheduleModal')).show();
 
-        // Автоматично завантажуємо для зручності
         fetchSchedule();
     }
 
@@ -1134,8 +1171,6 @@
                 `;
 
                 shifts.forEach(s => {
-                    // Проста логіка статусу (чи зараз йде зміна)
-                    // Для точного відображення треба порівнювати з поточним часом, але тут просто покажемо час
                     html += `
                         <tr>
                             <td class="fw-bold text-dark">${s.full_name}</td>
@@ -1161,8 +1196,6 @@
     }
 
     // --- STAFF MANAGEMENT ---
-
-    // 1. Load Staff List
     async function loadStaff() {
         showSection('staff');
         const container = document.getElementById('staffTableArea');
@@ -1225,7 +1258,6 @@
         }
     }
 
-    // 2. Hire Employee
     function openHireModal() {
         document.getElementById('hireForm').reset();
         new bootstrap.Modal(document.getElementById('hireModal')).show();
@@ -1255,7 +1287,7 @@
                 const data = await response.json();
                 alert(`Success! Employee hired. ID: ${data.employeeId}`);
                 bootstrap.Modal.getInstance(document.getElementById('hireModal')).hide();
-                loadStaff(); // Reload list
+                loadStaff();
             } else {
                 alert("Error: " + await response.text());
             }
@@ -1268,7 +1300,6 @@
         }
     }
 
-    // 3. Fire Employee
     async function fireEmployee(id, name) {
         if (!confirm(`Are you sure you want to fire ${name}? This cannot be undone.`)) {
             return;
@@ -1281,7 +1312,7 @@
 
             if (response.ok) {
                 alert("Employee record removed.");
-                loadStaff(); // Reload list
+                loadStaff();
             } else {
                 alert("Error: " + await response.text());
             }

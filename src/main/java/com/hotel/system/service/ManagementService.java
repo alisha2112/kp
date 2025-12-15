@@ -96,10 +96,15 @@ public class ManagementService {
         marketingRepository.addExpense(amount, description, approvedBy, employeeId, campaignId, hotelId);
     }
 
+    // Отримання списку витрат
+    public List<Map<String, Object>> getHotelExpenses(Long hotelId, LocalDate start, LocalDate end) {
+        return statsRepository.getExpensesByHotel(hotelId, start, end);
+    }
     // ==========================================
     // РОЛЬ: ВЛАСНИК (OWNER)
     // ==========================================
 
+    // (Власник) P&L
     public Map<String, Object> getDailyProfitLoss(LocalDate date, Long hotelId) {
         return statsRepository.getDailyProfitLoss(date, hotelId);
     }

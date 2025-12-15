@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Owner Dashboard - HotelGroup</title>
+</head>
+<body>
+
+<div layout:fragment="content" class="bg-light py-5">
+    <div class="container" style="max-width: 1200px;">
+
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="font-serif fw-bold h2 m-0 text-dark">Executive Dashboard</h1>
+                <p class="text-secondary small mb-0">Network Overview & Financials</p>
+            </div>
+            <span class="badge bg-dark text-white border border-light-subtle fw-normal rounded-1 px-3 py-2 text-uppercase" style="letter-spacing: 0.1em;">
+                Owner Access
+            </span>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="bg-white p-3 shadow-sm border border-light-subtle rounded-1 h-100">
+                    <div class="d-flex flex-column gap-2 sticky-top" style="top: 100px;">
+
+                        <div class="text-secondary x-small fw-bold text-uppercase mb-2 ps-2">Financials</div>
+
+                        <button onclick="showSection('pl')" class="btn btn-luxury w-100 text-start d-flex justify-content-between align-items-center mb-2">
+                            <span>Profit & Loss</span>
+                            <span>&rsaquo;</span>
+                        </button>
+
+                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
+                            Service Popularity
+                        </button>
+
+                        <button onclick="showSection('services')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Service Popularity
+                        </button>
+
+                        <button onclick="showSection('empStats')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Employees Stats
+                        </button>
+
+                        <div class="text-secondary x-small fw-bold text-uppercase mt-3 mb-2 ps-2">Network</div>
+
+                        <button class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2" disabled>
+                            Payroll
+                        </button>
+
+                        <button onclick="logoutUser()" class="btn btn-outline-danger w-100 text-start border-0 mt-2">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1" style="min-height: 600px;">
+
+                    <div id="plSection">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Profit & Loss Analysis</h3>
+                        <p class="text-secondary small mb-4">Analyze financial performance and cash flow (Income, Expenses, Running Balance).</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="plHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="plStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="plEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadFinancials()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Generate Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="plSummary" style="display: none;">
+                            <div class="row g-4 text-center mb-5">
+                                <div class="col-md-4">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-2">Total Income</div>
+                                        <div class="fs-3 fw-bold text-success" id="valIncome">0 ₴</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-light h-100">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-2">Total Expenses</div>
+                                        <div class="fs-3 fw-bold text-danger" id="valExpenses">0 ₴</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-4 border border-dark rounded-1 bg-dark text-white h-100">
+                                        <div class="text-white-50 x-small text-uppercase fw-bold mb-2">Net Profit</div>
+                                        <div class="fs-3 fw-bold" id="valProfit">0 ₴</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h5 class="font-serif fw-bold mb-3">Detailed Ledger (Running Balance)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border" id="ledgerTable">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Date</th>
+                                        <th class="py-3">Category</th>
+                                        <th class="py-3">Description</th>
+                                        <th class="text-end py-3">Income</th>
+                                        <th class="text-end py-3">Expense</th>
+                                        <th class="text-end pe-3 py-3 fw-bold">Balance</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="ledgerBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="plLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                        <div id="commonError" class="alert alert-danger mt-3 small" style="display: none;"></div>
+
+                    </div>
+                    <div id="servicesSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Service Popularity</h3>
+                        <p class="text-secondary small mb-4">Identify top-performing hotel services and revenue sources.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="srvHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="srvStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="srvEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadServicesReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="servicesSummary" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Rank</th>
+                                        <th class="py-3">Service Name</th>
+                                        <th class="text-center py-3">Usage Count</th>
+                                        <th class="text-end pe-3 py-3">Total Revenue</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="servicesBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="srvLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
+                    <div id="empStatsSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Employee Performance</h3>
+                        <p class="text-secondary small mb-4">Detailed individual statistics and KPI metrics.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <div class="input-group">
+                                    <input type="number" id="empHotelId" class="form-control rounded-start-1 p-2" placeholder="ID" value="1">
+                                    <button onclick="loadOwnerStaffList()" class="btn btn-outline-secondary" type="button">Load</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Select Employee</label>
+                                <select id="empSelect" class="form-select rounded-1 p-2">
+                                    <option value="" disabled selected>Enter Hotel ID & Load List first...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadEmployeeStats()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Get Stats
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="empStatsResult" style="display: none;">
+
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center font-serif fw-bold fs-4 me-3" style="width: 60px; height: 60px;" id="esInitials">
+                                    A
+                                </div>
+                                <div>
+                                    <h4 class="font-serif fw-bold text-dark mb-0" id="esName">Employee Name</h4>
+                                    <span class="badge bg-light text-secondary border fw-normal text-uppercase x-small" id="esPosition">Position</span>
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-4">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-white h-100 text-center">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-2">Total Shifts</div>
+                                        <div class="fs-2 fw-bold text-dark" id="esShifts">0</div>
+                                        <div class="text-muted x-small">Completed work shifts</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-white h-100 text-center">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-2">Avg Rating</div>
+                                        <div class="fs-2 fw-bold text-warning" id="esRating">0.0</div>
+                                        <div class="text-muted x-small">Based on guest reviews</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-4 border border-light-subtle rounded-1 bg-white h-100 text-center">
+                                        <div class="text-secondary x-small text-uppercase fw-bold mb-2">Negative Feedback</div>
+                                        <div class="fs-2 fw-bold" id="esComplaints">0</div>
+                                        <div class="text-muted x-small">Reviews < 3 stars</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-light rounded-1 border border-light-subtle">
+                                <h6 class="font-serif fw-bold text-dark mb-2">Latest Guest Feedback</h6>
+                                <p class="fst-italic text-secondary mb-0" id="esComment">"No reviews available yet."</p>
+                            </div>
+                        </div>
+
+                        <div id="empLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script">
+
+    // --- NAVIGATION ---
+    function showSection(section) {
+        // Ховаємо всі секції
+        const sections = ['plSection', 'servicesSection', 'empStatsSection'];
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+
+        // Ховаємо помилки
+        const err = document.getElementById('commonError');
+        if(err) err.style.display = 'none';
+
+        // Показуємо потрібну
+        if (section === 'pl') {
+            document.getElementById('plSection').style.display = 'block';
+        } else if (section === 'services') {
+            document.getElementById('servicesSection').style.display = 'block';
+        } else if (section === 'empStats') {
+            document.getElementById('empStatsSection').style.display = 'block';
+        }
+    }
+
+    // --- 3. EMPLOYEE STATS (OWNER) ---
+
+    // Крок 1: Завантажити список працівників для вибраного готелю
+    async function loadOwnerStaffList() {
+        const hotelId = document.getElementById('empHotelId').value;
+        const select = document.getElementById('empSelect');
+        const btn = document.querySelector('button[onclick="loadOwnerStaffList()"]');
+
+        if (!hotelId) { alert("Enter Hotel ID"); return; }
+
+        btn.disabled = true;
+        btn.innerText = "...";
+        select.innerHTML = '<option selected disabled>Loading...</option>';
+
+        try {
+            // Використовуємо новий ендпоінт для списку
+            const response = await fetch(`/api/management/owner/staff-list?hotelId=${hotelId}`);
+            if (response.ok) {
+                const staff = await response.json();
+                select.innerHTML = '<option value="" selected disabled>Select an employee...</option>';
+
+                if (staff.length === 0) {
+                    select.innerHTML = '<option disabled>No staff found in this hotel</option>';
+                } else {
+                    staff.forEach(emp => {
+                        select.innerHTML += `<option value="${emp.employee_id}">${emp.first_name} ${emp.last_name} (${emp.position})</option>`;
+                    });
+                }
+            } else {
+                alert("Error fetching staff");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("System error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Load";
+        }
+    }
+
+    // Крок 2: Отримати статистику по вибраному працівнику
+    async function loadEmployeeStats() {
+        const hotelId = document.getElementById('empHotelId').value;
+        const employeeId = document.getElementById('empSelect').value;
+        const resultDiv = document.getElementById('empStatsResult');
+        const loader = document.getElementById('empLoading');
+
+        if (!hotelId || !employeeId) {
+            alert("Please select Hotel and Employee");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/management/owner/employee-stats?hotelId=${hotelId}&employeeId=${employeeId}`);
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Заповнення даних
+                document.getElementById('esName').innerText = data.full_name;
+                document.getElementById('esPosition').innerText = data.position;
+
+                // Ініціали для аватарки
+                const initials = data.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                document.getElementById('esInitials').innerText = initials;
+
+                document.getElementById('esShifts').innerText = data.shifts_worked;
+                document.getElementById('esRating').innerText = data.avg_rating > 0 ? data.avg_rating : 'N/A';
+
+                const complaintsEl = document.getElementById('esComplaints');
+                complaintsEl.innerText = data.complaints_count;
+                // Підсвічуємо червоним, якщо є скарги
+                complaintsEl.className = data.complaints_count > 0 ? 'fs-2 fw-bold text-danger' : 'fs-2 fw-bold text-success';
+
+                const comment = data.last_review_comment;
+                document.getElementById('esComment').innerText = comment ? `"${comment}"` : "No recent reviews.";
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // --- 1. FINANCIALS REPORT (P&L) ---
+    async function loadFinancials() {
+        const hotelId = document.getElementById('plHotelId').value;
+        const start = document.getElementById('plStart').value;
+        const end = document.getElementById('plEnd').value;
+        const errorDiv = document.getElementById('commonError');
+
+        if (!hotelId || !start || !end) {
+            alert("Please fill all fields (Hotel ID, Start Date, End Date)");
+            return;
+        }
+
+        document.getElementById('plSummary').style.display = 'none';
+        document.getElementById('plLoading').style.display = 'block';
+        if(errorDiv) errorDiv.style.display = 'none';
+
+        try {
+            const response = await fetch(`/api/management/owner/financial-detailed?hotelId=${hotelId}&start=${start}&end=${end}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('ledgerBody');
+                tbody.innerHTML = '';
+
+                let totalIncome = 0;
+                let totalExpense = 0;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No transactions found.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        const inc = row.income_amount || 0;
+                        const exp = row.expense_amount || 0;
+                        totalIncome += inc;
+                        totalExpense += exp;
+
+                        const incomeClass = inc > 0 ? 'text-success fw-bold' : 'text-muted opacity-25';
+                        const expenseClass = exp > 0 ? 'text-danger fw-bold' : 'text-muted opacity-25';
+                        const balanceClass = (row.running_balance < 0) ? 'text-danger' : 'text-dark';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 small text-secondary">${row.operation_date}</td>
+                                <td><span class="badge bg-light text-dark border fw-normal x-small text-uppercase">${row.category}</span></td>
+                                <td class="small text-dark">${row.description}</td>
+                                <td class="text-end ${incomeClass}">${inc > 0 ? '+' + inc : '-'}</td>
+                                <td class="text-end ${expenseClass}">${exp > 0 ? '-' + exp : '-'}</td>
+                                <td class="text-end pe-3 fw-bold ${balanceClass}">${row.running_balance} ₴</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                document.getElementById('valIncome').innerText = totalIncome.toFixed(2) + ' ₴';
+                document.getElementById('valExpenses').innerText = totalExpense.toFixed(2) + ' ₴';
+                const netProfit = totalIncome - totalExpense;
+                const profitEl = document.getElementById('valProfit');
+                profitEl.innerText = netProfit.toFixed(2) + ' ₴';
+                profitEl.className = netProfit >= 0 ? 'fs-3 fw-bold text-success' : 'fs-3 fw-bold text-danger';
+
+                document.getElementById('plLoading').style.display = 'none';
+                document.getElementById('plSummary').style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('plLoading').style.display = 'none';
+            if(errorDiv) {
+                errorDiv.innerText = "Error: " + e.message;
+                errorDiv.style.display = 'block';
+            } else {
+                alert("Error: " + e.message);
+            }
+        }
+    }
+
+    // --- 2. SERVICE POPULARITY REPORT (NEW) ---
+    async function loadServicesReport() {
+        const hotelId = document.getElementById('srvHotelId').value;
+        const start = document.getElementById('srvStart').value;
+        const end = document.getElementById('srvEnd').value;
+        const errorDiv = document.getElementById('commonError'); // Можна використати спільний блок помилок
+
+        if (!hotelId || !start || !end) {
+            alert("Please fill Hotel ID and Dates");
+            return;
+        }
+
+        document.getElementById('servicesSummary').style.display = 'none';
+        document.getElementById('srvLoading').style.display = 'block';
+
+        try {
+            // Запит до нового ендпоінту
+            const response = await fetch(`/api/management/owner/service-popularity?hotelId=${hotelId}&start=${start}&end=${end}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                const tbody = document.getElementById('servicesBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No service usage recorded for this period.</td></tr>';
+                } else {
+                    data.forEach(item => {
+                        // item.popularity_rank, item.service_name, item.usage_count, item.total_revenue
+
+                        // Додаємо іконку кубка для ТОП-1
+                        let rankHtml = `<span class="fw-bold text-secondary">#${item.popularity_rank}</span>`;
+                        if(item.popularity_rank === 1) {
+                            rankHtml = `<span class="badge bg-warning text-dark border border-warning">🏆 #1</span>`;
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3">${rankHtml}</td>
+                                <td class="fw-bold text-dark">${item.service_name}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border fw-normal px-3">${item.usage_count} times</span>
+                                </td>
+                                <td class="text-end pe-3 fw-bold text-success">+${item.total_revenue} ₴</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                document.getElementById('srvLoading').style.display = 'none';
+                document.getElementById('servicesSummary').style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('srvLoading').style.display = 'none';
+            alert("Error loading service report: " + e.message);
+        }
+    }
+
+</script>
+
+<style>
+    .x-small { font-size: 0.7rem; letter-spacing: 0.05em; }
+    .hover-dark:hover { color: #111827 !important; background-color: #f3f4f6; }
+</style>
+
+</body>
+</html>

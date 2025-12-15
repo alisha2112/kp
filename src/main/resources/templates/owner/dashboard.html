@@ -55,6 +55,14 @@
                             Payroll
                         </button>
 
+                        <button onclick="showSection('occupancy')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Occupancy Rates
+                        </button>
+
+                        <button onclick="showSection('cancellations')" class="btn btn-outline-luxury w-100 text-start border-0 text-secondary hover-dark mb-2">
+                            Cancellation Analysis
+                        </button>
+
                         <button onclick="logoutUser()" class="btn btn-outline-danger w-100 text-start border-0 mt-2">
                             Logout
                         </button>
@@ -350,6 +358,99 @@
                             <div class="spinner-border text-secondary" role="status"></div>
                         </div>
                     </div>
+                    <div id="occupancySection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Occupancy by Category</h3>
+                        <p class="text-secondary small mb-4">Analyze room usage efficiency based on comfort levels.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="occHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="occStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="occEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadOccupancyReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="occupancyResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3">Category</th>
+                                        <th class="text-center py-3">Total Capacity (Days)</th>
+                                        <th class="text-center py-3">Occupied (Days)</th>
+                                        <th class="pe-3 py-3" style="width: 40%;">Occupancy Rate</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="occupancyBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="occLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
+                    <div id="cancellationsSection" style="display: none;">
+                        <h3 class="font-serif fw-bold h4 mb-4 text-dark">Cancellation Reasons</h3>
+                        <p class="text-secondary small mb-4">Understand why guests are cancelling their bookings.</p>
+
+                        <div class="row g-3 align-items-end mb-5">
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Hotel ID</label>
+                                <input type="number" id="cancHotelId" class="form-control rounded-1 p-2" placeholder="e.g. 1" value="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">Start Date</label>
+                                <input type="date" id="cancStart" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label x-small fw-bold text-uppercase text-secondary">End Date</label>
+                                <input type="date" id="cancEnd" class="form-control rounded-1 p-2">
+                            </div>
+                            <div class="col-md-3">
+                                <button onclick="loadCancellationsReport()" class="btn btn-dark w-100 fw-bold py-2 text-uppercase" style="font-size: 0.8rem;">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="text-light my-4">
+
+                        <div id="cancellationsResult" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle border">
+                                    <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th class="ps-3 py-3" style="width: 40%;">Reason</th>
+                                        <th class="text-center py-3">Count</th>
+                                        <th class="pe-3 py-3">Percentage of Total Cancellations</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="cancellationsBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="cancLoading" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-secondary" role="status"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -360,8 +461,13 @@
 
     // --- NAVIGATION ---
     function showSection(section) {
-        // Додаємо payrollSection у список
-        const sections = ['plSection', 'servicesSection', 'empStatsSection', 'scheduleSection', 'payrollSection'];
+        // Додаємо cancellationsSection у масив
+        const sections = [
+            'plSection', 'servicesSection', 'empStatsSection',
+            'scheduleSection', 'payrollSection', 'occupancySection',
+            'cancellationsSection' // Нове
+        ];
+
         sections.forEach(id => {
             const el = document.getElementById(id);
             if(el) el.style.display = 'none';
@@ -370,12 +476,151 @@
         const err = document.getElementById('commonError');
         if(err) err.style.display = 'none';
 
-        // Логіка показу
+        // Логіка перемикання
         if (section === 'pl') document.getElementById('plSection').style.display = 'block';
         else if (section === 'services') document.getElementById('servicesSection').style.display = 'block';
         else if (section === 'empStats') document.getElementById('empStatsSection').style.display = 'block';
         else if (section === 'schedule') document.getElementById('scheduleSection').style.display = 'block';
-        else if (section === 'payroll') document.getElementById('payrollSection').style.display = 'block'; // Нове
+        else if (section === 'payroll') document.getElementById('payrollSection').style.display = 'block';
+        else if (section === 'occupancy') document.getElementById('occupancySection').style.display = 'block';
+        else if (section === 'cancellations') document.getElementById('cancellationsSection').style.display = 'block'; // Нове
+    }
+
+    // ... (попередні функції залишаються без змін) ...
+
+    // --- 7. CANCELLATIONS REPORT (OWNER) ---
+    async function loadCancellationsReport() {
+        const hotelId = document.getElementById('cancHotelId').value;
+        const start = document.getElementById('cancStart').value;
+        const end = document.getElementById('cancEnd').value;
+        const resultDiv = document.getElementById('cancellationsResult');
+        const loader = document.getElementById('cancLoading');
+
+        if (!hotelId || !start || !end) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            // Виклик API: /owner/cancellations
+            const response = await fetch(`/api/management/owner/cancellations?hotelId=${hotelId}&start=${start}&end=${end}`);
+
+            if (response.ok) {
+                const data = await response.json(); // Очікуємо масив: cancel_reason, cancellation_count, percentage_of_total
+                const tbody = document.getElementById('cancellationsBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">No cancellations found for this period.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        const percent = row.percentage_of_total || 0;
+
+                        // Червона смужка для найчастіших причин
+                        let barClass = 'bg-secondary';
+                        if (percent > 30) barClass = 'bg-danger';
+                        else if (percent > 15) barClass = 'bg-warning text-dark';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark text-capitalize">
+                                    "${row.cancel_reason}"
+                                </td>
+                                <td class="text-center fw-bold">${row.cancellation_count}</td>
+                                <td class="pe-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar ${barClass}" role="progressbar" style="width: ${percent}%" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="ms-3 fw-bold small text-dark" style="width: 50px; text-align: right;">${percent}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
+    }
+
+    // ... (попередні функції залишаються без змін) ...
+
+    // --- 6. OCCUPANCY REPORT (OWNER) ---
+    async function loadOccupancyReport() {
+        const hotelId = document.getElementById('occHotelId').value;
+        const start = document.getElementById('occStart').value;
+        const end = document.getElementById('occEnd').value;
+        const resultDiv = document.getElementById('occupancyResult');
+        const loader = document.getElementById('occLoading');
+
+        if (!hotelId || !start || !end) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        resultDiv.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            // Виклик API: /owner/occupancy-category
+            const response = await fetch(`/api/management/owner/occupancy-category?hotelId=${hotelId}&start=${start}&end=${end}`);
+
+            if (response.ok) {
+                const data = await response.json(); // Очікуємо масив: comfort_level, total_capacity, occupied_days, occupancy_rate
+                const tbody = document.getElementById('occupancyBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No data found for this period.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        const rate = row.occupancy_rate || 0;
+
+                        // Колір прогрес-бару залежно від завантаженості
+                        let barClass = 'bg-info';
+                        if (rate > 80) barClass = 'bg-success';      // Висока ефективність
+                        else if (rate < 30) barClass = 'bg-warning'; // Низька ефективність (простій)
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-3 fw-bold text-dark text-uppercase small">${row.comfort_level}</td>
+                                <td class="text-center text-secondary">${row.total_capacity}</td>
+                                <td class="text-center fw-bold text-dark">${row.occupied_days}</td>
+                                <td class="pe-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar ${barClass}" role="progressbar" style="width: ${rate}%" aria-valuenow="${rate}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="ms-3 fw-bold small text-dark" style="width: 40px; text-align: right;">${rate}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                loader.style.display = 'none';
+                resultDiv.style.display = 'block';
+            } else {
+                throw new Error(await response.text());
+            }
+        } catch (e) {
+            console.error(e);
+            loader.style.display = 'none';
+            alert("Error: " + e.message);
+        }
     }
 
     // ... (попередні функції loadFinancials, loadServicesReport і т.д. залишаються без змін) ...

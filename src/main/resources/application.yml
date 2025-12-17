@@ -4,7 +4,7 @@ server:
 hotel:
   datasource:
     # Заміни 'hotel_db' на назву своєї бази даних
-    url: jdbc:postgresql://localhost:5432/kp
+    url: jdbc:postgresql://localhost:5432/kursowa
 
     # Користувачі, створені в security.sql
     guest:

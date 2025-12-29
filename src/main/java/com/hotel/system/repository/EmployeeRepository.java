@@ -24,32 +24,55 @@ public class EmployeeRepository {
     // --- УПРАВЛІННЯ ПЕРСОНАЛОМ (Менеджер) ---
 
     /** 2.1 Додавання співробітника */
-    public Long addEmployee(String firstName, String middleName, String lastName, String phone, String position, Long hotelId) {
-        // Явний виклик процедури для PostgreSQL
-        // 6 вхідних параметрів + 1 вихідний = 7 знаків питання
-        String sql = "CALL sp_add_employee(?, ?, ?, ?, ?, ?, ?)";
+    public Long addEmployee(String firstName, String middleName, String lastName,
+                            String phone, String position, Long hotelId,
+                            String dbUser, String dbPass) {
+        // 8 вхідних + 1 вихідний = 9 знаків питання
+        String sql = "CALL sp_add_employee(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         return jdbcTemplate.execute(connection -> {
             CallableStatement cs = connection.prepareCall(sql);
-
-            // Вхідні параметри (IN)
             cs.setString(1, firstName);
             cs.setString(2, middleName);
             cs.setString(3, lastName);
             cs.setString(4, phone);
             cs.setString(5, position);
             cs.setLong(6, hotelId);
-
-            // Вихідний параметр (OUT) - p_new_emp_id
-            cs.registerOutParameter(7, Types.BIGINT);
-            cs.setNull(7, Types.BIGINT);
-
+            cs.setString(7, dbUser);
+            cs.setString(8, dbPass);
+            cs.registerOutParameter(9, Types.BIGINT);
             return cs;
         }, (CallableStatementCallback<Long>) cs -> {
             cs.execute();
-            return cs.getLong(7); // Повертаємо ID нового співробітника
+            return cs.getLong(9);
         });
     }
+//    public Long addEmployee(String firstName, String middleName, String lastName, String phone, String position, Long hotelId) {
+//        // Явний виклик процедури для PostgreSQL
+//        // 6 вхідних параметрів + 1 вихідний = 7 знаків питання
+//        String sql = "CALL sp_add_employee(?, ?, ?, ?, ?, ?, ?)";
+//
+//        return jdbcTemplate.execute(connection -> {
+//            CallableStatement cs = connection.prepareCall(sql);
+//
+//            // Вхідні параметри (IN)
+//            cs.setString(1, firstName);
+//            cs.setString(2, middleName);
+//            cs.setString(3, lastName);
+//            cs.setString(4, phone);
+//            cs.setString(5, position);
+//            cs.setLong(6, hotelId);
+//
+//            // Вихідний параметр (OUT) - p_new_emp_id
+//            cs.registerOutParameter(7, Types.BIGINT);
+//            cs.setNull(7, Types.BIGINT);
+//
+//            return cs;
+//        }, (CallableStatementCallback<Long>) cs -> {
+//            cs.execute();
+//            return cs.getLong(7); // Повертаємо ID нового співробітника
+//        });
+//    }
 
     /** Отримання списку працівників готелю (Менеджер) */
     public List<Map<String, Object>> getEmployeesByHotel(Long hotelId) {

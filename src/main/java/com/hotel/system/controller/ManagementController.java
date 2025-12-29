@@ -61,19 +61,35 @@ public class ManagementController {
     public ResponseEntity<?> hireEmployee(
             @RequestParam String firstName,
             @RequestParam String lastName,
-            @RequestParam(required = false, defaultValue = "") String middleName, // <-- Додано
+            @RequestParam(required = false, defaultValue = "") String middleName,
             @RequestParam String phone,
             @RequestParam String position,
+            @RequestParam String dbUser,      // НОВЕ
+            @RequestParam String dbPassword,  // НОВЕ
             HttpSession session) {
 
-        // 1. Отримуємо ID готелю з сесії (це гарантує, що менеджер наймає тільки в свій готель)
         Long hotelId = getHotelId(session);
+        Long id = managementService.hireEmployee(firstName, middleName, lastName, phone, position, hotelId, dbUser, dbPassword);
 
-        // 2. Викликаємо сервіс (який викличе процедуру sp_add_employee)
-        Long id = managementService.hireEmployee(firstName, middleName, lastName, phone, position, hotelId);
-
-        return ResponseEntity.ok(Map.of("message", "Employee hired successfully", "employeeId", id));
+        return ResponseEntity.ok(Map.of("message", "Employee hired and DB User created", "employeeId", id));
     }
+//    @PostMapping("/staff")
+//    public ResponseEntity<?> hireEmployee(
+//            @RequestParam String firstName,
+//            @RequestParam String lastName,
+//            @RequestParam(required = false, defaultValue = "") String middleName, // <-- Додано
+//            @RequestParam String phone,
+//            @RequestParam String position,
+//            HttpSession session) {
+//
+//        // 1. Отримуємо ID готелю з сесії (це гарантує, що менеджер наймає тільки в свій готель)
+//        Long hotelId = getHotelId(session);
+//
+//        // 2. Викликаємо сервіс (який викличе процедуру sp_add_employee)
+//        Long id = managementService.hireEmployee(firstName, middleName, lastName, phone, position, hotelId);
+//
+//        return ResponseEntity.ok(Map.of("message", "Employee hired successfully", "employeeId", id));
+//    }
 
     @DeleteMapping("/staff/{id}")
     public ResponseEntity<?> fireEmployee(@PathVariable Long id) {

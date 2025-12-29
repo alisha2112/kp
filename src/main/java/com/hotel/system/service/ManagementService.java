@@ -50,9 +50,15 @@ public class ManagementService {
 
     // 2. Управління персоналом
     @Transactional
-    public Long hireEmployee(String firstName, String middleName, String lastName, String phone, String position, Long hotelId) {
-        return employeeRepository.addEmployee(firstName, middleName, lastName, phone, position, hotelId);
+    public Long hireEmployee(String firstName, String middleName, String lastName,
+                             String phone, String position, Long hotelId,
+                             String dbUser, String dbPass) {
+        return employeeRepository.addEmployee(firstName, middleName, lastName, phone, position, hotelId, dbUser, dbPass);
     }
+//    @Transactional
+//    public Long hireEmployee(String firstName, String middleName, String lastName, String phone, String position, Long hotelId) {
+//        return employeeRepository.addEmployee(firstName, middleName, lastName, phone, position, hotelId);
+//    }
 
     @Transactional
     public void fireEmployee(Long employeeId) {

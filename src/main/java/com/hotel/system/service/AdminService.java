@@ -46,10 +46,29 @@ public class AdminService {
     }
 
     // 2. Клієнти
+//    @Transactional
+//    public Long registerClient(String firstName, String middleName, String lastName, String phone, String email) {
+//        // isSelfRegistration = false (реєструє адмін)
+//        return clientRepository.registerClient(firstName, middleName, lastName, phone, email, false);
+//    }
+
+    // У файлі com.hotel.system.service.AdminService
+
     @Transactional
-    public Long registerClient(String firstName, String middleName, String lastName, String phone, String email) {
-        // isSelfRegistration = false (реєструє адмін)
-        return clientRepository.registerClient(firstName, middleName, lastName, phone, email, false);
+    public Long registerClient(String firstName, String middleName, String lastName,
+                               String phone, String email, String dbUser, String dbPass) {
+        // Тепер передаємо 8 параметрів, як того вимагає ClientRepository
+        // Останній параметр false, бо це реєстрація через адміна, а не самостійна
+        return clientRepository.registerClient(
+                firstName,
+                middleName,
+                lastName,
+                phone,
+                email,
+                dbUser,
+                dbPass,
+                false
+        );
     }
 
     // 3. Виселення / Статус - ОНОВЛЕНО

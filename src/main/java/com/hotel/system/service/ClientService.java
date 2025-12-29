@@ -37,10 +37,28 @@ public class ClientService {
     }
 
     @Transactional
-    public Long registerSelf(String firstName, String middleName, String lastName, String phone, String email) {
-        // isSelfRegistration = true
-        return clientRepository.registerClient(firstName, middleName, lastName, phone, email, true);
+    public Long registerSelf(String firstName, String middleName, String lastName,
+                             String phone, String email, String dbUser, String dbPass) {
+
+        // Передаємо нові параметри (dbUser, dbPass) далі в репозиторій
+        // Останній параметр true вказує на те, що це самостійна реєстрація (isSelf)
+        return clientRepository.registerClient(
+                firstName,
+                middleName,
+                lastName,
+                phone,
+                email,
+                dbUser,
+                dbPass,
+                true
+        );
     }
+
+//    @Transactional
+//    public Long registerSelf(String firstName, String middleName, String lastName, String phone, String email) {
+//        // isSelfRegistration = true
+//        return clientRepository.registerClient(firstName, middleName, lastName, phone, email, true);
+//    }
 
     // --- КЛІЄНТ (CLIENT) ---
 

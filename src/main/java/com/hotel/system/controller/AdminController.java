@@ -95,10 +95,25 @@ public class AdminController {
     }
 
     // ... (інші методи для клієнтів, виселення, оплат залишаємо як у твоєму коді)
+//    @PostMapping("/clients")
+//    public ResponseEntity<?> registerClient(@RequestParam String firstName, @RequestParam String middleName,
+//                                            @RequestParam String lastName, @RequestParam String phone, @RequestParam String email) {
+//        Long id = adminService.registerClient(firstName, middleName, lastName, phone, email);
+//        return ResponseEntity.ok(Map.of("clientId", id));
+//    }
+
+    // У файлі com.hotel.system.controller.AdminController
+
     @PostMapping("/clients")
-    public ResponseEntity<?> registerClient(@RequestParam String firstName, @RequestParam String middleName,
-                                            @RequestParam String lastName, @RequestParam String phone, @RequestParam String email) {
-        Long id = adminService.registerClient(firstName, middleName, lastName, phone, email);
+    public ResponseEntity<?> registerClient(@RequestParam String firstName,
+                                            @RequestParam String middleName,
+                                            @RequestParam String lastName,
+                                            @RequestParam String phone,
+                                            @RequestParam String email,
+                                            @RequestParam String dbUser,     // Додано
+                                            @RequestParam String dbPass) {   // Додано
+
+        Long id = adminService.registerClient(firstName, middleName, lastName, phone, email, dbUser, dbPass);
         return ResponseEntity.ok(Map.of("clientId", id));
     }
 

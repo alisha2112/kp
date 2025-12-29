@@ -45,10 +45,22 @@ public class PublicController {
                                       @RequestParam String middleName,
                                       @RequestParam String lastName,
                                       @RequestParam String phone,
-                                      @RequestParam String email) {
-        Long id = clientService.registerSelf(firstName, middleName, lastName, phone, email);
+                                      @RequestParam String email,
+                                      @RequestParam String dbUser,     // Додано
+                                      @RequestParam String dbPassword) { // Додано
+        Long id = clientService.registerSelf(firstName, middleName, lastName, phone, email, dbUser, dbPassword);
         return ResponseEntity.ok(Map.of("message", "Registered successfully", "clientId", id));
     }
+
+//    @PostMapping("/register")
+//    public ResponseEntity<?> register(@RequestParam String firstName,
+//                                      @RequestParam String middleName,
+//                                      @RequestParam String lastName,
+//                                      @RequestParam String phone,
+//                                      @RequestParam String email) {
+//        Long id = clientService.registerSelf(firstName, middleName, lastName, phone, email);
+//        return ResponseEntity.ok(Map.of("message", "Registered successfully", "clientId", id));
+//    }
 
     @GetMapping("/services")
     public ResponseEntity<List<Map<String, Object>>> getServicesList() {

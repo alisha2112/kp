@@ -18,11 +18,9 @@ public class ClientRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public Long registerClient(String firstName, String middleName, String lastName, String phone, String email, boolean isSelfRegistration) {
-        String procName = isSelfRegistration ? "sp_self_register" : "sp_register_client";
-
-        // Явно використовуємо синтаксис CALL для PostgreSQL
-        String sql = "CALL " + procName + "(?, ?, ?, ?, ?, ?)";
+    public Long registerClient(String firstName, String middleName, String lastName,
+                               String phone, String email, String dbUser, String dbPass, boolean isSelf) {
+        String sql = "CALL sp_self_register(?, ?, ?, ?, ?, ?, ?, ?)"; // 7 вхідних + 1 вихідний
 
         return jdbcTemplate.execute(connection -> {
             CallableStatement cs = connection.prepareCall(sql);
@@ -31,16 +29,39 @@ public class ClientRepository {
             cs.setString(3, lastName);
             cs.setString(4, phone);
             cs.setString(5, email);
-
-            cs.registerOutParameter(6, Types.BIGINT);
-            cs.setNull(6, Types.BIGINT);
-
+            cs.setString(6, dbUser);   // Нове
+            cs.setString(7, dbPass);   // Нове
+            cs.registerOutParameter(8, Types.BIGINT);
             return cs;
         }, (CallableStatementCallback<Long>) cs -> {
             cs.execute();
-            return cs.getLong(6); // Отримуємо повернутий ID
+            return cs.getLong(8);
         });
     }
+
+//    public Long registerClient(String firstName, String middleName, String lastName, String phone, String email, boolean isSelfRegistration) {
+//        String procName = isSelfRegistration ? "sp_self_register" : "sp_register_client";
+//
+//        // Явно використовуємо синтаксис CALL для PostgreSQL
+//        String sql = "CALL " + procName + "(?, ?, ?, ?, ?, ?)";
+//
+//        return jdbcTemplate.execute(connection -> {
+//            CallableStatement cs = connection.prepareCall(sql);
+//            cs.setString(1, firstName);
+//            cs.setString(2, middleName);
+//            cs.setString(3, lastName);
+//            cs.setString(4, phone);
+//            cs.setString(5, email);
+//
+//            cs.registerOutParameter(6, Types.BIGINT);
+//            cs.setNull(6, Types.BIGINT);
+//
+//            return cs;
+//        }, (CallableStatementCallback<Long>) cs -> {
+//            cs.execute();
+//            return cs.getLong(6); // Отримуємо повернутий ID
+//        });
+//    }
 
     /** 1.1 Оновлення профілю */
     public void updateProfile(Long clientId, String firstName, String lastName, String phone, String email) {

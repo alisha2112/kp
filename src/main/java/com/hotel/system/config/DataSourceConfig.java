@@ -1,16 +1,12 @@
 package com.hotel.system.config;
 
 import com.hotel.system.config.routing.ClientRoutingDataSource;
-import com.hotel.system.config.routing.DbRole;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.HikariConfig;
-
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,87 +20,37 @@ public class DataSourceConfig {
     @Bean
     @Primary
     public DataSource dataSource() {
-        return new ClientRoutingDataSource(url);
-    }
-}
-
-
-/*
-@Configuration
-public class DataSourceConfig {
-
-    @Value("${hotel.datasource.url}")
-    private String url;
-
-    // Читаємо налаштування для кожної ролі
-    @Value("${hotel.datasource.guest.username}") private String guestUser;
-    @Value("${hotel.datasource.guest.password}") private String guestPass;
-
-    @Value("${hotel.datasource.client.username}") private String clientUser;
-    @Value("${hotel.datasource.client.password}") private String clientPass;
-
-    @Value("${hotel.datasource.admin.username}") private String adminUser;
-    @Value("${hotel.datasource.admin.password}") private String adminPass;
-
-    @Value("${hotel.datasource.manager.username}") private String managerUser;
-    @Value("${hotel.datasource.manager.password}") private String managerPass;
-
-    @Value("${hotel.datasource.owner.username}") private String ownerUser;
-    @Value("${hotel.datasource.owner.password}") private String ownerPass;
-
-    @Value("${hotel.datasource.cleaner.username}") private String cleanerUser;
-    @Value("${hotel.datasource.cleaner.password}") private String cleanerPass;
-
-    @Value("${hotel.datasource.accountant.username}") private String accountantUser;
-    @Value("${hotel.datasource.accountant.password}") private String accountantPass;
-
-    @Bean
-    @Primary
-    public DataSource dataSource() {
         Map<Object, Object> targetDataSources = new HashMap<>();
 
-        // Створюємо реальні підключення
-        targetDataSources.put(DbRole.GUEST, buildDataSource(guestUser, guestPass));
-        targetDataSources.put(DbRole.CLIENT, buildDataSource(clientUser, clientPass));
-        targetDataSources.put(DbRole.ADMIN, buildDataSource(adminUser, adminPass));
-        targetDataSources.put(DbRole.MANAGER, buildDataSource(managerUser, managerPass));
-        targetDataSources.put(DbRole.OWNER, buildDataSource(ownerUser, ownerPass));
-        targetDataSources.put(DbRole.CLEANER, buildDataSource(cleanerUser, cleanerPass));
-        targetDataSources.put(DbRole.ACCOUNTANT, buildDataSource(accountantUser, accountantPass));
+        // Створюємо окремі пули для кожної ролі (креди з вашої методички)
+        targetDataSources.put("ADMIN", createPool("app_admin_user", "admin123"));
+        targetDataSources.put("MANAGER", createPool("app_manager_user", "manager123"));
+        targetDataSources.put("OWNER", createPool("app_owner_user", "owner123"));
+        targetDataSources.put("ACCOUNTANT", createPool("app_accountant_user", "money123"));
+        targetDataSources.put("CLEANER", createPool("app_cleaner_user", "cleaner123"));
+        targetDataSources.put("CLIENT", createPool("app_client_user", "client123"));
+        targetDataSources.put("GUEST", createPool("app_guest_user", "guest123"));
 
         ClientRoutingDataSource routingDataSource = new ClientRoutingDataSource();
         routingDataSource.setTargetDataSources(targetDataSources);
-
-        // За замовчуванням - Гість (безпека понад усе)
-        routingDataSource.setDefaultTargetDataSource(buildDataSource(guestUser, guestPass));
+        routingDataSource.setDefaultTargetDataSource(targetDataSources.get("GUEST"));
 
         return routingDataSource;
     }
 
-    private DataSource buildDataSource(String username, String password) {
+    private DataSource createPool(String user, String pass) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(this.url);
-        config.setUsername(username);
-        config.setPassword(password);
+        config.setJdbcUrl(url);
+        config.setUsername(user);
+        config.setPassword(pass);
         config.setDriverClassName("org.postgresql.Driver");
 
-        // КЛЮЧОВІ НАЛАШТУВАННЯ ДЛЯ ВИДИМОСТІ:
-        // 1. Мінімальна кількість з'єднань, які ЗАВЖДИ відкриті
-        config.setMinimumIdle(1);
-        // 2. Максимальна кількість з'єднань у пулі
-        config.setMaximumPoolSize(5);
-        // 3. Унікальне ім'я для моніторингу (буде видно в Postgres)
-        config.addDataSourceProperty("ApplicationName", "HotelApp_" + username);
+        config.setMinimumIdle(1); // Тримати 1 з'єднання завжди
+        config.setMaximumPoolSize(2);
+        config.setInitializationFailTimeout(0); // Не зупиняти додаток, якщо база тимчасово недоступна
+
+        config.addDataSourceProperty("ApplicationName", "HotelApp_" + user);
 
         return new HikariDataSource(config);
     }
-
-//    private DriverManagerDataSource buildDataSource(String username, String password) {
-//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-//        dataSource.setDriverClassName("org.postgresql.Driver");
-//        dataSource.setUrl(this.url);
-//        dataSource.setUsername(username);
-//        dataSource.setPassword(password);
-//        return dataSource;
-//    }
-}*/
+}

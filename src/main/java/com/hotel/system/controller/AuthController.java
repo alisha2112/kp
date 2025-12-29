@@ -1,50 +1,82 @@
 package com.hotel.system.controller;
 
+import com.hotel.system.config.routing.DbContextHolder;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor // Це автоматично підключить JdbcTemplate через конструктор
 public class AuthController {
+
+    private final JdbcTemplate jdbcTemplate;
 
     @Value("${hotel.datasource.url}")
     private String dbUrl;
 
-    // Цей метод відповідає на POST запит від форми логіна
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username,
                                    @RequestParam String password,
                                    HttpSession session) {
 
-        // Спроба підключитися до бази даних з введеними користувачем даними
+        // 1. Спроба підключення до БД (це те, що створює сесію в pgAdmin)
         try (Connection conn = DriverManager.getConnection(dbUrl, username, password)) {
 
-            // Якщо SQLException не виникло — пароль вірний!
+            // ВИЗНАЧАЄМО РОЛЬ
+            String role = determineRole(username);
 
-            // Зберігаємо дані в сесії, щоб Interceptor міг їх дістати для кожного наступного запиту
+            // Зберігаємо дані в сесії для Interceptor
             session.setAttribute("DB_USER", username);
             session.setAttribute("DB_PASS", password);
-
-            // Визначаємо роль для перенаправлення в браузері
-            String role = determineRole(username);
             session.setAttribute("CURRENT_ROLE", role);
+
+            // 2. ОТРИМУЄМО ВНУТРІШНІ ID (щоб не було "нулів" у звітах та помилок 500)
+            if ("CLIENT".equals(role)) {
+                // Для клієнта шукаємо в таблиці клієнтів
+                String sql = "SELECT client_id FROM clients LIMIT 1";
+                try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+                    if (rs.next()) {
+                        session.setAttribute("USER_ID", rs.getLong("client_id"));
+                    }
+                }
+            } else if (!"GUEST".equals(role) && !"OWNER".equals(role)) {
+                // Для працівників (адмін, менеджер, прибиральник, бухгалтер)
+                String sql = "SELECT employee_id, hotel_id FROM employees WHERE position ILIKE ? LIMIT 1";
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setString(1, "%" + role + "%");
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next()) {
+                        session.setAttribute("USER_ID", rs.getLong("employee_id"));
+                        session.setAttribute("HOTEL_ID", rs.getLong("hotel_id"));
+                    }
+                }
+            }
+
+            // 3. ПЕРЕМИКАЄМО КОНТЕКСТ ДЛЯ DATASOURCE
+            // Тепер змінна 'role' точно доступна тут
+            DbContextHolder.setRole(role);
+
+            // 4. ПРИМУСОВИЙ ЗАПИТ (щоб з'єднання миттєво з'явилося в pgAdmin)
+            try {
+                jdbcTemplate.execute("SELECT 1");
+            } catch (Exception e) {
+                System.out.println("Wait for pool: " + e.getMessage());
+            }
 
             return ResponseEntity.ok(Map.of(
                     "message", "Database connection established",
-                    "role", role,
-                    "dbUser", username
+                    "role", role
             ));
 
         } catch (SQLException e) {
-            // Якщо база відмовила в доступі
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Database access denied: " + e.getMessage());
         }
@@ -53,68 +85,19 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
+        DbContextHolder.clear();
         return ResponseEntity.ok("Disconnected from Database");
     }
 
-    // Допоміжний метод для визначення ролі за іменем користувача БД
     private String determineRole(String username) {
-        if (username.contains("admin")) return "ADMIN";
-        if (username.contains("manager")) return "MANAGER";
-        if (username.contains("owner")) return "OWNER";
-        if (username.contains("accountant")) return "ACCOUNTANT";
-        if (username.contains("cleaner")) return "CLEANER";
-        if (username.contains("client")) return "CLIENT";
+        String u = username.toLowerCase();
+        if (u.contains("admin")) return "ADMIN";
+        if (u.contains("manager")) return "MANAGER";
+        if (u.contains("owner")) return "OWNER";
+        if (u.contains("accountant")) return "ACCOUNTANT";
+        if (u.contains("cleaner")) return "CLEANER";
+        if (u.contains("client")) return "CLIENT";
         return "GUEST";
     }
 }
 
-//import com.hotel.system.service.AuthService;
-//import jakarta.servlet.http.HttpSession;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.Map;
-//
-//@RestController
-//@RequestMapping("/api/auth")
-//@RequiredArgsConstructor
-//public class AuthController {
-//
-//    private final AuthService authService;
-//
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestParam String phone, HttpSession session) {
-//        // 1. Знаходимо користувача в БД
-//        Map<String, Object> user = authService.universalLogin(phone);
-//
-//        if (user != null) {
-//            String role = (String) user.get("role");
-//
-//            // 2. Зберігаємо дані в сесії
-//            // Це критичний момент: саме тут ми кажемо системі, ким бути далі.
-//            session.setAttribute("CURRENT_ROLE", role);
-//            session.setAttribute("USER_ID", user.get("id"));
-//
-//            // Якщо це співробітник, зберігаємо ID готелю
-//            if ("EMPLOYEE".equals(user.get("type"))) {
-//                session.setAttribute("HOTEL_ID", user.get("hotel_id"));
-//            }
-//
-//            return ResponseEntity.ok(Map.of(
-//                    "message", "Login successful",
-//                    "role", role,
-//                    "user", user
-//            ));
-//        }
-//
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found via phone number");
-//    }
-//
-//    @PostMapping("/logout")
-//    public ResponseEntity<?> logout(HttpSession session) {
-//        session.invalidate();
-//        return ResponseEntity.ok("Logged out");
-//    }
-//}

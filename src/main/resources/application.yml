@@ -3,38 +3,22 @@ server:
 
 hotel:
   datasource:
-    # Заміни 'hotel_db' на назву своєї бази даних
-    url: jdbc:postgresql://localhost:5432/kursowa
+    # Важливо: назви мають точно збігатися з тими, що в коді Java
+    url: jdbc:postgresql://localhost:5432/kursowa?ApplicationName=HotelApp_Backend
+    username: your_username
+    password: your_password
+    driver-class-name: org.postgresql.Driver
 
-#    # Користувачі, створені в security.sql
-#    guest:
-#      username: app_guest_user
-#      password: guest123
-#
-#    client:
-#      username: app_client_user
-#      password: client123
-#
-#    admin:
-#      username: app_admin_user
-#      password: admin123
-#
-#    manager:
-#      username: app_manager_user
-#      password: manager123
-#
-#    owner:
-#      username: app_owner_user
-#      password: owner123
-#
-#    cleaner:
-#      username: app_cleaner_user
-#      password: cleaner123
-#
-#    accountant:
-#      username: app_accountant_user
-#      password: money123
+    # Налаштування пулу всередині вашого префікса
+    hikari:
+      minimum-idle: 0
+      maximum-pool-size: 10
+      idle-timeout: 20000
+      max-lifetime: 1800000
 
 spring:
   thymeleaf:
     cache: false
+  # Якщо ви використовуєте JPA/Hibernate, йому все одно потрібні ці дані:
+  jpa:
+    show-sql: true

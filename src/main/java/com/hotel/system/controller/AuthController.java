@@ -64,12 +64,24 @@ public class AuthController {
             // Тепер змінна 'role' точно доступна тут
             DbContextHolder.setRole(role);
 
-            // 4. ПРИМУСОВИЙ ЗАПИТ (щоб з'єднання миттєво з'явилося в pgAdmin)
+            // У вашому AuthController.java всередині методу login:
+
+// ... після DbContextHolder.setRole(role);
+
+// Примусово робимо запит до бази саме через Routed DataSource
             try {
                 jdbcTemplate.execute("SELECT 1");
+                System.out.println(">>> [DB] Connection triggered for user: " + username);
             } catch (Exception e) {
-                System.out.println("Wait for pool: " + e.getMessage());
+                System.out.println(">>> [DB] Force connect failed: " + e.getMessage());
             }
+
+//            // 4. ПРИМУСОВИЙ ЗАПИТ (щоб з'єднання миттєво з'явилося в pgAdmin)
+//            try {
+//                jdbcTemplate.execute("SELECT 1");
+//            } catch (Exception e) {
+//                System.out.println("Wait for pool: " + e.getMessage());
+//            }
 
             return ResponseEntity.ok(Map.of(
                     "message", "Database connection established",

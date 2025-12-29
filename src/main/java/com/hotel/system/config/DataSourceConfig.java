@@ -45,12 +45,31 @@ public class DataSourceConfig {
         config.setPassword(pass);
         config.setDriverClassName("org.postgresql.Driver");
 
-        config.setMinimumIdle(1); // Тримати 1 з'єднання завжди
-        config.setMaximumPoolSize(2);
-        config.setInitializationFailTimeout(0); // Не зупиняти додаток, якщо база тимчасово недоступна
+        // --- КЛЮЧОВІ НАЛАШТУВАННЯ ДЛЯ ДЕМОНСТРАЦІЇ ---
+        config.setMinimumIdle(0);          // Не створювати з'єднання при старті
+        config.setMaximumPoolSize(5);      // Максимум 5 з'єднань на роль
+        config.setIdleTimeout(30000);      // Закрити з'єднання через 30 сек бездіяльності
+        config.setInitializationFailTimeout(0);
 
-        config.addDataSourceProperty("ApplicationName", "HotelApp_" + user);
+        // Це допоможе вам у pgAdmin в колонці "Application Name" побачити хто це
+        config.addDataSourceProperty("ApplicationName", "HotelApp_" + user.toUpperCase());
 
         return new HikariDataSource(config);
     }
+
+//    private DataSource createPool(String user, String pass) {
+//        HikariConfig config = new HikariConfig();
+//        config.setJdbcUrl(url);
+//        config.setUsername(user);
+//        config.setPassword(pass);
+//        config.setDriverClassName("org.postgresql.Driver");
+//
+//        config.setMinimumIdle(1); // Тримати 1 з'єднання завжди
+//        config.setMaximumPoolSize(2);
+//        config.setInitializationFailTimeout(0); // Не зупиняти додаток, якщо база тимчасово недоступна
+//
+//        config.addDataSourceProperty("ApplicationName", "HotelApp_" + user);
+//
+//        return new HikariDataSource(config);
+//    }
 }

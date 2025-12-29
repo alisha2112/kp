@@ -9,9 +9,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // Реєструємо наш перехоплювач для всіх URL (/**)
-        // Це гарантує, що перед виконанням будь-якого контролера
-        // буде встановлено правильну роль користувача в БД
-        registry.addInterceptor(new RoleInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(new RoleInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns("/css/**", "/js/**", "/images/**", "/favicon.ico", "/error");
+        // Додано /error, щоб уникнути циклічної перевірки при помилках
     }
 }

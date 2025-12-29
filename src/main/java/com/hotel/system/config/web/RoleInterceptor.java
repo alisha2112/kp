@@ -11,16 +11,12 @@ public class RoleInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         HttpSession session = request.getSession();
-        String dbUser = (String) session.getAttribute("DB_USER");
+        String dbUser = (String) session.getAttribute("DB_USER"); // Беремо реальне ім'я (app_admin_user)
         String dbPass = (String) session.getAttribute("DB_PASS");
-        String role = (String) session.getAttribute("CURRENT_ROLE");
 
-        if (dbUser != null && role != null) {
-            // Ми встановлюємо і креди, і РОЛЬ, щоб RoutingDataSource вибрав правильний пул
-            DbContextHolder.setCredentials(dbUser, dbPass, role);
-
-            // Додай цей рядок для дебагу в консоль IntelliJ - ти побачиш, чи перемикається роль
-            System.out.println(">>> [ROUTING] Request: " + request.getRequestURI() + " | Role: " + role);
+        if (dbUser != null) {
+            // Встановлюємо саме dbUser як ключ для DataSource
+            DbContextHolder.setCredentials(dbUser, dbPass, dbUser);
         }
         return true;
     }

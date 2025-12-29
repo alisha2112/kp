@@ -15,7 +15,8 @@ public class AdminPageController {
     // Допоміжний метод для перевірки доступу рядок 18 || "MANAGER".equals(role)
     private boolean isAdmin(HttpSession session) {
         String role = (String) session.getAttribute("CURRENT_ROLE");
-        return "ADMIN".equals(role);
+        // Тепер role знову буде "ADMIN", а не "app_admin_user"
+        return "ADMIN".equalsIgnoreCase(role);
     }
 
     @GetMapping("/dashboard")

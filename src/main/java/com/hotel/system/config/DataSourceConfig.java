@@ -56,20 +56,4 @@ public class DataSourceConfig {
 
         return new HikariDataSource(config);
     }
-
-//    private DataSource createPool(String user, String pass) {
-//        HikariConfig config = new HikariConfig();
-//        config.setJdbcUrl(url);
-//        config.setUsername(user);
-//        config.setPassword(pass);
-//        config.setDriverClassName("org.postgresql.Driver");
-//
-//        config.setMinimumIdle(1); // Тримати 1 з'єднання завжди
-//        config.setMaximumPoolSize(2);
-//        config.setInitializationFailTimeout(0); // Не зупиняти додаток, якщо база тимчасово недоступна
-//
-//        config.addDataSourceProperty("ApplicationName", "HotelApp_" + user);
-//
-//        return new HikariDataSource(config);
-//    }
 }

@@ -39,8 +39,6 @@ public class PageController {
             @RequestParam(required = false) String comfortLevel,
             Model model) {
 
-        // ВАРІАНТ А: Використовуємо ОДНУ універсальну функцію для всіх.
-        // Вона тепер повертає room_id, тому бронювання працюватиме.
         List<Map<String, Object>> rooms = clientService.searchRoomsPublic(city, checkIn, checkOut, guests, comfortLevel);
 
         model.addAttribute("rooms", rooms);
@@ -71,9 +69,13 @@ public class PageController {
 
     // --- Auth ---
     @GetMapping("/login")
-    public String login() {
-        return "login";
+    public String loginPage() {
+        return "login"; // повертає файл login.html
     }
+//    @GetMapping("/login")
+//    public String login() {
+//        return "login";
+//    }
 
     @GetMapping("/register")
     public String register() {

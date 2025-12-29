@@ -1295,10 +1295,13 @@
                 if (data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No campaign data found.</td></tr>';
                 } else {
+                    // --- 11. ROI REPORT (ВИПРАВЛЕНО) ---
                     data.forEach(row => {
                         let roiClass = 'text-muted';
                         let roiIcon = '';
-                        const roiVal = parseFloat(row.roi);
+
+                        // Використовуємо roi_percent, бо так приходить із сервера
+                        const roiVal = parseFloat(row.roi_percent);
 
                         if (roiVal > 0) {
                             roiClass = 'text-success fw-bold';
@@ -1309,19 +1312,25 @@
                         }
 
                         tbody.innerHTML += `
-                            <tr>
-                                <td class="ps-3 fw-bold text-dark text-capitalize">${row.campaign_type}</td>
-                                <td class="small text-secondary">
-                                    ${row.start_date} <span class="mx-1">&rarr;</span> ${row.end_date}
-                                </td>
-                                <td class="text-end text-danger font-monospace">-${row.cost} ₴</td>
-                                <td class="text-end text-success font-monospace">+${row.revenue} ₴</td>
-                                <td class="text-center">${row.orders}</td>
-                                <td class="text-end pe-3 ${roiClass}">
-                                    ${roiIcon}${row.roi}%
-                                </td>
-                            </tr>
-                        `;
+        <tr>
+            <td class="ps-3 fw-bold text-dark text-capitalize">${row.campaign_type}</td>
+            <td class="small text-secondary">
+                ${row.start_date} <span class="mx-1">&rarr;</span> ${row.end_date}
+            </td>
+            <td class="text-end text-danger font-monospace">-${row.total_cost} ₴</td>
+            <td class="text-end text-success font-monospace">+${row.revenue_generated} ₴</td>
+            <td class="text-center">${row.orders_count}</td>
+            <td class="text-end pe-3 ${roiClass}">
+                ${roiIcon}${row.roi_percent}%
+            </td>
+        </tr>    <
+    <
+    <
+    <
+
+    <
+</tr>
+    `;
                     });
                 }
 

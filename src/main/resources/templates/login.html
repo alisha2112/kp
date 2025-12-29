@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Login - HotelGroup</title>
+    <title>Database Login - HotelGroup</title>
 </head>
 <body>
 
@@ -14,32 +14,33 @@
             <div class="logo-box mx-auto mb-4 bg-dark">
                 <span class="text-white font-serif fw-bold fs-4">H</span>
             </div>
-            <h2 class="font-serif fw-bold mb-2">Hotel Portal</h2>
-            <p class="text-secondary small">Sign in to access your bookings</p>
+            <h2 class="font-serif fw-bold mb-2">Secure Gateway</h2>
+            <p class="text-secondary small">Enter your <b>Database Credentials</b> to continue</p>
         </div>
 
         <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1">
 
-            <div th:if="${param.error}" class="alert alert-danger py-2 small mb-4">
-                Login failed. Please check your phone number.
-            </div>
-
             <form id="loginForm">
-                <div class="mb-4">
-                    <label for="phone" class="form-label text-secondary text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Phone Number</label>
-                    <input type="text" class="form-control rounded-1 p-2" id="phone" name="phone" placeholder="+380..." required>
+                <div class="mb-3">
+                    <label for="username" class="form-label text-secondary text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">DB Username</label>
+                    <input type="text" class="form-control rounded-1 p-2" id="username" name="username" placeholder="app_admin_user" required>
                 </div>
 
-                <button type="submit" class="btn btn-luxury w-100 py-2">
-                    Sign In
+                <div class="mb-4">
+                    <label for="password" class="form-label text-secondary text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">DB Password</label>
+                    <input type="password" class="form-control rounded-1 p-2" id="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-luxury w-100 py-2 text-uppercase fw-bold" style="letter-spacing: 0.1em;">
+                    Connect to Database
                 </button>
             </form>
 
+            <div id="loginError" class="alert alert-danger py-2 small mt-4" style="display: none;">
+                Invalid database credentials. Access denied.
+            </div>
+
             <div class="mt-4 text-center border-top pt-4">
-                 <span class="bg-white px-2 text-secondary small position-relative" style="top: -28px;">
-                     Or return to website
-                 </span>
-                <br>
                 <a href="/" class="text-dark text-decoration-none small fw-bold">Back to Home</a>
             </div>
         </div>
@@ -49,55 +50,153 @@
 <script layout:fragment="script">
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const phone = document.getElementById('phone').value;
-        const btn = this.querySelector('button');
 
+        const errorDiv = document.getElementById('loginError');
+        const btn = this.querySelector('button');
+        const formData = new FormData(this);
+
+        // Ховаємо помилку перед новою спробою
+        errorDiv.style.display = 'none';
         btn.disabled = true;
-        btn.innerText = "Checking...";
+        btn.innerText = "Authenticating...";
 
         try {
+            // Відправляємо username та password на сервер
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'phone=' + encodeURIComponent(phone)
+                body: new URLSearchParams(formData).toString()
             });
 
             if (response.ok) {
                 const data = await response.json();
 
-                // --- ЛОГІКА РОЗДІЛЕННЯ ---
-                // data.role приходить з AuthController
-                if (data.role === 'ADMIN') {
-                    window.location.href = '/admin/dashboard';
-                } else if (data.role === 'MANAGER') {
-                    window.location.href = '/management/dashboard'; // <--- Окрема сторінка
-                } else if (data.role === 'CLEANER') {
-                    // Якщо буде сторінка для прибиральниці
-                    window.location.href = '/cleaner/schedule';
-                } else if (data.role === 'OWNER') {
-                    // Якщо буде сторінка для власника
-                    window.location.href = '/owner/dashboard';
-                } else if (data.role === 'ACCOUNTANT') {
-                    // Якщо буде сторінка для власника
-                    window.location.href = '/accountant/dashboard';
-                } else {
-                    // Для CLIENT та GUEST
-                    window.location.href = '/profile';
-                }
+                // Перенаправлення залежно від ролі, яку повернув сервер
+                if (data.role === 'ADMIN') window.location.href = '/admin/dashboard';
+                else if (data.role === 'MANAGER') window.location.href = '/management/dashboard';
+                else if (data.role === 'OWNER') window.location.href = '/owner/dashboard';
+                else if (data.role === 'ACCOUNTANT') window.location.href = '/accountant/dashboard';
+                else if (data.role === 'CLEANER') window.location.href = '/cleaner/schedule';
+                else window.location.href = '/profile';
 
             } else {
-                alert('User not found via phone number');
+                errorDiv.style.display = 'block';
                 btn.disabled = false;
-                btn.innerText = "Sign In";
+                btn.innerText = "Connect to Database";
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Login error');
+            alert('System connection error');
             btn.disabled = false;
-            btn.innerText = "Sign In";
+            btn.innerText = "Connect to Database";
         }
     });
 </script>
 
 </body>
 </html>
+
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
+<!--      layout:decorate="~{layout}">-->
+<!--<head>-->
+<!--    <title>Login - HotelGroup</title>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<div layout:fragment="content" class="d-flex align-items-center justify-content-center min-vh-100 bg-light">-->
+<!--    <div class="container" style="max-width: 450px;">-->
+
+<!--        <div class="text-center mb-5">-->
+<!--            <div class="logo-box mx-auto mb-4 bg-dark">-->
+<!--                <span class="text-white font-serif fw-bold fs-4">H</span>-->
+<!--            </div>-->
+<!--            <h2 class="font-serif fw-bold mb-2">Hotel Portal</h2>-->
+<!--            <p class="text-secondary small">Sign in to access your bookings</p>-->
+<!--        </div>-->
+
+<!--        <div class="bg-white p-5 shadow-sm border-top border-4 border-dark rounded-1">-->
+
+<!--            <div th:if="${param.error}" class="alert alert-danger py-2 small mb-4">-->
+<!--                Login failed. Please check your phone number.-->
+<!--            </div>-->
+
+<!--            <form id="loginForm">-->
+<!--                <div class="mb-4">-->
+<!--                    <label for="phone" class="form-label text-secondary text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Phone Number</label>-->
+<!--                    <input type="text" class="form-control rounded-1 p-2" id="phone" name="phone" placeholder="+380..." required>-->
+<!--                </div>-->
+
+<!--                <button type="submit" class="btn btn-luxury w-100 py-2">-->
+<!--                    Sign In-->
+<!--                </button>-->
+<!--            </form>-->
+
+<!--            <div class="mt-4 text-center border-top pt-4">-->
+<!--                 <span class="bg-white px-2 text-secondary small position-relative" style="top: -28px;">-->
+<!--                     Or return to website-->
+<!--                 </span>-->
+<!--                <br>-->
+<!--                <a href="/" class="text-dark text-decoration-none small fw-bold">Back to Home</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script layout:fragment="script">-->
+<!--    document.getElementById('loginForm').addEventListener('submit', async function(e) {-->
+<!--        e.preventDefault();-->
+<!--        const phone = document.getElementById('phone').value;-->
+<!--        const btn = this.querySelector('button');-->
+
+<!--        btn.disabled = true;-->
+<!--        btn.innerText = "Checking...";-->
+
+<!--        try {-->
+<!--            const response = await fetch('/api/auth/login', {-->
+<!--                method: 'POST',-->
+<!--                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },-->
+<!--                body: 'phone=' + encodeURIComponent(phone)-->
+<!--            });-->
+
+<!--            if (response.ok) {-->
+<!--                const data = await response.json();-->
+
+<!--                // -&#45;&#45; ЛОГІКА РОЗДІЛЕННЯ -&#45;&#45;-->
+<!--                // data.role приходить з AuthController-->
+<!--                if (data.role === 'ADMIN') {-->
+<!--                    window.location.href = '/admin/dashboard';-->
+<!--                } else if (data.role === 'MANAGER') {-->
+<!--                    window.location.href = '/management/dashboard'; // <-&#45;&#45; Окрема сторінка-->
+<!--                } else if (data.role === 'CLEANER') {-->
+<!--                    // Якщо буде сторінка для прибиральниці-->
+<!--                    window.location.href = '/cleaner/schedule';-->
+<!--                } else if (data.role === 'OWNER') {-->
+<!--                    // Якщо буде сторінка для власника-->
+<!--                    window.location.href = '/owner/dashboard';-->
+<!--                } else if (data.role === 'ACCOUNTANT') {-->
+<!--                    // Якщо буде сторінка для власника-->
+<!--                    window.location.href = '/accountant/dashboard';-->
+<!--                } else {-->
+<!--                    // Для CLIENT та GUEST-->
+<!--                    window.location.href = '/profile';-->
+<!--                }-->
+
+<!--            } else {-->
+<!--                alert('User not found via phone number');-->
+<!--                btn.disabled = false;-->
+<!--                btn.innerText = "Sign In";-->
+<!--            }-->
+<!--        } catch (error) {-->
+<!--            console.error('Error:', error);-->
+<!--            alert('Login error');-->
+<!--            btn.disabled = false;-->
+<!--            btn.innerText = "Sign In";-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->

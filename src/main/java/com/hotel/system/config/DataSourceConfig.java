@@ -8,10 +8,28 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariConfig;
+
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
+@Configuration
+public class DataSourceConfig {
+
+    @Value("${hotel.datasource.url}")
+    private String url;
+
+    @Bean
+    @Primary
+    public DataSource dataSource() {
+        return new ClientRoutingDataSource(url);
+    }
+}
+
+
+/*
 @Configuration
 public class DataSourceConfig {
 
@@ -63,12 +81,30 @@ public class DataSourceConfig {
         return routingDataSource;
     }
 
-    private DriverManagerDataSource buildDataSource(String username, String password) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl(this.url);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-        return dataSource;
+    private DataSource buildDataSource(String username, String password) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(this.url);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setDriverClassName("org.postgresql.Driver");
+
+        // КЛЮЧОВІ НАЛАШТУВАННЯ ДЛЯ ВИДИМОСТІ:
+        // 1. Мінімальна кількість з'єднань, які ЗАВЖДИ відкриті
+        config.setMinimumIdle(1);
+        // 2. Максимальна кількість з'єднань у пулі
+        config.setMaximumPoolSize(5);
+        // 3. Унікальне ім'я для моніторингу (буде видно в Postgres)
+        config.addDataSourceProperty("ApplicationName", "HotelApp_" + username);
+
+        return new HikariDataSource(config);
     }
-}
+
+//    private DriverManagerDataSource buildDataSource(String username, String password) {
+//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+//        dataSource.setDriverClassName("org.postgresql.Driver");
+//        dataSource.setUrl(this.url);
+//        dataSource.setUsername(username);
+//        dataSource.setPassword(password);
+//        return dataSource;
+//    }
+}*/
